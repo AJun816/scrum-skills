@@ -1,0 +1,273 @@
+---
+name: 4-vue-frontend-dev
+description: |
+  【4】AFF联盟营销数据分析系统的Vue前端开发技能。基于 Vue 3 + Element Plus + Pinia 技术栈，
+  配合 java-backend-dev 技能设计的后端API，结合 frontend-design 技能进行高质量页面开发。
+  在编写任何代码前先分析后端API接口和项目架构，再按照前端分层规范编写代码。
+  适用场景：(1)新增/修改前端页面 (2)对接后端API接口 (3)实现业务组件
+  (4)状态管理设计 (5)修复前端Bug (6)前端代码重构 (7)UI/UX优化
+  当用户要求编写Vue前端代码、页面、组件、API对接等任务时使用此技能。
+---
+
+# AFF 系统 Vue 前端开发技能
+
+> 🎯 **正在使用：Vue前端开发技能** - 负责Vue 3页面开发、组件设计、API对接、状态管理
+
+## 核心工作流程
+
+每次接到前端开发需求，必须按以下顺序执行：
+
+### Phase 1: 需求分析与后端API确认（必须）
+1. 读取 `references/architecture.md` 了解前端项目整体架构
+2. 确认需求对应的**后端API接口**：
+   - 使用 `java-backend-dev` 技能的 `references/architecture.md` 查看后端域结构
+   - 定位后端 Controller 的 `@RequestMapping` 路径和请求/响应 DTO
+   - 确认 API 请求方法(GET/POST/PUT/DELETE)、参数格式、响应结构 `ApiResponse<T>`
+3. 定位需求所属的**功能模块**（views/组件/composable 归属）
+4. 检查是否存在可复用的现有代码（组件、composables、API函数）
+
+### Phase 2: 设计（按需）
+1. 对于新页面或重大UI变更，使用 `frontend-design` 技能进行视觉设计
+2. 同时参考 `nielsen-ui-design` 技能确保可用性（如有）
+3. 设计要点：
+   - 页面布局结构（PageLayout / 自定义布局）
+   - 组件拆分方案（单文件不超过800行）
+   - 状态管理方案（composable vs Pinia store）
+   - 用户交互流程（loading、错误提示、空状态）
+
+### Phase 3: 编码实现
+1. 读取 `references/code-patterns.md` 获取各层代码模板
+2. 读取 `references/api-integration.md` 了解前后端对接规范
+3. **分层编写顺序**：
+   - API 层（`src/api/`）— 封装后端接口调用
+   - Store 层（`src/store/`）— 全局状态管理（如需要）
+   - Composable 层（`src/composables/`）— 提取可复用逻辑
+   - Component 层（`src/components/`）— 子组件实现
+   - View 层（`src/views/`）— 页面组装
+   - Router（`src/router/`）— 路由注册
+4. 每层遵循项目现有命名和风格规范
+
+### Phase 4: 验证
+1. 确保无语法错误（检查 `<template>`、`<script setup>`、`<style>` 三段结构）
+2. 检查 import 路径正确性
+3. 确认 Element Plus 组件使用正确（props/events/slots）
+4. 验证 API 调用参数与后端 DTO 字段对齐
+
+## 前端分层规范速查
+
+| 层 | 目录 | 职责 | 依赖关系 |
+|---|---|---|---|
+| API | `src/api/` | 封装HTTP请求，按业务域拆分模块 | config.js, axios |
+| Store | `src/store/modules/` | Pinia全局状态（平台选择、用户信息等） | API层 |
+| Composable | `src/composables/` | 提取可复用的状态+逻辑（ref/computed/方法） | API层, Store层 |
+| Component | `src/components/{Feature}/` | 按功能域组织的子组件 | Composable, Element Plus |
+| View | `src/views/` | 页面级组件，组装子组件 | Component, Composable |
+| Router | `src/router/` | 路由定义，懒加载页面组件 | View |
+| Utils | `src/utils/` | 纯工具函数（格式化、计算等） | 无 |
+
+## 关键约束
+
+- **组件规范**: 使用 `<script setup>` 语法，`defineProps` + `defineEmits` 声明接口
+- **UI框架**: 统一使用 Element Plus 组件，不混用原生HTML表单元素
+- **页面包装**: 标准页面使用 `PageLayout` 组件包裹，提供 title/description/actions
+- **状态提取**: 当页面逻辑超过 300 行，必须提取 composable；单文件不超过 800 行
+- **API调用**: 通过 `src/api/` 模块调用后端，不在组件中直接写 axios 请求
+- **错误处理**: API调用必须 try-catch，使用 `ElMessage.error()` 展示用户友好错误信息
+- **加载状态**: 所有异步操作必须维护 `loading` 状态，配合 `v-loading` 或按钮 `:loading`
+- **平台上下文**: 通过 `usePlatformStoreHook()` 获取当前平台选择，HTTP请求头自动注入
+- **日期处理**: 默认日期范围使用动态计算（如最近7天），禁止硬编码日期
+- **命名规范**:
+  - 页面文件: `PascalCase.vue`（如 `DataOptimization.vue`）
+  - 组件文件: `PascalCase.vue`，按功能域放入 `components/{Feature}/` 目录
+  - Composable: `use{Feature}.js`（如 `useActivityManagement.js`）
+  - API模块: `kebab-case.js`（如 `skro-logs.js`）
+  - Store模块: `kebab-case.ts`（如 `platform.ts`）
+
+## 与后端技能协作
+
+当需求涉及前后端同步开发时：
+1. 先用 `java-backend-dev` 技能完成后端 API 设计/实现
+2. 从后端 Controller 提取 URL 路径、Request DTO 字段、Response DTO 结构
+3. 前端 API 模块参数名必须与后端 DTO 字段严格对齐
+4. 后端统一返回 `ApiResponse<T>` → 前端通过 `response.data` 获取业务数据
+
+## 代码规范与质量标准
+
+### 代码简洁之道
+
+**核心原则：**
+- 严格遵循《代码简洁之道》(Clean Code) 的理念和实践
+- 编写代码前必须优先查看项目编码规范文档
+- 编码规范由`3-system-architect`在项目初期设计并持续维护
+
+**编码规范文档：**
+- 前端编码规范：`references/frontend-coding-standards.md`
+- 包含命名规范、组件结构、代码风格、注释规范等
+
+### 代码质量要求
+
+**Clean Code 实践：**
+- **有意义的命名**：组件名、函数名、变量名要清晰表达意图
+- **组件简短**：单个组件不超过800行，复杂组件需拆分
+- **单一职责**：每个组件只负责一个功能
+- **避免重复**：提取公共逻辑到 composables，遵循DRY原则
+- **清晰的注释**：只在必要时注释，代码应自解释
+- **错误处理**：统一使用 ElMessage 展示错误，记录日志
+
+**代码审查标准：**
+- 代码可读性：命名清晰、结构合理、逻辑简洁
+- 代码复用性：避免重复代码，提取 composables
+- 代码可维护性：单一职责、低耦合、高内聚
+- 代码可测试性：便于编写单元测试
+- 代码性能：避免不必要的重渲染、优化列表渲染
+- 用户体验：加载状态、错误提示、空状态处理
+
+## 团队主动协作
+
+### 主动介入时机
+
+**前端开发主动介入的时机：**
+- 当`2-product-manager`定义UI需求时，主动介入设计组件结构和交互流程
+- 当`3-system-architect`设计前端架构时，主动介入实现组件和状态管理
+- 当`4-java-backend-dev`提供API接口时，主动介入集成API并测试
+- 当`6-bug-handler`报告前端bug时，主动介入修复并添加测试
+- 当`5-webapp-testing`需要UI测试时，主动介入提供测试支持
+- 当`4-frontend-design`提供UI设计稿时，主动介入实现UI组件
+- 当发现性能问题时，主动介入优化组件渲染和资源加载
+
+### 主动寻求帮助
+
+**遇到问题时主动协作：**
+- 业务逻辑不清楚时，主动联系`1-business-expert`确认业务规则
+- 需求理解有偏差时，主动联系`2-product-manager`澄清需求
+- 架构设计不确定时，主动联系`3-system-architect`评估技术方案
+- 后端API有问题时，主动联系`4-java-backend-dev`协调接口
+- UI/UX设计需要确认时，主动联系`4-frontend-design`
+- 部署和环境问题时，主动联系`5-devops-engineer`
+
+### 主动提供帮助
+
+**前端开发主动支持团队：**
+- 主动为后端提供前端需要的API接口说明
+- 主动为测试团队提供UI测试指导和测试环境
+- 主动进行代码审查，确保代码质量
+- 主动分享技术方案和实现经验
+- 主动优化用户体验，提升产品质量
+- 主动添加单元测试，防止回归问题
+- 主动记录组件文档，便于团队复用
+
+## 并行执行支持
+
+本技能支持多实例并行工作，多个前端开发可以同时处理不同需求，最大化开发效率。
+
+### 并行工作模式
+
+**多实例协作：**
+- 支持2-4个前端开发实例同时工作
+- 每个实例独立处理不同的页面或组件
+- 通过模块隔离和文件隔离避免冲突
+
+**典型场景：**
+```
+前端开发A: 实现活动管理页面 (views/ActivityManagement.vue)
+前端开发B: 实现数据分析页面 (views/DataAnalysis.vue)
+前端开发C: 开发通用组件库 (components/Common/)
+前端开发D: API对接和状态管理 (api/ + store/)
+```
+
+### 任务隔离策略
+
+**按页面隔离：**
+- 不同实例负责不同的页面（views/）
+- 每个页面独立的Vue文件，避免冲突
+- 页面间通过路由和状态管理通信
+
+**按功能模块隔离：**
+- 实例A: 活动管理模块（ActivityManagement/）
+- 实例B: 数据追踪模块（DataTracking/）
+- 实例C: 智能投放模块（AutoCampaign/）
+- 实例D: 图表分析模块（ChartAnalysis/）
+
+**按技术层次隔离：**
+- 实例A: 页面开发（views/ + router/）
+- 实例B: 组件开发（components/）
+- 实例C: API对接（api/ + composables/）
+- 实例D: 状态管理（store/）
+
+### 冲突预防
+
+**文件级锁定：**
+- 同一时间只有一个实例修改同一个Vue文件
+- Scrum Master维护文件锁定表
+- 需要修改同一文件时，协调顺序执行
+
+**组件接口优先：**
+- 跨组件协作先定义Props和Events接口
+- 各实例按照接口独立实现
+- 减少集成时的冲突
+
+**Git分支管理：**
+- 每个实例在独立的feature分支工作
+- 分支命名：`feature/frontend/{module}/{task-name}`
+- 完成后通过PR合并，自动检测冲突
+
+### 协作机制
+
+**API接口共享：**
+- 所有实例共享API模块定义（api/）
+- 避免重复封装相同的API调用
+- 通过共享知识库同步API接口
+
+**组件库共享：**
+- 通用组件统一维护（components/Common/）
+- 避免重复开发相同的组件
+- 组件文档实时更新
+
+**状态管理共享：**
+- Pinia store模块统一管理
+- 避免状态冲突和重复定义
+- 状态变更需要通知其他实例
+
+## 参考文件
+
+- **架构详解**: `references/architecture.md` — 项目目录结构、技术栈、模块职责
+- **代码模板**: `references/code-patterns.md` — 各层代码示例和最佳实践
+- **API对接**: `references/api-integration.md` — 前后端接口对接规范和错误处理
+
+## 缓存机制（Token优化）
+
+### 工作原理
+
+本技能使用智能缓存机制，大幅节约token消耗（节约率70-80%）：
+
+**首次使用：**
+- 分析前端项目结构和组件架构
+- 提取页面、组件、API接口信息
+- 生成缓存并保存到 `.claude/team-memory/4-vue-frontend-dev/`
+
+**后续使用：**
+- 优先加载缓存文件（快速、省token）
+- 使用git diff识别变更
+- 只读取变更的Vue文件
+- 增量更新缓存
+
+### 缓存文件
+
+缓存保存在 `.claude/team-memory/4-vue-frontend-dev/`：
+
+- `architecture-summary.md` - 前端架构概览
+- `pages-inventory.md` - 页面清单和路由
+- `components-library.md` - 组件库清单
+- `api-modules.md` - API模块清单
+- `composables-list.md` - Composable函数清单
+- `store-modules.md` - Pinia状态管理清单
+- `_cache-meta.json` - 缓存元数据（版本、更新时间）
+
+### 手动刷新
+
+如需重新生成缓存（例如大规模重构后）：
+```bash
+rm -rf .claude/team-memory/4-vue-frontend-dev/
+```
+
+下次使用时会自动重新生成缓存。
