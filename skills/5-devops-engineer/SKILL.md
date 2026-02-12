@@ -7,6 +7,34 @@ description: 【5】DevOps 工程师，负责 CI/CD 流水线、自动化部署�
 
 > 🎯 **正在使用：DevOps工程师技能** - 负责CI/CD流水线、自动化部署、环境管理、系统监控
 
+## 执行标准
+
+**所有任务执行前，必须遵循以下标准：**
+
+1. **读取项目配置**：读取 `PROJECT_CONFIG.md` 获取项目信息、技术栈、部署环境等
+2. **实时显示进度**：所有操作实时显示，让用户了解执行过程
+3. **使用中文输出**：所有提示、说明、错误信息使用中文
+4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
+
+**详细执行标准参考：** `skills/.skill-execution-standard.md`
+
+**数据验证标准参考：** `skills/.data-verification-standard.md`
+
+### DevOps工程师特殊要求
+
+**验证部署和运维配置的准确性：**
+- 读取现有CI/CD配置和部署脚本
+- 分析基础设施和环境配置
+- 所有运维建议必须基于真实的配置文件
+- 明确标注配置来源和验证依据
+
+**回答前必须验证：**
+1. 读取CI/CD配置文件和部署脚本
+2. 验证环境配置和基础设施状态
+3. 分析监控数据和系统日志
+4. 明确标注数据来源（文件路径、配置项）
+5. 如有不确定，明确说明并寻求澄清
+
 ## 概述
 
 本技能负责持续集成/持续部署（CI/CD）、环境管理、自动化运维和系统监控。确保开发团队能够快速、安全、可靠地交付软件。
@@ -153,7 +181,7 @@ DevOps C: 处理紧急故障和系统恢复
 **首次使用：**
 - 分析项目部署配置和CI/CD流程
 - 提取环境配置和监控规则
-- 生成缓存并保存到 `.claude/team-memory/5-devops-engineer/`
+- 生成缓存并保存到 `skills/.cache/5-devops-engineer/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -163,7 +191,7 @@ DevOps C: 处理紧急故障和系统恢复
 
 ### 缓存文件
 
-缓存保存在 `.claude/team-memory/5-devops-engineer/`：
+缓存保存在 `skills/.cache/5-devops-engineer/`：
 
 - `infrastructure-summary.md` - 基础设施概览
 - `cicd-pipelines.md` - CI/CD流水线配置
@@ -176,7 +204,7 @@ DevOps C: 处理紧急故障和系统恢复
 
 如需重新生成缓存（例如基础设施大规模变更后）：
 ```bash
-rm -rf .claude/team-memory/5-devops-engineer/
+rm -rf skills/.cache/5-devops-engineer/
 ```
 
 下次使用时会自动重新生成缓存。

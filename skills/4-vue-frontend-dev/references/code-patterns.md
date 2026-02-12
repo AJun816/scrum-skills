@@ -101,7 +101,7 @@ onMounted(() => {
 </script>
 ```
 
-### 复杂页面（带侧边工作台，如 AutoCampaign）
+### 复杂页面（带侧边工作台）
 
 ```vue
 <template>
@@ -414,7 +414,7 @@ const domainApi = axios.create({
   withCredentials: true
 });
 
-// 重试拦截器（与 skro-base.js 相同模式）
+// 重试拦截器（标准模式）
 domainApi.interceptors.response.use(
   response => response,
   async error => {
@@ -500,7 +500,7 @@ export const deleteItem = async (id) => {
 };
 ```
 
-### 域内模块拆分模式（参考 Skro）
+### 域内模块拆分模式
 
 当一个域的 API 较多时，拆分为多个子模块 + 统一入口：
 

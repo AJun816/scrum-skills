@@ -13,12 +13,12 @@
 ## 1. Controller 层
 
 ```java
-package com.aff.{category}.{platform}.interfaces;
+package com.{company}.{project}.{module}.interfaces;
 
-import com.aff.{category}.{platform}.application.{Platform}ApplicationService;
-import com.aff.{category}.{platform}.interfaces.request.*;
-import com.aff.{category}.{platform}.interfaces.response.*;
-import com.aff.common.response.ApiResponse;
+import com.{company}.{project}.{module}.application.{Module}ApplicationService;
+import com.{company}.{project}.{module}.interfaces.request.*;
+import com.{company}.{project}.{module}.interfaces.response.*;
+import com.{company}.{project}.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -75,7 +75,7 @@ public class {Platform}Controller {
 
 ### Request DTO (接口层)
 ```java
-package com.aff.{category}.{platform}.interfaces.request;
+package com.{company}.{project}.{category}.{platform}.interfaces.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -91,7 +91,7 @@ public class CreateResourceRequest {
 
 ### Response DTO (接口层)
 ```java
-package com.aff.{category}.{platform}.interfaces.response;
+package com.{company}.{project}.{category}.{platform}.interfaces.response;
 
 import lombok.Data;
 import java.util.List;
@@ -116,11 +116,11 @@ public class ResourceData {
 ## 3. Application Service 层
 
 ```java
-package com.aff.{category}.{platform}.application;
+package com.{company}.{project}.{category}.{platform}.application;
 
-import com.aff.{category}.{platform}.adapter.{Platform}ApiClient;
-import com.aff.{category}.{platform}.interfaces.request.*;
-import com.aff.{category}.{platform}.interfaces.response.*;
+import com.{company}.{project}.{category}.{platform}.adapter.{Platform}ApiClient;
+import com.{company}.{project}.{category}.{platform}.interfaces.request.*;
+import com.{company}.{project}.{category}.{platform}.interfaces.response.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -165,9 +165,9 @@ public class {Platform}ApplicationService {
 
 ### 领域事件
 ```java
-package com.aff.{category}.{platform}.domain.event;
+package com.{company}.{project}.{category}.{platform}.domain.event;
 
-import com.aff.common.event.DomainEvent;
+import com.{company}.{project}.common.event.DomainEvent;
 
 public class {Resource}CreatedEvent extends DomainEvent {
     private final Long resourceId;
@@ -197,7 +197,7 @@ public class {Resource}CreatedEvent extends DomainEvent {
 
 ### 领域模型 (聚合根)
 ```java
-package com.aff.{category}.{platform}.domain.model;
+package com.{company}.{project}.{category}.{platform}.domain.model;
 
 import lombok.Data;
 import lombok.Builder;
@@ -214,9 +214,9 @@ public class {Platform}Campaign {
 
 ### 仓储接口
 ```java
-package com.aff.{category}.{platform}.domain.repository;
+package com.{company}.{project}.{category}.{platform}.domain.repository;
 
-import com.aff.{category}.{platform}.domain.model.{Platform}Campaign;
+import com.{company}.{project}.{category}.{platform}.domain.model.{Platform}Campaign;
 import java.util.Optional;
 
 public interface {Platform}CampaignRepository {
@@ -232,7 +232,7 @@ public interface {Platform}CampaignRepository {
 
 ### 第三方 API 客户端
 ```java
-package com.aff.{category}.{platform}.adapter;
+package com.{company}.{project}.{category}.{platform}.adapter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -256,9 +256,9 @@ public class {Platform}ApiClient {
 
 ### Orchestration Adapter 实现
 ```java
-package com.aff.{category}.{platform}.adapter;
+package com.{company}.{project}.{category}.{platform}.adapter;
 
-import com.aff.orchestration.adapter.TrackerAdapter; // 或 TrafficSourceAdapter / AffiliateAdapter
+import com.{company}.{project}.orchestration.adapter.TrackerAdapter; // 或 TrafficSourceAdapter / AffiliateAdapter
 import org.springframework.stereotype.Component;
 
 @Component("{platformId}")  // Bean名称 = 平台ID (小写)
@@ -285,8 +285,8 @@ public class {Platform}TrackerAdapter implements TrackerAdapter {
 ## 6. 命名规范
 
 ### 包名
-- 分类: `com.aff.{affiliate|tracker|traffic}`
-- 平台: `com.aff.{category}.{platform}` (全小写，如 `com.aff.tracker.skro`)
+- 分类: `com.{company}.{project}.{affiliate|tracker|traffic}`
+- 平台: `com.{company}.{project}.{category}.{platform}` (全小写，如 `com.{company}.{project}.tracker.skro`)
 - 分层: `{platform}.{adapter|application|domain|infrastructure|interfaces}`
 
 ### 类名

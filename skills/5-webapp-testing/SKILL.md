@@ -8,6 +8,36 @@ license: Complete terms in LICENSE.txt
 
 > 🎯 **正在使用：Web应用测试技能** - 负责使用Playwright进行前端功能测试、UI行为验证、自动化测试
 
+## 执行标准
+
+**所有任务执行前，必须遵循以下标准：**
+
+1. **读取项目配置**：读取 `PROJECT_CONFIG.md` 获取项目信息、技术栈、业务域等
+2. **实时显示进度**：所有操作实时显示，让用户了解执行过程
+3. **使用中文输出**：所有提示、说明、错误信息使用中文
+4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
+
+**详细执行标准参考：** `skills/.skill-execution-standard.md`
+
+**数据验证标准参考：** `skills/.data-verification-standard.md`
+
+### 测试工程师特殊要求
+
+**验证测试的完整性：**
+- 读取被测代码，分析测试覆盖
+- 验证测试用例的准确性
+- 所有测试建议必须基于真实的代码分析
+- 明确标注测试依据（文件路径、行号）
+
+**回答前必须验证：**
+1. 读取被测代码文件（前端组件、后端API等）
+2. 分析现有测试覆盖情况
+3. 设计测试用例，基于真实的业务规则
+4. 明确标注数据来源（文件路径、行号）
+5. 如有不确定，明确说明并寻求澄清
+
+## 概述
+
 要测试本地Web应用程序，编写原生Python Playwright脚本。
 
 **可用的辅助脚本**：
@@ -223,7 +253,7 @@ with sync_playwright() as p:
 **首次使用：**
 - 分析测试脚本和页面结构
 - 提取常用选择器和测试模式
-- 生成缓存并保存到 `.claude/team-memory/5-webapp-testing/`
+- 生成缓存并保存到 `skills/.cache/5-webapp-testing/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -233,7 +263,7 @@ with sync_playwright() as p:
 
 ### 缓存文件
 
-缓存保存在 `.claude/team-memory/5-webapp-testing/`：
+缓存保存在 `skills/.cache/5-webapp-testing/`：
 
 - `test-patterns.md` - 测试模式库
 - `selectors-library.md` - 选择器库
@@ -245,7 +275,7 @@ with sync_playwright() as p:
 
 如需重新生成缓存（例如测试框架大规模更新后）：
 ```bash
-rm -rf .claude/team-memory/5-webapp-testing/
+rm -rf skills/.cache/5-webapp-testing/
 ```
 
 下次使用时会自动重新生成缓存。

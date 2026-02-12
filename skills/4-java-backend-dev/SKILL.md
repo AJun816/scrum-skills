@@ -1,25 +1,53 @@
 ---
 name: 4-java-backend-dev
 description: |
-  【4】AFF联盟营销数据分析系统的Java后端开发技能。基于DDD(领域驱动设计)+平台级垂直切片架构，
+  【4】Java后端开发技能。基于项目架构模式（如DDD领域驱动设计），
   在编写任何代码前先分析项目架构和业务需求，再按照分层规范编写代码。
-  适用场景：(1)新增/修改后端API接口 (2)新增平台接入(追踪器/流量源/广告联盟)
-  (3)实现业务编排逻辑 (4)领域模型设计 (5)修复后端Bug (6)后端代码重构
+  适用场景：(1)新增/修改后端API接口 (2)实现业务逻辑 (3)领域模型设计
+  (4)修复后端Bug (5)后端代码重构
   当用户要求编写Java后端代码、API接口、Service、数据处理等任务时使用此技能。
 ---
 
-# AFF 系统 Java 后端开发技能
+# Java 后端开发技能
 
-> 🎯 **正在使用：Java后端开发技能** - 负责DDD架构下的后端API开发、领域模型设计、业务编排
+> 🎯 **正在使用：Java后端开发技能** - 负责后端API开发、领域模型设计、业务逻辑实现
+
+## 执行标准
+
+**所有任务执行前，必须遵循以下标准：**
+
+1. **读取项目配置**：读取 `PROJECT_CONFIG.md` 获取项目信息、技术栈、业务域、架构模式、编码规范等
+2. **实时显示进度**：所有操作实时显示，让用户了解执行过程
+3. **使用中文输出**：所有提示、说明、错误信息使用中文
+4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
+
+**详细执行标准参考：** `skills/.skill-execution-standard.md`
+
+**数据验证标准参考：** `skills/.data-verification-standard.md`
+
+### 开发工程师特殊要求
+
+**验证代码的准确性：**
+- 读取相关代码文件，验证现有实现
+- 分析代码逻辑，确保理解正确
+- 所有代码建议必须基于真实的代码分析
+- 明确标注代码位置（文件路径、行号）
+
+**回答前必须验证：**
+1. 读取相关代码文件（Controller、Service、Domain等）
+2. 验证现有代码逻辑和实现
+3. 检查代码风格和编码规范
+4. 明确标注数据来源（文件路径、行号）
+5. 如有不确定，明确说明并寻求澄清
 
 ## 核心工作流程
 
 每次接到后端开发需求，必须按以下顺序执行：
 
 ### Phase 1: 架构分析（必须）
-1. 读取 `references/architecture.md` 了解项目整体架构
-2. 定位需求所属的**业务域**（affiliate/tracker/traffic/orchestration/platform-service/algorithm 等）
-3. 确认需求涉及的**分层**（Interface/Application/Domain/Adapter/Infrastructure）
+1. 读取 `PROJECT_CONFIG.md` 了解项目整体架构和技术栈
+2. 定位需求所属的**业务域**（根据 PROJECT_CONFIG.md 中的 business_domains）
+3. 确认需求涉及的**分层**（根据 PROJECT_CONFIG.md 中的架构模式）
 4. 检查是否存在可复用的现有代码（避免重复实现）
 
 ### Phase 2: 需求拆解
@@ -56,15 +84,10 @@ description: |
 - 跨域通信: 平台间仅通过 orchestration adapter 接口或领域事件通信，禁止直接跨包引用
 - 单文件不超过 800 行，超过需拆分
 
-## 新平台接入
-
-接入新的追踪器/流量源/广告联盟时，读取 `references/new-platform-guide.md`。
-
 ## 参考文件
 
-- **架构详解**: `references/architecture.md` — 项目目录结构、模块职责、数据流
+- **项目配置**: `PROJECT_CONFIG.md` — 项目架构、技术栈、业务域、编码规范
 - **代码模板**: `references/code-patterns.md` — 各层代码示例和命名规范
-- **新平台接入**: `references/new-platform-guide.md` — 完整接入步骤和检查清单
 
 ## 代码规范与质量标准
 
@@ -76,7 +99,7 @@ description: |
 - 编码规范由`3-system-architect`在项目初期设计并持续维护
 
 **编码规范文档：**
-- 后端编码规范：`references/backend-coding-standards.md`
+- 编码规范定义在 `PROJECT_CONFIG.md` 的 `coding_standards` 和 `technical_constraints` 部分
 - 包含命名规范、代码结构、注释规范、异常处理、日志记录等
 
 ### 代码质量要求
@@ -212,7 +235,7 @@ description: |
 **首次使用：**
 - 分析项目架构和代码结构
 - 提取领域模型和API接口信息
-- 生成缓存并保存到 `.claude/team-memory/4-java-backend-dev/`
+- 生成缓存并保存到 `skills/.cache/4-java-backend-dev/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -222,7 +245,7 @@ description: |
 
 ### 缓存文件
 
-缓存保存在 `.claude/team-memory/4-java-backend-dev/`：
+缓存保存在 `skills/.cache/4-java-backend-dev/`：
 
 - `architecture-summary.md` - 架构概览和模块结构
 - `domain-models.md` - 领域模型清单
@@ -235,7 +258,7 @@ description: |
 
 如需重新生成缓存（例如大规模重构后）：
 ```bash
-rm -rf .claude/team-memory/4-java-backend-dev/
+rm -rf skills/.cache/4-java-backend-dev/
 ```
 
 下次使用时会自动重新生成缓存。

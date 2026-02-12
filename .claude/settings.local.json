@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for file in 4-vue-frontend-dev/SKILL.md 4-frontend-design/SKILL.md 4-nielsen-ui-design/SKILL.md 5-devops-engineer/SKILL.md 5-webapp-testing/SKILL.md 6-bug-handler/SKILL.md)",
+      "Bash(do sed -i 's|\\\\.claude/team-memory/|skills/.cache/|g' \"$file\")",
+      "Bash(done)",
+      "Bash(grep:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

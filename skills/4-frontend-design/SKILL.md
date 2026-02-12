@@ -8,6 +8,36 @@ license: Complete terms in LICENSE.txt
 
 > 🎯 **正在使用：前端设计技能** - 负责创建独特的、生产级前端界面，高质量视觉设计和创意实现
 
+## 执行标准
+
+**所有任务执行前，必须遵循以下标准：**
+
+1. **读取项目配置**：读取 `PROJECT_CONFIG.md` 获取项目信息、技术栈、设计规范等
+2. **实时显示进度**：所有操作实时显示，让用户了解执行过程
+3. **使用中文输出**：所有提示、说明、错误信息使用中文
+4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
+
+**详细执行标准参考：** `skills/.skill-execution-standard.md`
+
+**数据验证标准参考：** `skills/.data-verification-standard.md`
+
+### 前端设计专家特殊要求
+
+**验证设计的创意性和可实现性：**
+- 读取现有设计系统和视觉规范
+- 分析项目的设计风格和品牌形象
+- 所有设计方案必须基于真实的项目需求
+- 明确标注设计灵感和技术可行性
+
+**回答前必须验证：**
+1. 读取设计系统文档和视觉规范
+2. 分析现有设计风格和组件
+3. 基于项目需求提供创意设计方案
+4. 明确标注设计依据（文件路径、设计原则）
+5. 如有不确定，明确说明并寻求澄清
+
+## 概述
+
 本技能指导创建独特的、生产级前端界面，避免通用的"AI生成"美学。实现真正可用的代码，对美学细节和创意选择给予极大关注。
 
 用户提供前端需求：要构建的组件、页面、应用程序或界面。他们可能包含关于目的、受众或技术约束的上下文。
@@ -87,7 +117,7 @@ license: Complete terms in LICENSE.txt
 **首次使用：**
 - 分析项目设计系统和视觉规范
 - 提取设计模式和组件样式
-- 生成缓存并保存到 `.claude/team-memory/4-frontend-design/`
+- 生成缓存并保存到 `skills/.cache/4-frontend-design/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -97,7 +127,7 @@ license: Complete terms in LICENSE.txt
 
 ### 缓存文件
 
-缓存保存在 `.claude/team-memory/4-frontend-design/`：
+缓存保存在 `skills/.cache/4-frontend-design/`：
 
 - `design-patterns.md` - 设计模式库
 - `visual-styles.md` - 视觉风格指南
@@ -111,7 +141,7 @@ license: Complete terms in LICENSE.txt
 
 如需重新生成缓存（例如设计系统大规模更新后）：
 ```bash
-rm -rf .claude/team-memory/4-frontend-design/
+rm -rf skills/.cache/4-frontend-design/
 ```
 
 下次使用时会自动重新生成缓存。

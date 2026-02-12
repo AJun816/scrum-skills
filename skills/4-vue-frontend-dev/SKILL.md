@@ -1,28 +1,56 @@
 ---
 name: 4-vue-frontend-dev
 description: |
-  【4】AFF联盟营销数据分析系统的Vue前端开发技能。基于 Vue 3 + Element Plus + Pinia 技术栈，
-  配合 java-backend-dev 技能设计的后端API，结合 frontend-design 技能进行高质量页面开发。
+  【4】Vue前端开发技能。基于项目的前端技术栈（如 Vue 3 + Element Plus + Pinia），
+  配合后端API设计，结合UI设计进行高质量页面开发。
   在编写任何代码前先分析后端API接口和项目架构，再按照前端分层规范编写代码。
   适用场景：(1)新增/修改前端页面 (2)对接后端API接口 (3)实现业务组件
   (4)状态管理设计 (5)修复前端Bug (6)前端代码重构 (7)UI/UX优化
   当用户要求编写Vue前端代码、页面、组件、API对接等任务时使用此技能。
 ---
 
-# AFF 系统 Vue 前端开发技能
+# Vue 前端开发技能
 
-> 🎯 **正在使用：Vue前端开发技能** - 负责Vue 3页面开发、组件设计、API对接、状态管理
+> 🎯 **正在使用：Vue前端开发技能** - 负责Vue页面开发、组件设计、API对接、状态管理
+
+## 执行标准
+
+**所有任务执行前，必须遵循以下标准：**
+
+1. **读取项目配置**：读取 `PROJECT_CONFIG.md` 获取项目信息、技术栈、业务域、编码规范等
+2. **实时显示进度**：所有操作实时显示，让用户了解执行过程
+3. **使用中文输出**：所有提示、说明、错误信息使用中文
+4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
+
+**详细执行标准参考：** `skills/.skill-execution-standard.md`
+
+**数据验证标准参考：** `skills/.data-verification-standard.md`
+
+### 开发工程师特殊要求
+
+**验证代码的准确性：**
+- 读取相关代码文件，验证现有实现
+- 分析组件结构和API集成
+- 所有代码建议必须基于真实的代码分析
+- 明确标注代码位置（文件路径、行号）
+
+**回答前必须验证：**
+1. 读取相关代码文件（Vue组件、API模块、Composables等）
+2. 验证现有代码逻辑和实现
+3. 检查组件结构和编码规范
+4. 明确标注数据来源（文件路径、行号）
+5. 如有不确定，明确说明并寻求澄清
 
 ## 核心工作流程
 
 每次接到前端开发需求，必须按以下顺序执行：
 
 ### Phase 1: 需求分析与后端API确认（必须）
-1. 读取 `references/architecture.md` 了解前端项目整体架构
+1. 读取 `PROJECT_CONFIG.md` 了解前端项目整体架构和技术栈
 2. 确认需求对应的**后端API接口**：
-   - 使用 `java-backend-dev` 技能的 `references/architecture.md` 查看后端域结构
-   - 定位后端 Controller 的 `@RequestMapping` 路径和请求/响应 DTO
-   - 确认 API 请求方法(GET/POST/PUT/DELETE)、参数格式、响应结构 `ApiResponse<T>`
+   - 查看 `PROJECT_CONFIG.md` 中的 API端点概览和业务域定义
+   - 定位后端 Controller 的 API 路径和请求/响应格式
+   - 确认 API 请求方法(GET/POST/PUT/DELETE)、参数格式、响应结构
 3. 定位需求所属的**功能模块**（views/组件/composable 归属）
 4. 检查是否存在可复用的现有代码（组件、composables、API函数）
 
@@ -230,7 +258,7 @@ description: |
 
 ## 参考文件
 
-- **架构详解**: `references/architecture.md` — 项目目录结构、技术栈、模块职责
+- **项目配置**: `PROJECT_CONFIG.md` — 项目架构、技术栈、业务域、API端点概览
 - **代码模板**: `references/code-patterns.md` — 各层代码示例和最佳实践
 - **API对接**: `references/api-integration.md` — 前后端接口对接规范和错误处理
 
@@ -243,7 +271,7 @@ description: |
 **首次使用：**
 - 分析前端项目结构和组件架构
 - 提取页面、组件、API接口信息
-- 生成缓存并保存到 `.claude/team-memory/4-vue-frontend-dev/`
+- 生成缓存并保存到 `skills/.cache/4-vue-frontend-dev/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -253,7 +281,7 @@ description: |
 
 ### 缓存文件
 
-缓存保存在 `.claude/team-memory/4-vue-frontend-dev/`：
+缓存保存在 `skills/.cache/4-vue-frontend-dev/`：
 
 - `architecture-summary.md` - 前端架构概览
 - `pages-inventory.md` - 页面清单和路由
@@ -267,7 +295,7 @@ description: |
 
 如需重新生成缓存（例如大规模重构后）：
 ```bash
-rm -rf .claude/team-memory/4-vue-frontend-dev/
+rm -rf skills/.cache/4-vue-frontend-dev/
 ```
 
 下次使用时会自动重新生成缓存。

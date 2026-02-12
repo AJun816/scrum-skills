@@ -50,7 +50,7 @@ const total = response?.data?.total || 0;
 
 ### Axios 实例创建模式
 
-每个业务域创建独立的 Axios 实例（参考 `skro-base.js`）：
+每个业务域创建独立的 Axios 实例：
 
 ```javascript
 import axios from 'axios';
@@ -81,15 +81,15 @@ domainApi.interceptors.response.use(
 
 ### 平台 Header 自动注入
 
-`PureHttp`（`utils/http/index.ts`）自动注入平台上下文 Header：
+`PureHttp`（`utils/http/index.ts`）可以自动注入业务上下文 Header：
 
 ```
-X-Platform-Affiliate: goldengoose
-X-Platform-Tracker: skro
-X-Platform-Traffic: propellerads
+X-Platform-Type: platform-a
+X-Business-Domain: domain-b
+X-Service-Name: service-c
 ```
 
-来源于 `usePlatformStoreHook().apiHeaders`。如果使用独立 Axios 实例（如 `skroApi`），需要手动确保 Header 注入或在请求拦截器中添加。
+来源于业务 Store 的配置。如果使用独立 Axios 实例，需要手动确保 Header 注入或在请求拦截器中添加。
 
 ## API URL 映射
 
@@ -100,8 +100,8 @@ X-Platform-Traffic: propellerads
 API_BASE_URLS: {
   development: {
     DEFAULT: '/api/v1',
-    SKRO: '/api/v1',
-    ZEYDOO: '/api/v1/zeydoo',
+    DOMAIN_A: '/api/v1',
+    DOMAIN_B: '/api/v1/domain-b',
     // ...
   }
 }
@@ -111,11 +111,11 @@ API_BASE_URLS: {
 
 ```javascript
 API_ENDPOINTS: {
-  SKRO: {
-    CAMPAIGNS: '/skro/campaigns',
-    CLICK_LOGS: '/skro/click-logs',
-    CONVERSION_LOGS: '/skro/conversion-logs',
-    REPORT: '/skro/report',
+  DOMAIN_A: {
+    ITEMS: '/domain-a/items',
+    LOGS: '/domain-a/logs',
+    REPORTS: '/domain-a/reports',
+    STATISTICS: '/domain-a/statistics',
     // ...
   }
 }
@@ -125,8 +125,8 @@ API_ENDPOINTS: {
 
 ```
 最终URL = BASE_URL + ENDPOINT
-例: /api/v1 + /skro/campaigns = /api/v1/skro/campaigns
-对应后端: @RequestMapping("/api/v1/skro") + @GetMapping("/campaigns")
+例: /api/v1 + /domain-a/items = /api/v1/domain-a/items
+对应后端: @RequestMapping("/api/v1/domain-a") + @GetMapping("/items")
 ```
 
 ## 前端 → 后端参数对齐规则
@@ -165,17 +165,17 @@ const data = {
 const response = await domainApi.post('/endpoint', data);
 ```
 
-### 通用日志查询参数（fetchLogData）
+### 通用日志查询参数
 
-Skro 域使用 `fetchLogData` 通用方法，支持以下标准参数：
+业务域可以使用通用查询方法，支持以下标准参数：
 
 ```javascript
 const validParams = [
-  'from', 'to', 'timezone', 'clickId',
+  'from', 'to', 'timezone', 'id',
   'page', 'pageSize', 'orderBy', 'sortBy',
-  'workspace', 'campaignId', 'dataType',
-  'name', 'isActive', 'isDeleted', 'os',
-  'campaignName', 'offerName', 'country'
+  'workspace', 'type', 'dataType',
+  'name', 'isActive', 'isDeleted', 'status',
+  'category', 'keyword', 'country'
 ];
 ```
 

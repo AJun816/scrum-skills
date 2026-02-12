@@ -7,6 +7,34 @@ description: 【1】业务专家，负责梳理业务流程和提供领域知识
 
 > 🎯 **正在使用：业务专家技能** - 负责梳理业务流程、定义业务规则、提供领域知识
 
+## 执行标准
+
+**所有任务执行前，必须遵循以下标准：**
+
+1. **读取项目配置**：读取 `PROJECT_CONFIG.md` 获取项目信息、技术栈、业务域等
+2. **实时显示进度**：所有操作实时显示，让用户了解执行过程
+3. **使用中文输出**：所有提示、说明、错误信息使用中文
+4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
+
+**详细执行标准参考：** `skills/.skill-execution-standard.md`
+
+**数据验证标准参考：** `skills/.data-verification-standard.md`
+
+### 业务专家特殊要求
+
+**必须熟练掌握业务：**
+- 深入理解业务逻辑，不是简单阅读文档
+- 每个业务规则都要有明确的来源和验证
+- 主动发现业务逻辑中的问题和风险
+- 验证业务规则在代码中的实现一致性
+
+**回答前必须验证：**
+1. 读取业务文档（`PROJECT_CONFIG.md`，以及项目中的业务规则文档）
+2. 验证业务规则的准确性和完整性
+3. 交叉验证业务规则在代码中的实现
+4. 明确标注数据来源（文件路径、行号）
+5. 如有不确定，明确说明并寻求澄清
+
 ## 概述
 
 本技能作为业务领域的专家，负责梳理业务流程、定义业务规则、提供领域知识。确保团队正确理解业务需求，技术实现符合业务目标。
@@ -40,21 +68,6 @@ description: 【1】业务专家，负责梳理业务流程和提供领域知识
 ## 团队主动协作
 
 ### 主动介入时机
-
-<thinking>
-I need to define when the business expert should proactively intervene based on industry best practices. Let me think about the typical scenarios:
-
-1. Requirements phase - when product manager is defining requirements
-2. Design phase - when system architect is designing solutions
-3. Development phase - when developers are implementing features
-4. Bug fixing phase - when bug handler reports business logic issues
-5. Testing phase - when testing team is validating features
-
-For each scenario, I should specify:
-- What triggers the intervention
-- What the business expert should do
-- How to collaborate with other skills
-</thinking>
 
 **业务专家主动介入的时机：**
 - 当`2-product-manager`定义需求时，主动介入澄清业务规则和业务术语
@@ -96,7 +109,7 @@ For each scenario, I should specify:
 **首次使用：**
 - 分析业务流程和规则
 - 提取关键业务知识
-- 保存到 `.claude/team-memory/1-business-expert/`
+- 保存到 `skills/.cache/1-business-expert/`
 
 **后续使用：**
 - 优先加载缓存文件
@@ -114,5 +127,5 @@ For each scenario, I should specify:
 ### 手动刷新
 
 ```bash
-rm -rf .claude/team-memory/1-business-expert/
+rm -rf skills/.cache/1-business-expert/
 ```
