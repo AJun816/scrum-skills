@@ -99,45 +99,173 @@ business_domains:
 
 ## 团队角色映射
 
+**本节定义团队角色与技能的映射关系，支持自定义配置**
+
 ```yaml
 team_roles:
+  # 核心角色（必需）
   scrum_master:
     skill_id: "0-scrum-master"
     display_name: "敏捷教练"
+    description: "组织敏捷流程，协调团队，移除障碍"
+    required: true
 
+  # 业务和产品角色
   business_expert:
     skill_id: "1-business-expert"
     display_name: "业务专家"
+    description: "澄清业务规则，提供领域知识"
+    required: false
 
   product_manager:
     skill_id: "2-product-manager"
     display_name: "产品经理"
+    description: "需求分析，用户故事编写"
+    required: true
 
+  # 技术架构角色
   system_architect:
     skill_id: "3-system-architect"
     display_name: "系统架构师"
+    description: "架构设计，技术方案评审"
+    required: true
 
+  # 开发角色
   backend_developer:
-    skill_id: "4-backend-dev"
+    skill_id: "4-java-backend-dev"
     display_name: "后端开发"
     tech_stack: "Java + Spring Boot + DDD"
+    description: "后端功能开发，API实现"
+    required: true
 
   frontend_developer:
-    skill_id: "4-frontend-dev"
+    skill_id: "4-vue-frontend-dev"
     display_name: "前端开发"
     tech_stack: "Vue 3 + TypeScript"
+    description: "前端页面开发，组件实现"
+    required: true
 
+  ui_designer:
+    skill_id: "4-frontend-design"
+    display_name: "UI设计师"
+    description: "UI设计审核，用户体验优化"
+    required: false
+
+  # 质量保障角色
   qa_engineer:
-    skill_id: "5-testing"
+    skill_id: "5-webapp-testing"
     display_name: "测试工程师"
+    description: "功能测试，自动化测试"
+    required: true
 
   devops_engineer:
-    skill_id: "5-devops"
+    skill_id: "5-devops-engineer"
     display_name: "DevOps工程师"
+    description: "部署，运维，CI/CD"
+    required: false
 
+  # 支持角色
   bug_handler:
     skill_id: "6-bug-handler"
     display_name: "Bug处理专员"
+    description: "Bug分析，问题修复"
+    required: false
+
+  skill_creator:
+    skill_id: "7-skill-creator"
+    display_name: "技能创建器"
+    description: "创建新技能，扩展团队能力"
+    required: false
+```
+
+### 技能自动发现机制
+
+**Scrum Master 会自动扫描 `skills/` 目录，发现所有可用技能：**
+
+```yaml
+skill_discovery:
+  # 自动发现配置
+  enabled: true
+  scan_directory: "skills/"
+  skill_file_pattern: "*/SKILL.md"
+
+  # 技能命名规范
+  naming_convention:
+    pattern: "{priority}-{role-name}"
+    examples:
+      - "0-scrum-master"     # 优先级0：协调角色
+      - "1-business-expert"  # 优先级1：业务角色
+      - "2-product-manager"  # 优先级2：产品角色
+      - "3-system-architect" # 优先级3：架构角色
+      - "4-*-dev"           # 优先级4：开发角色
+      - "5-*"               # 优先级5：质量和运维角色
+      - "6-bug-handler"     # 优先级6：支持角色
+      - "7-skill-creator"   # 优先级7：工具角色
+
+  # 技能元数据提取
+  metadata_extraction:
+    from_frontmatter: true
+    fields:
+      - "name"          # 技能ID
+      - "description"   # 技能描述
+      - "display_name"  # 显示名称（从描述中提取）
+      - "tech_stack"    # 技术栈（如有）
+
+  # 自动映射规则
+  auto_mapping:
+    enabled: true
+    rules:
+      - pattern: "0-*"
+        role_type: "coordinator"
+        required: true
+
+      - pattern: "1-*"
+        role_type: "business"
+        required: false
+
+      - pattern: "2-*"
+        role_type: "product"
+        required: true
+
+      - pattern: "3-*"
+        role_type: "architect"
+        required: true
+
+      - pattern: "4-*"
+        role_type: "developer"
+        required: true
+
+      - pattern: "5-*"
+        role_type: "quality"
+        required: false
+
+      - pattern: "6-*"
+        role_type: "support"
+        required: false
+
+      - pattern: "7-*"
+        role_type: "tool"
+        required: false
+```
+
+### 自定义角色映射
+
+**如需自定义角色映射，直接修改 `team_roles` 配置：**
+
+1. **添加新角色**：在 `team_roles` 中添加新条目
+2. **修改技能ID**：更改 `skill_id` 指向不同的技能
+3. **调整显示名称**：修改 `display_name` 自定义显示
+4. **设置必需性**：通过 `required` 控制是否必需
+
+**示例：使用不同的后端技能**
+
+```yaml
+backend_developer:
+  skill_id: "4-python-backend-dev"  # 改为Python后端
+  display_name: "Python后端开发"
+  tech_stack: "Python + FastAPI"
+  description: "后端功能开发，API实现"
+  required: true
 ```
 
 ## 项目结构
@@ -468,6 +596,280 @@ technical_constraints:
     - "版本号：/api/v1/"
     - "分页参数：page, size"
     - "排序参数：sort=field,direction"
+```
+
+---
+
+## Definition of Done (DoD)
+
+**本节定义统一的完成标准，确保交付质量**
+
+### 用户故事级别 DoD
+
+**一个用户故事被认为"完成"，必须满足以下所有条件：**
+
+```yaml
+story_dod:
+  requirements:
+    - name: "验收标准满足"
+      description: "所有验收标准都已实现并验证通过"
+      checked_by: "Product Manager"
+
+    - name: "代码已实现"
+      description: "功能代码已完成，符合架构设计"
+      checked_by: "Developer"
+
+    - name: "代码已审查"
+      description: "代码通过同行评审或架构师审查"
+      checked_by: "System Architect"
+
+    - name: "单元测试通过"
+      description: "单元测试覆盖率 ≥ 80%，所有测试通过"
+      checked_by: "Developer"
+
+    - name: "集成测试通过"
+      description: "API集成测试通过，接口契约验证通过"
+      checked_by: "Tester"
+
+    - name: "UI审核通过"
+      description: "前端页面符合Nielsen十大可用性原则"
+      checked_by: "UI Designer"
+
+    - name: "文档已更新"
+      description: "API文档、技术文档已更新"
+      checked_by: "Developer"
+
+    - name: "无已知缺陷"
+      description: "无P0/P1级别缺陷，P2缺陷已记录"
+      checked_by: "Tester"
+
+    - name: "性能达标"
+      description: "响应时间、并发量等性能指标达标"
+      checked_by: "Tester"
+
+    - name: "安全检查通过"
+      description: "无SQL注入、XSS等安全漏洞"
+      checked_by: "System Architect"
+
+    - name: "代码已合并"
+      description: "代码已合并到主分支"
+      checked_by: "Developer"
+
+    - name: "部署到测试环境"
+      description: "功能已部署到测试环境并可演示"
+      checked_by: "DevOps"
+```
+
+### 迭代级别 DoD
+
+**一个迭代被认为"完成"，必须满足以下所有条件：**
+
+```yaml
+sprint_dod:
+  requirements:
+    - name: "所有承诺的用户故事完成"
+      description: "所有承诺的用户故事都满足Story DoD"
+      checked_by: "Scrum Master"
+
+    - name: "迭代目标达成"
+      description: "迭代目标已实现"
+      checked_by: "Product Manager"
+
+    - name: "回归测试通过"
+      description: "完整的回归测试套件通过"
+      checked_by: "Tester"
+
+    - name: "演示环境就绪"
+      description: "演示环境已准备好，可以进行迭代评审"
+      checked_by: "DevOps"
+
+    - name: "文档已更新"
+      description: "用户手册、发布说明已更新"
+      checked_by: "Product Manager"
+
+    - name: "技术债务已记录"
+      description: "新增技术债务已记录到Product Backlog"
+      checked_by: "System Architect"
+
+    - name: "速率已更新"
+      description: "团队速率数据已更新"
+      checked_by: "Scrum Master"
+
+    - name: "燃尽图已完成"
+      description: "迭代燃尽图已完成并分析"
+      checked_by: "Scrum Master"
+```
+
+### 发布级别 DoD
+
+**一个版本被认为"可发布"，必须满足以下所有条件：**
+
+```yaml
+release_dod:
+  requirements:
+    - name: "所有功能完成"
+      description: "所有计划功能都满足Story DoD"
+      checked_by: "Product Manager"
+
+    - name: "端到端测试通过"
+      description: "完整的端到端测试场景通过"
+      checked_by: "Tester"
+
+    - name: "性能测试通过"
+      description: "压力测试、负载测试达标"
+      checked_by: "Tester"
+
+    - name: "安全测试通过"
+      description: "安全扫描、渗透测试通过"
+      checked_by: "Security Expert"
+
+    - name: "用户验收测试通过"
+      description: "UAT测试通过，用户签字确认"
+      checked_by: "Product Manager"
+
+    - name: "生产环境就绪"
+      description: "生产环境配置完成，部署脚本验证通过"
+      checked_by: "DevOps"
+
+    - name: "回滚方案就绪"
+      description: "回滚方案已准备并验证"
+      checked_by: "DevOps"
+
+    - name: "监控告警配置"
+      description: "生产监控和告警已配置"
+      checked_by: "DevOps"
+
+    - name: "发布文档完整"
+      description: "发布说明、用户手册、运维手册完整"
+      checked_by: "Product Manager"
+
+    - name: "培训已完成"
+      description: "用户培训、运维培训已完成"
+      checked_by: "Product Manager"
+
+    - name: "发布审批通过"
+      description: "发布变更已通过审批流程"
+      checked_by: "Release Manager"
+```
+
+### DoD 检查清单模板
+
+**用于实际工作中检查DoD的模板：**
+
+```markdown
+## ✅ Definition of Done 检查清单
+
+### 用户故事：{story_title}
+
+**Story ID：** {story_id}
+**负责人：** {owner}
+**检查日期：** {date}
+
+#### 验收标准
+- [ ] 验收标准1：{description}
+- [ ] 验收标准2：{description}
+- [ ] 验收标准3：{description}
+
+#### 代码质量
+- [ ] 代码已实现
+- [ ] 代码已审查（审查人：{reviewer}）
+- [ ] 单元测试通过（覆盖率：{coverage}%）
+- [ ] 编码规范检查通过
+
+#### 测试
+- [ ] 集成测试通过
+- [ ] UI审核通过（审核人：{reviewer}）
+- [ ] 无P0/P1缺陷
+- [ ] 性能测试通过
+
+#### 安全和文档
+- [ ] 安全检查通过
+- [ ] API文档已更新
+- [ ] 技术文档已更新
+
+#### 部署
+- [ ] 代码已合并到主分支
+- [ ] 已部署到测试环境
+- [ ] 演示环境可用
+
+**DoD状态：** ✅ 完成 / ⏳ 进行中 / ❌ 未完成
+
+**备注：**
+{notes}
+```
+
+### DoD 使用指南
+
+**何时检查DoD：**
+
+1. **开发过程中**
+   - 开发人员自检：完成编码后
+   - 代码审查时：审查人检查
+   - 测试时：测试人员检查
+
+2. **迭代评审前**
+   - Scrum Master检查所有用户故事的DoD
+   - 只有满足DoD的故事才能在评审会上演示
+
+3. **迭代结束时**
+   - 检查迭代级别DoD
+   - 记录未完成的DoD项，作为技术债务
+
+4. **发布前**
+   - 检查发布级别DoD
+   - 所有条件满足才能发布
+
+**DoD 不满足时的处理：**
+
+```yaml
+dod_violation_handling:
+  story_level:
+    - action: "标记为未完成"
+    - consequence: "不计入本迭代速率"
+    - next_step: "移到下一迭代或Product Backlog"
+
+  sprint_level:
+    - action: "记录未完成项"
+    - consequence: "影响迭代目标达成"
+    - next_step: "在回顾会上讨论原因和改进"
+
+  release_level:
+    - action: "延迟发布"
+    - consequence: "不能发布到生产环境"
+    - next_step: "制定补救计划，重新评估发布时间"
+```
+
+### DoD 持续改进
+
+**在迭代回顾会上讨论：**
+
+1. **DoD是否合理？**
+   - 是否过于严格或宽松？
+   - 是否需要增加或删除某些条件？
+
+2. **DoD执行情况如何？**
+   - 哪些条件经常不满足？
+   - 原因是什么？如何改进？
+
+3. **DoD是否需要更新？**
+   - 随着团队成熟度提高，提高DoD标准
+   - 根据项目阶段调整DoD（如MVP阶段可适当放宽）
+
+**DoD版本管理：**
+
+```yaml
+dod_version_history:
+  v1.0:
+    date: "2024-01-01"
+    changes: "初始版本"
+
+  v1.1:
+    date: "2024-02-01"
+    changes: "增加性能测试要求"
+
+  v1.2:
+    date: "2024-03-01"
+    changes: "提高单元测试覆盖率要求从70%到80%"
 ```
 
 ## 依赖关系图

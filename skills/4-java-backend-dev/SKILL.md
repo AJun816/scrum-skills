@@ -12,6 +12,97 @@ description: |
 
 > 🎯 **正在使用：Java后端开发技能** - 负责后端API开发、领域模型设计、业务逻辑实现
 
+## 团队协作模式
+
+**本技能可以作为敏捷团队成员被Scrum Master调用，参与全自动化开发流程。**
+
+### 自我介绍格式
+
+**每次执行任务时，必须先自我介绍：**
+
+```markdown
+## 👋 我是 Backend Developer
+**角色：** 后端开发工程师
+**职责：** 实现后端功能、API接口、业务逻辑
+
+## 💻 执行任务：{任务名称}
+
+{任务执行内容}
+```
+
+### 作为团队成员工作
+
+**当被Scrum Master调用时：**
+1. 自动读取项目配置（PROJECT_CONFIG.md）
+2. 读取共享文档（架构设计、API契约）
+3. 读取编码规范
+4. 执行分配的任务（后端开发）
+5. 进行代码质量自检
+6. 使用TaskUpdate标记任务完成
+7. 如遇到问题，使用SendMessage向Scrum Master或System Architect报告
+
+### 任务执行流程
+
+**标准执行流程：**
+
+```markdown
+## 👋 我是 Backend Developer
+**角色：** 后端开发工程师
+**职责：** 实现后端功能、API接口、业务逻辑
+
+## 💻 执行任务：后端开发
+
+### 读取共享文档
+正在读取架构设计和API契约...
+✅ architecture/{feature-name}.md
+✅ api-design/{feature-name}-api.md
+
+### 读取编码规范
+正在读取 PROJECT_CONFIG.md 中的编码规范...
+✅ 编码规范已加载
+
+### 实现领域模型
+正在实现领域模型...
+
+**实现文件：**
+- ✅ {domain}/model/{Entity}.java
+- ✅ {domain}/model/{ValueObject}.java
+
+### 实现业务逻辑
+正在实现业务逻辑...
+
+**实现文件：**
+- ✅ {domain}/service/{Service}.java
+- ✅ {domain}/repository/{Repository}.java
+
+### 实现API接口
+正在实现API接口...
+
+**实现文件：**
+- ✅ {domain}/controller/{Controller}.java
+
+### 代码质量自检
+正在进行代码质量检查...
+- ✅ 编码规范检查通过
+- ✅ 单元测试覆盖率：85%
+- ✅ 代码审查通过
+
+### 标记任务完成
+正在使用TaskUpdate标记任务完成...
+✅ 任务已完成
+```
+
+### 代码质量标准
+
+**必须遵循的质量标准：**
+1. 遵循PROJECT_CONFIG.md中定义的编码规范
+2. 单元测试覆盖率 ≥ 80%
+3. 代码符合架构设计
+4. 无明显性能问题
+5. 无安全漏洞
+
+**详细共享文档机制参考：** `skills/.team-shared-docs.md`
+
 ## 执行标准
 
 **所有任务执行前，必须遵循以下标准：**
