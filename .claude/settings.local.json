@@ -5,7 +5,17 @@
       "Bash(do sed -i 's|\\\\.claude/team-memory/|skills/.cache/|g' \"$file\")",
       "Bash(done)",
       "Bash(grep:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(chmod:*)",
+      "Bash(find:*)",
+      "Bash(echo \"❌\" echo -n \"强制执行规范: \" grep -q \"强制执行规范\" \"$skill\")",
+      "Bash(echo \"❌\" echo -n \"核心职责: \" grep -q \"核心职责\" \"$skill\")",
+      "Bash(echo \"❌\" echo -n \"工作流程: \" grep -q \"工作流程\\\\|使用场景\" \"$skill\")",
+      "Bash(echo \"❌\" echo -n \"执行标准: \" grep -q \"执行标准\" \"$skill\")",
+      "Bash(echo \"❌\" echo -n \"团队协作: \" grep -q \"团队协作\" \"$skill\")",
+      "Bash(cat:*)",
+      "Bash(git add:*)"
     ]
   }
 }
