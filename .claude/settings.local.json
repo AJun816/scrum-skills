@@ -15,7 +15,9 @@
       "Bash(echo \"❌\" echo -n \"执行标准: \" grep -q \"执行标准\" \"$skill\")",
       "Bash(echo \"❌\" echo -n \"团队协作: \" grep -q \"团队协作\" \"$skill\")",
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
