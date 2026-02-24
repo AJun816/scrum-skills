@@ -1,0 +1,20 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "sh .claude/skills/hooks/pre-bash.sh"
+      },
+      {
+        "matcher": "Write|Edit",
+        "command": "sh .claude/skills/hooks/pre-file-write.sh"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "command": "sh .claude/skills/hooks/post-file-write.sh"
+      }
+    ]
+  }
+}

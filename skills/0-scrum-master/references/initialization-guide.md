@@ -10,7 +10,7 @@
 
 **每次执行任务前，必须先检测初始化状态：**
 
-1. 检查缓存文件是否存在：`skills/.cache/.project-info.json`
+1. 检查缓存文件是否存在：`.cache/.project-info.json`
 2. 根据检测结果执行相应流程
 
 ### 场景1：缓存存在（已初始化）
@@ -18,7 +18,7 @@
 **检测代码：**
 ```javascript
 // 读取缓存文件
-const cacheFile = "skills/.cache/.project-info.json";
+const cacheFile = ".cache/.project-info.json";
 const cacheExists = await fileExists(cacheFile);
 
 if (cacheExists) {
@@ -343,7 +343,7 @@ const cacheContent = {
 };
 
 await Write({
-  file_path: "skills/.cache/.project-info.json",
+  file_path: ".cache/.project-info.json",
   content: JSON.stringify(cacheContent, null, 2)
 });
 
@@ -469,7 +469,7 @@ async function writeWithRetry(filePath, content, maxRetries = 3) {
 **步骤1：检查上次扫描时间**
 ```javascript
 // 读取缓存元数据
-const cacheFile = "skills/.cache/.project-info.json";
+const cacheFile = ".cache/.project-info.json";
 const projectInfo = await Read({ file_path: cacheFile });
 
 // 获取上次扫描时间
@@ -606,7 +606,7 @@ projectInfo.lastScanTime = new Date().toISOString();
 projectInfo.domains = [...projectInfo.domains, ...newDomains];
 
 await Write({
-  file_path: "skills/.cache/.project-info.json",
+  file_path: ".cache/.project-info.json",
   content: JSON.stringify(projectInfo, null, 2)
 });
 ```
@@ -673,7 +673,7 @@ export SCRUM_SKILLS_FORCE_INIT=true
 ### 问题2：缓存文件损坏
 **解决：** 删除缓存文件，重新初始化
 ```bash
-rm -rf skills/.cache/.project-info.json
+rm -rf .cache/.project-info.json
 ```
 
 ### 问题3：增量更新遗漏变更

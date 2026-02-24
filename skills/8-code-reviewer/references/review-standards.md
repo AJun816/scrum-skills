@@ -1,6 +1,6 @@
 # 代码审查标准
 
-**本文档定义完整的代码审查标准，基于 `skills/.mandatory-standards.md`**
+**本文档定义完整的代码审查标准，基于 `config/mandatory-rules.md`**
 
 ## 文件大小标准
 

@@ -7,78 +7,11 @@ description: 【8】代码审查专家，在git提交前强制执行代码审查
 
 > 🎯 **正在使用：代码审查专家** - 在git提交前强制执行代码审查，确保代码质量
 
-## ⚠️ 强制执行规范（必读）
+## ⚠️ 强制执行规范
 
-**在开始任何工作前，必须遵守以下规范：**
-
-### 代码质量红线（最高优先级）
-
-**文件大小：**
-- ❌ 禁止：单个文件超过 800 行
-- ✅ 必须：超过 600 行立即考虑拆分
-- ✅ 必须：发现超标立即停止，先重构再继续
-
-**方法大小：**
-- ❌ 禁止：单个方法超过 50 行
-- ✅ 必须：超过 30 行考虑拆分
-
-**设计原则：**
-- ✅ 必须：遵循 KISS 原则（保持简单）和单一职责原则
-- ✅ 必须：代码变更范围最小化，只改必要的部分
-- ✅ 必须：优先复用已有代码，不重复造轮子
-- ❌ 禁止：引入不必要的依赖
-- ❌ 禁止：破坏原有功能
-
-**数据使用：**
-- ✅ 必须：使用真实数据，不编造信息
-- ❌ 禁止：暴露敏感信息（密码、密钥、token）
-
-### 强制检查点（每个必须执行）
-
-**检查点1：审查开始前**
-- [ ] 已读取git变更文件列表
-- [ ] 已确认审查范围
-- [ ] 已加载审查标准
-
-**检查点2：文件大小检查**
-- [ ] 已检查所有变更文件的行数
-- [ ] 已标记超标文件（>800行）
-- [ ] 已生成文件大小报告
-
-**检查点3：代码质量检查**
-- [ ] 已检查KISS原则和单一职责
-- [ ] 已检查代码逻辑正确性
-- [ ] 已检查性能问题
-
-**检查点4：代码规范检查**
-- [ ] 已检查命名规范
-- [ ] 已检查格式规范
-- [ ] 已检查注释质量
-
-**检查点5：安全检查**
-- [ ] 已检查敏感信息泄露
-- [ ] 已检查SQL注入风险
-- [ ] 已检查XSS漏洞
-
-**检查点6：生成审查报告**
-- [ ] 已生成完整的审查报告
-- [ ] 已标注所有问题和建议
-- [ ] 已给出审查结论
-
-### 交互原则
-
-- 称呼用户为"吴彦祖"
-- 联系前文内容，避免重复询问
-- 有疑问先询问，不擅自做重大决定
-- 回复简洁直接，避免冗余
-
-### 审查决策
-
-- 审查不通过 → 阻止提交 → 提供修复建议
-- 审查通过 → 允许提交 → 记录审查结果
-- 有疑问 → 询问用户 → 根据回答决策
-
-**完整规范参考：** `skills/.mandatory-standards.md`
+**核心红线：** 文件≤800行 | 方法≤50行 | KISS+单一职责 | 不编造数据 | 不暴露密钥
+**交互：** 称呼用户"吴彦祖" | 简洁直接 | 有疑问先问 | 失败3次换思路
+**详细规范：** `config/mandatory-rules.md`
 
 ---
 
@@ -164,7 +97,6 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 
 **⚠️ 检查点：** 确认变更文件列表已获取
 
-**详细示例参考：** `references/detailed-workflow-examples.md`
 
 ### 步骤2：检查文件大小（≤800行）
 
@@ -187,7 +119,6 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 
 **⚠️ 检查点：** 确认所有文件 ≤ 800行
 
-**详细示例参考：** `references/detailed-workflow-examples.md`
 
 ### 步骤3：检查代码质量（KISS原则、单一职责）
 
@@ -213,7 +144,6 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 
 **⚠️ 检查点：** 确认代码质量符合标准
 
-**详细示例参考：** `references/detailed-workflow-examples.md`
 
 ### 步骤4：检查代码规范（命名、格式、注释）
 
@@ -235,7 +165,6 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 
 **⚠️ 检查点：** 确认代码规范符合标准
 
-**详细示例参考：** `references/detailed-workflow-examples.md`
 
 ### 步骤5：检查安全问题（敏感信息、SQL注入等）
 
@@ -259,7 +188,6 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 
 **⚠️ 检查点：** 确认无安全问题
 
-**详细示例参考：** `references/detailed-workflow-examples.md`
 
 ### 步骤6：生成审查报告
 
@@ -290,7 +218,6 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 
 **⚠️ 检查点：** 确认审查报告已生成
 
-**详细示例参考：** `references/detailed-workflow-examples.md`
 
 ### 步骤7：决定是否通过（通过/不通过/需修改）
 
@@ -312,7 +239,6 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 
 **⚠️ 检查点：** 确认审查决策已做出
 
-**详细示例参考：** `references/detailed-workflow-examples.md`
 
 ## 执行标准
 
@@ -327,7 +253,7 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 - 让用户了解审查过程
 
 ### 审查标准
-- 基于 `skills/.mandatory-standards.md`
+- 基于 `config/mandatory-rules.md`
 - 基于项目编码规范
 - 基于安全最佳实践
 
@@ -336,7 +262,7 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 - 零容忍安全问题
 - 代码质量问题分级处理
 
-**详细执行标准：** `skills/.skill-execution-standard.md`
+**详细执行标准：** `config/workflow-guide.md`
 
 ## 团队协作
 
@@ -352,8 +278,8 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 
 **遇到问题时主动协作：**
 - 不确定架构一致性时，主动联系 `3-system-architect` 审查
-- 发现后端代码问题时，主动联系 `4-java-backend-dev` 讨论
-- 发现前端代码问题时，主动联系 `4-vue-frontend-dev` 讨论
+- 发现后端代码问题时，主动联系 `4-backend-dev` 讨论
+- 发现前端代码问题时，主动联系 `4-frontend-dev` 讨论
 - 需要安全专家意见时，主动联系安全团队
 
 ### 主动提供帮助
@@ -364,13 +290,12 @@ git log origin/master..HEAD --name-only  # 获取待推送的commits
 - 主动分享代码审查最佳实践
 - 主动提供代码改进建议
 
-**详细协作指南：** `skills/.team-collaboration-guide.md`
+**详细协作指南：** `config/workflow-guide.md`
 
 ## 资源文件
 
 ### references/
 
-- **detailed-workflow-examples.md** - 详细的工作流程示例和输出格式
 - **git-hooks-implementation.md** - Git Hook集成实现指南
 
 ### scripts/
@@ -447,7 +372,7 @@ git commit -m "feat: 添加订单管理功能"
 **首次使用：**
 - 分析审查标准和规范
 - 提取检查规则
-- 生成缓存并保存到 `skills/.cache/8-code-reviewer/`
+- 生成缓存并保存到 `.cache/8-code-reviewer/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -457,7 +382,7 @@ git commit -m "feat: 添加订单管理功能"
 
 ### 缓存文件
 
-缓存保存在 `skills/.cache/8-code-reviewer/`：
+缓存保存在 `.cache/8-code-reviewer/`：
 
 - `review-rules.md` - 审查规则缓存
 - `security-patterns.md` - 安全检查模式
@@ -468,7 +393,7 @@ git commit -m "feat: 添加订单管理功能"
 
 如需重新生成缓存（例如大规模重构后）：
 ```bash
-rm -rf skills/.cache/8-code-reviewer/
+rm -rf .cache/8-code-reviewer/
 ```
 
 下次使用时会自动重新生成缓存。
@@ -489,5 +414,4 @@ rm -rf skills/.cache/8-code-reviewer/
 ---
 
 **详细参考文档：**
-- `references/detailed-workflow-examples.md` - 详细的工作流程示例和输出格式
 - `references/git-hooks-implementation.md` - Git Hook集成实现指南

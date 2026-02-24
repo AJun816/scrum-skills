@@ -84,8 +84,8 @@
 **邀请相关角色参与：**
 - `1-business-expert` - 确认业务逻辑变更
 - `3-system-architect` - 评估技术架构影响
-- `4-java-backend-dev` - 评估后端实现难度
-- `4-vue-frontend-dev` - 评估前端实现难度
+- `4-backend-dev` - 评估后端实现难度
+- `4-frontend-dev` - 评估前端实现难度
 - `5-webapp-testing` - 评估测试工作量
 - `0-scrum-master` - 协调讨论和决策
 

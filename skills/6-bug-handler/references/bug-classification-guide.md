@@ -17,7 +17,7 @@
 - CSS样式问题
 - 路由跳转异常
 
-**分配给：** `4-vue-frontend-dev` 或 `4-frontend-design`
+**分配给：** `4-frontend-dev` 或 `4-frontend-design`
 
 ### 2. 后端Bug
 
@@ -34,7 +34,7 @@
 - 业务规则验证失败
 - 数据转换错误
 
-**分配给：** `4-java-backend-dev`
+**分配给：** `4-backend-dev`
 
 ### 3. 数据库Bug
 
@@ -50,7 +50,7 @@
 - 死锁
 - 索引缺失导致慢查询
 
-**分配给：** `4-java-backend-dev`（数据层）
+**分配给：** `4-backend-dev`（数据层）
 
 ### 4. 集成Bug
 
@@ -64,7 +64,7 @@
 - 外部服务集成问题
 - 网络连接超时
 
-**分配给：** `4-java-backend-dev`（适配器层）
+**分配给：** `4-backend-dev`（适配器层）
 
 ### 5. 配置Bug
 

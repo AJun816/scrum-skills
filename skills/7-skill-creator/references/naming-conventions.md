@@ -12,7 +12,7 @@
 
 3. **避免冲突**
    - 序号确保技能名称唯一性
-   - 支持同类型的多个技能（如 4-java-backend-dev、4-vue-frontend-dev）
+   - 支持同类型的多个技能（如 4-backend-dev、4-frontend-dev）
 
 4. **扩展性好**
    - 新增技能时选择合适的序号
@@ -25,7 +25,7 @@
 - **1** - business-expert（业务专家）
 - **2** - product-manager（产品经理）
 - **3** - system-architect（系统架构师）
-- **4** - 开发类技能（java-backend-dev、vue-frontend-dev、nielsen-ui-design、frontend-design）
+- **4** - 开发类技能（backend-dev、frontend-dev、nielsen-ui-design、frontend-design）
 - **5** - 质量类技能（devops-engineer、webapp-testing）
 - **6** - bug-handler（Bug处理专家）
 - **7** - skill-creator（技能创建器）
@@ -58,7 +58,7 @@
 
 4. **缓存目录也使用相同命名**
    ```
-   skills/.cache/8-security-expert/
+   .cache/8-security-expert/
    ```
 
 ## 命名规范（必须遵守）

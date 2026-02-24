@@ -1,18 +1,19 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
+# OS files
+.DS_Store
+Thumbs.db
 
-# Other files and folders
-.settings/
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
+# Claude Code (personal config)
+.claude/settings.local.json
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# Cache (auto-generated)
+skills/.cache/
+
+# Environment
+.env
+.env.local

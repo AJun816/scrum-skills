@@ -17,7 +17,7 @@
 3. 评估风险等级
 4. 制定修复方案
 5. 验证修复效果
-协作技能：3-system-architect, 4-java-backend-dev, 5-devops-engineer
+协作技能：3-system-architect, 4-backend-dev, 5-devops-engineer
 资源需求：references/（安全规范、最佳实践）
 ```
 

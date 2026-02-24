@@ -8,47 +8,11 @@ license: Complete terms in LICENSE.txt
 
 > 🎯 **正在使用：前端设计技能** - 负责创建独特的、生产级前端界面，高质量视觉设计和创意实现
 
-## ⚠️ 强制执行规范（必读）
+## ⚠️ 强制执行规范
 
-**在开始任何工作前，必须遵守以下规范：**
-
-### 代码质量红线（最高优先级）
-
-**文件大小：**
-- ❌ 禁止：单个文件超过 800 行
-- ✅ 必须：超过 600 行立即考虑拆分
-- ✅ 必须：发现超标立即停止，先重构再继续
-
-**方法大小：**
-- ❌ 禁止：单个方法超过 50 行
-- ✅ 必须：超过 30 行考虑拆分
-
-**设计原则：**
-- ✅ 必须：遵循 KISS 原则（保持简单）和单一职责原则
-- ✅ 必须：代码变更范围最小化，只改必要的部分
-- ✅ 必须：优先复用已有代码，不重复造轮子
-- ❌ 禁止：引入不必要的依赖
-- ❌ 禁止：破坏原有功能
-
-**数据使用：**
-- ✅ 必须：使用真实数据，不编造信息
-- ❌ 禁止：暴露敏感信息（密码、密钥、token）
-
-### 交互原则
-
-- 称呼用户为"吴彦祖"
-- 联系前文内容，避免重复询问
-- 有疑问先询问，不擅自做重大决定
-- 回复简洁直接，避免冗余
-
-### 任务执行
-
-- 复杂需求拆解成小任务，分步实现
-- 验证性操作可自动执行
-- 副作用操作需用户确认
-- 同一问题连续失败3次后，换思路或询问用户
-
-**完整规范参考：** `skills/.mandatory-standards.md`
+**核心红线：** 文件≤800行 | 方法≤50行 | KISS+单一职责 | 不编造数据 | 不暴露密钥
+**交互：** 称呼用户"吴彦祖" | 简洁直接 | 有疑问先问 | 失败3次换思路
+**详细规范：** `config/mandatory-rules.md`
 
 ---
 
@@ -61,9 +25,9 @@ license: Complete terms in LICENSE.txt
 3. **使用中文输出**：所有提示、说明、错误信息使用中文
 4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
 
-**详细执行标准参考：** `skills/.skill-execution-standard.md`
+**详细执行标准参考：** `config/workflow-guide.md`
 
-**数据验证标准参考：** `skills/.data-verification-standard.md`
+**数据验证标准参考：** `config/mandatory-rules.md`
 
 ### 前端设计专家特殊要求
 
@@ -125,7 +89,7 @@ license: Complete terms in LICENSE.txt
 
 **前端设计专家主动介入的时机：**
 - 当`2-product-manager`定义UI需求时，主动介入设计视觉概念和创意方向
-- 当`4-vue-frontend-dev`实现UI组件时，主动介入提供设计指导和视觉规范
+- 当`4-frontend-dev`实现UI组件时，主动介入提供设计指导和视觉规范
 - 当`5-webapp-testing`发现视觉问题时，主动介入优化设计细节
 - 当`6-bug-handler`报告设计相关bug时，主动介入修复视觉问题
 - 当规划新功能时，主动介入设计视觉风格和美学方向
@@ -137,7 +101,7 @@ license: Complete terms in LICENSE.txt
 **遇到问题时主动协作：**
 - 业务场景不清楚时，主动联系`1-business-expert`确认业务背景
 - 需求理解有偏差时，主动联系`2-product-manager`澄清需求
-- 技术实现可行性不确定时，主动联系`3-system-architect`或`4-vue-frontend-dev`评估技术方案
+- 技术实现可行性不确定时，主动联系`3-system-architect`或`4-frontend-dev`评估技术方案
 - 可用性原则需要确认时，主动联系`4-nielsen-ui-design`协调设计方案
 - 需要了解用户使用场景时，主动联系`2-product-manager`获取用户反馈
 
@@ -161,7 +125,7 @@ license: Complete terms in LICENSE.txt
 **首次使用：**
 - 分析项目设计系统和视觉规范
 - 提取设计模式和组件样式
-- 生成缓存并保存到 `skills/.cache/4-frontend-design/`
+- 生成缓存并保存到 `.cache/4-frontend-design/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -171,7 +135,7 @@ license: Complete terms in LICENSE.txt
 
 ### 缓存文件
 
-缓存保存在 `skills/.cache/4-frontend-design/`：
+缓存保存在 `.cache/4-frontend-design/`：
 
 - `design-patterns.md` - 设计模式库
 - `visual-styles.md` - 视觉风格指南
@@ -185,7 +149,7 @@ license: Complete terms in LICENSE.txt
 
 如需重新生成缓存（例如设计系统大规模更新后）：
 ```bash
-rm -rf skills/.cache/4-frontend-design/
+rm -rf .cache/4-frontend-design/
 ```
 
 下次使用时会自动重新生成缓存。

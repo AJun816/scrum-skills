@@ -8,47 +8,11 @@ license: Complete terms in LICENSE.txt
 
 > 🎯 **正在使用：Web应用测试技能** - 负责使用Playwright进行前端功能测试、UI行为验证、自动化测试
 
-## ⚠️ 强制执行规范（必读）
+## ⚠️ 强制执行规范
 
-**在开始任何工作前，必须遵守以下规范：**
-
-### 代码质量红线（最高优先级）
-
-**文件大小：**
-- ❌ 禁止：单个文件超过 800 行
-- ✅ 必须：超过 600 行立即考虑拆分
-- ✅ 必须：发现超标立即停止，先重构再继续
-
-**方法大小：**
-- ❌ 禁止：单个方法超过 50 行
-- ✅ 必须：超过 30 行考虑拆分
-
-**设计原则：**
-- ✅ 必须：遵循 KISS 原则（保持简单）和单一职责原则
-- ✅ 必须：代码变更范围最小化，只改必要的部分
-- ✅ 必须：优先复用已有代码，不重复造轮子
-- ❌ 禁止：引入不必要的依赖
-- ❌ 禁止：破坏原有功能
-
-**数据使用：**
-- ✅ 必须：使用真实数据，不编造信息
-- ❌ 禁止：暴露敏感信息（密码、密钥、token）
-
-### 交互原则
-
-- 称呼用户为"吴彦祖"
-- 联系前文内容，避免重复询问
-- 有疑问先询问，不擅自做重大决定
-- 回复简洁直接，避免冗余
-
-### 任务执行
-
-- 复杂需求拆解成小任务，分步实现
-- 验证性操作可自动执行
-- 副作用操作需用户确认
-- 同一问题连续失败3次后，换思路或询问用户
-
-**完整规范参考：** `skills/.mandatory-standards.md`
+**核心红线：** 文件≤800行 | 方法≤50行 | KISS+单一职责 | 不编造数据 | 不暴露密钥
+**交互：** 称呼用户"吴彦祖" | 简洁直接 | 有疑问先问 | 失败3次换思路
+**详细规范：** `config/mandatory-rules.md`
 
 ---
 
@@ -131,7 +95,7 @@ license: Complete terms in LICENSE.txt
 - 通过率：90%
 
 ### 保存测试报告
-正在保存测试报告：skills/.cache/shared/test-reports/{feature-name}-test-report.md...
+正在保存测试报告：.cache/shared/test-reports/{feature-name}-test-report.md...
 ✅ 测试报告已保存
 
 ### 标记任务完成
@@ -194,9 +158,9 @@ license: Complete terms in LICENSE.txt
 ### 共享文档机制
 
 **产出文档必须保存到共享目录：**
-- 测试报告：`skills/.cache/shared/test-reports/{feature-name}-test-report.md`
+- 测试报告：`.cache/shared/test-reports/{feature-name}-test-report.md`
 
-**详细共享文档机制参考：** `skills/.team-shared-docs.md`
+**详细共享文档机制参考：** `config/workflow-guide.md`
 
 ## 执行标准
 
@@ -207,9 +171,9 @@ license: Complete terms in LICENSE.txt
 3. **使用中文输出**：所有提示、说明、错误信息使用中文
 4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
 
-**详细执行标准参考：** `skills/.skill-execution-standard.md`
+**详细执行标准参考：** `config/workflow-guide.md`
 
-**数据验证标准参考：** `skills/.data-verification-standard.md`
+**数据验证标准参考：** `config/mandatory-rules.md`
 
 ### 测试工程师特殊要求
 
@@ -344,7 +308,7 @@ with sync_playwright() as p:
 ### 主动介入时机
 
 **测试工程师主动介入的时机：**
-- 当`4-vue-frontend-dev`或`4-java-backend-dev`完成功能开发时，主动介入测试
+- 当`4-frontend-dev`或`4-backend-dev`完成功能开发时，主动介入测试
 - 当`6-bug-handler`报告bug修复完成时，主动介入验证
 - 当`5-devops-engineer`完成部署时，主动介入生产验证
 - 当`2-product-manager`发布新需求时，主动参与测试计划制定
@@ -354,7 +318,7 @@ with sync_playwright() as p:
 
 **遇到问题时主动协作：**
 - 测试环境问题时，主动联系`5-devops-engineer`
-- 测试数据准备时，主动联系`4-java-backend-dev`
+- 测试数据准备时，主动联系`4-backend-dev`
 - 业务逻辑不清楚时，主动联系`1-business-expert`
 - UI/UX问题时，主动联系`4-frontend-design`
 - 测试策略不确定时，主动联系`3-system-architect`
@@ -443,7 +407,7 @@ with sync_playwright() as p:
 **首次使用：**
 - 分析测试脚本和页面结构
 - 提取常用选择器和测试模式
-- 生成缓存并保存到 `skills/.cache/5-webapp-testing/`
+- 生成缓存并保存到 `.cache/5-webapp-testing/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -453,7 +417,7 @@ with sync_playwright() as p:
 
 ### 缓存文件
 
-缓存保存在 `skills/.cache/5-webapp-testing/`：
+缓存保存在 `.cache/5-webapp-testing/`：
 
 - `test-patterns.md` - 测试模式库
 - `selectors-library.md` - 选择器库
@@ -465,7 +429,7 @@ with sync_playwright() as p:
 
 如需重新生成缓存（例如测试框架大规模更新后）：
 ```bash
-rm -rf skills/.cache/5-webapp-testing/
+rm -rf .cache/5-webapp-testing/
 ```
 
 下次使用时会自动重新生成缓存。

@@ -21,8 +21,8 @@
    ---
    ```
 
-4. **缓存目录：** `skills/.cache/{编号}-{英文名称}/`
-   - 示例：`skills/.cache/8-security-expert/`
+4. **缓存目录：** `.cache/{编号}-{英文名称}/`
+   - 示例：`.cache/8-security-expert/`
 
 ## SKILL.md 结构模板
 
@@ -90,7 +90,7 @@ description: 【{编号}】{中文名称}，负责{职责描述}。当{使用场
 - 有疑问先询问，不擅自做重大决定
 - 回复简洁直接，避免冗余
 
-**完整规范参考：** `skills/.mandatory-standards.md`
+**完整规范参考：** `config/mandatory-rules.md`
 
 ---
 
@@ -177,7 +177,7 @@ description: 【{编号}】{中文名称}，负责{职责描述}。当{使用场
 - 使用 git diff 识别变更
 - 增量更新缓存
 
-**缓存目录：** `skills/.cache/{编号}-{英文名称}/`
+**缓存目录：** `.cache/{编号}-{英文名称}/`
 
 **详细说明参考：**
 - `references/detailed-workflow.md` - 详细工作流程
@@ -200,7 +200,7 @@ description: 【{编号}】{中文名称}，负责{职责描述}。当{使用场
 3. **执行标准统一**
    - 所有技能必须引用 `.skill-execution-standard.md`
    - 所有技能必须引用 `.data-verification-standard.md`
-   - 所有技能必须引用 `.mandatory-standards.md`
+   - 所有技能必须引用 `config/mandatory-rules.md`
 
 4. **团队协作机制**
    - 必须包含"团队协作"部分

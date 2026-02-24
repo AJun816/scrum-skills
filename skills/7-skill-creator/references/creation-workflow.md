@@ -63,8 +63,8 @@
 **需要协作的技能：** （列出相关技能）
 例如：
 - 3-system-architect：架构安全设计
-- 4-java-backend-dev：后端安全实现
-- 4-vue-frontend-dev：前端安全实现
+- 4-backend-dev：后端安全实现
+- 4-frontend-dev：前端安全实现
 - 5-devops-engineer：部署安全配置
 
 ### 5️⃣ 资源文件需求
@@ -103,7 +103,7 @@
    - YAML frontmatter（name、description）
    - name 字段：`{编号}-{英文名称}`（与目录名一致）
    - description 字段：`【{编号}】{中文名称}，...`
-   - 强制执行规范（引用 .mandatory-standards.md）
+   - 强制执行规范（引用 config/mandatory-rules.md）
    - 概述和工作流程
    - 团队主动协作机制
    - 资源文件说明
@@ -131,7 +131,7 @@
 
 4. **自动集成项目特性**
    - 读取 PROJECT_CONFIG.md 的标准流程
-   - 强制执行规范（引用 .mandatory-standards.md）
+   - 强制执行规范（引用 config/mandatory-rules.md）
    - 数据验证标准（引用 .data-verification-standard.md）
    - 团队共享文档机制（引用 .team-shared-docs.md）
    - 缓存优化机制

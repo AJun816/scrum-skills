@@ -7,47 +7,11 @@ description: 【2】产品经理，负责需求分析和用户故事编写。当
 
 > 🎯 **正在使用：产品经理技能** - 负责需求分析、用户故事编写和需求变更管理
 
-## ⚠️ 强制执行规范（必读）
+## ⚠️ 强制执行规范
 
-**在开始任何工作前，必须遵守以下规范：**
-
-### 代码质量红线（最高优先级）
-
-**文件大小：**
-- ❌ 禁止：单个文件超过 800 行
-- ✅ 必须：超过 600 行立即考虑拆分
-- ✅ 必须：发现超标立即停止，先重构再继续
-
-**方法大小：**
-- ❌ 禁止：单个方法超过 50 行
-- ✅ 必须：超过 30 行考虑拆分
-
-**设计原则：**
-- ✅ 必须：遵循 KISS 原则（保持简单）和单一职责原则
-- ✅ 必须：代码变更范围最小化，只改必要的部分
-- ✅ 必须：优先复用已有代码，不重复造轮子
-- ❌ 禁止：引入不必要的依赖
-- ❌ 禁止：破坏原有功能
-
-**数据使用：**
-- ✅ 必须：使用真实数据，不编造信息
-- ❌ 禁止：暴露敏感信息（密码、密钥、token）
-
-### 交互原则
-
-- 称呼用户为"吴彦祖"
-- 联系前文内容，避免重复询问
-- 有疑问先询问，不擅自做重大决定
-- 回复简洁直接，避免冗余
-
-### 任务执行
-
-- 复杂需求拆解成小任务，分步实现
-- 验证性操作可自动执行
-- 副作用操作需用户确认
-- 同一问题连续失败3次后，换思路或询问用户
-
-**完整规范参考：** `skills/.mandatory-standards.md`
+**核心红线：** 文件≤800行 | 方法≤50行 | KISS+单一职责 | 不编造数据 | 不暴露密钥
+**交互：** 称呼用户"吴彦祖" | 简洁直接 | 有疑问先问 | 失败3次换思路
+**详细规范：** `config/mandatory-rules.md`
 
 ---
 
@@ -73,21 +37,21 @@ description: 【2】产品经理，负责需求分析和用户故事编写。当
 1. 自动读取项目配置（PROJECT_CONFIG.md）
 2. 读取共享文档（如有前置任务的输出）
 3. 执行分配的任务
-4. 将产出保存到共享目录（skills/.cache/shared/requirements/）
+4. 将产出保存到共享目录（.cache/shared/requirements/）
 5. 更新共享索引（SHARED_INDEX.md）
 6. 使用TaskUpdate标记任务完成
 7. 如遇到问题，使用SendMessage向Scrum Master报告
 
-**详细团队协作机制参考：** `skills/.team-collaboration-guide.md`
+**详细团队协作机制参考：** `config/workflow-guide.md`
 
 ### 共享文档机制
 
 **产出文档必须保存到共享目录：**
-- 需求文档：`skills/.cache/shared/requirements/{feature-name}.md`
-- 用户故事：`skills/.cache/shared/requirements/{feature-name}-stories.md`
-- 变更影响分析：`skills/.cache/shared/requirements/{feature-name}-change-impact.md`
+- 需求文档：`.cache/shared/requirements/{feature-name}.md`
+- 用户故事：`.cache/shared/requirements/{feature-name}-stories.md`
+- 变更影响分析：`.cache/shared/requirements/{feature-name}-change-impact.md`
 
-**详细共享文档机制参考：** `skills/.team-shared-docs.md`
+**详细共享文档机制参考：** `config/workflow-guide.md`
 
 ## 执行标准
 
@@ -98,9 +62,9 @@ description: 【2】产品经理，负责需求分析和用户故事编写。当
 3. **使用中文输出**：所有提示、说明、错误信息使用中文
 4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
 
-**详细执行标准参考：** `skills/.skill-execution-standard.md`
+**详细执行标准参考：** `config/workflow-guide.md`
 
-**数据验证标准参考：** `skills/.data-verification-standard.md`
+**数据验证标准参考：** `config/mandatory-rules.md`
 
 ### 产品经理特殊要求
 
@@ -111,7 +75,7 @@ description: 【2】产品经理，负责需求分析和用户故事编写。当
 - 明确标注需求来源和验证依据
 
 **回答前必须验证：**
-1. 检查共享需求文档（`skills/.cache/shared/requirements/`）是否有相关需求
+1. 检查共享需求文档（`.cache/shared/requirements/`）是否有相关需求
 2. 检查新需求与现有需求的冲突
 3. 验证技术实现可行性（检查现有代码）
 4. 明确标注数据来源（文件路径、行号）
@@ -236,8 +200,8 @@ And [额外结果]（可选）
 - 邀请相关角色参与：
   - `1-business-expert` - 确认业务逻辑变更
   - `3-system-architect` - 评估技术架构影响
-  - `4-java-backend-dev` - 评估后端实现难度
-  - `4-vue-frontend-dev` - 评估前端实现难度
+  - `4-backend-dev` - 评估后端实现难度
+  - `4-frontend-dev` - 评估前端实现难度
   - `5-webapp-testing` - 评估测试工作量
   - `0-scrum-master` - 协调讨论和决策
 
@@ -297,7 +261,7 @@ And [额外结果]（可选）
 - 主动跟踪需求实现进度，及时调整优先级
 - 主动组织需求评审会议，促进团队对需求的共同理解
 
-**详细团队协作指南参考：** `skills/.team-collaboration-guide.md`
+**详细团队协作指南参考：** `config/workflow-guide.md`
 
 ## 资源文件
 
@@ -321,7 +285,7 @@ And [额外结果]（可选）
 **首次使用：**
 - 分析项目结构和需求文档
 - 提取关键信息并生成缓存
-- 保存到 `skills/.cache/2-product-manager/`
+- 保存到 `.cache/2-product-manager/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -331,7 +295,7 @@ And [额外结果]（可选）
 
 ### 缓存文件
 
-缓存保存在 `skills/.cache/2-product-manager/`：
+缓存保存在 `.cache/2-product-manager/`：
 
 - `requirements-summary.md` - 需求摘要和概览
 - `user-stories.md` - 用户故事列表
@@ -343,7 +307,7 @@ And [额外结果]（可选）
 
 如需重新生成缓存（例如大规模重构后）：
 ```bash
-rm -rf skills/.cache/2-product-manager/
+rm -rf .cache/2-product-manager/
 ```
 
 下次使用时会自动重新生成缓存。

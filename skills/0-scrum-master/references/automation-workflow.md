@@ -337,7 +337,7 @@ SendMessage({
 **代码质量：** ✅ 通过
 
 **输出文件：**
-- 📄 测试报告：skills/.cache/shared/test-reports/{feature-name}-test-report.md
+- 📄 测试报告：.cache/shared/test-reports/{feature-name}-test-report.md
 
 🎉 任务完成！
 ```

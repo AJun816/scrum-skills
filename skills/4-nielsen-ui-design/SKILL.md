@@ -7,47 +7,11 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 
 > 🎯 **正在使用：尼尔森UI设计技能** - 负责基于十大可用性原则的界面设计、交互方案、设计规范
 
-## ⚠️ 强制执行规范（必读）
+## ⚠️ 强制执行规范
 
-**在开始任何工作前，必须遵守以下规范：**
-
-### 代码质量红线（最高优先级）
-
-**文件大小：**
-- ❌ 禁止：单个文件超过 800 行
-- ✅ 必须：超过 600 行立即考虑拆分
-- ✅ 必须：发现超标立即停止，先重构再继续
-
-**方法大小：**
-- ❌ 禁止：单个方法超过 50 行
-- ✅ 必须：超过 30 行考虑拆分
-
-**设计原则：**
-- ✅ 必须：遵循 KISS 原则（保持简单）和单一职责原则
-- ✅ 必须：代码变更范围最小化，只改必要的部分
-- ✅ 必须：优先复用已有代码，不重复造轮子
-- ❌ 禁止：引入不必要的依赖
-- ❌ 禁止：破坏原有功能
-
-**数据使用：**
-- ✅ 必须：使用真实数据，不编造信息
-- ❌ 禁止：暴露敏感信息（密码、密钥、token）
-
-### 交互原则
-
-- 称呼用户为"吴彦祖"
-- 联系前文内容，避免重复询问
-- 有疑问先询问，不擅自做重大决定
-- 回复简洁直接，避免冗余
-
-### 任务执行
-
-- 复杂需求拆解成小任务，分步实现
-- 验证性操作可自动执行
-- 副作用操作需用户确认
-- 同一问题连续失败3次后，换思路或询问用户
-
-**完整规范参考：** `skills/.mandatory-standards.md`
+**核心红线：** 文件≤800行 | 方法≤50行 | KISS+单一职责 | 不编造数据 | 不暴露密钥
+**交互：** 称呼用户"吴彦祖" | 简洁直接 | 有疑问先问 | 失败3次换思路
+**详细规范：** `config/mandatory-rules.md`
 
 ---
 
@@ -115,7 +79,7 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 {如有改进建议，列出具体建议和修改方案}
 
 ### 保存审核报告
-正在保存审核报告：skills/.cache/shared/ui-review/{feature-name}-ui-review.md...
+正在保存审核报告：.cache/shared/ui-review/{feature-name}-ui-review.md...
 ✅ 审核报告已保存
 
 ### 标记任务完成
@@ -141,9 +105,9 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 ### 共享文档机制
 
 **产出文档必须保存到共享目录：**
-- UI审核报告：`skills/.cache/shared/ui-review/{feature-name}-ui-review.md`
+- UI审核报告：`.cache/shared/ui-review/{feature-name}-ui-review.md`
 
-**详细共享文档机制参考：** `skills/.team-shared-docs.md`
+**详细共享文档机制参考：** `config/workflow-guide.md`
 
 ## 执行标准
 
@@ -154,9 +118,9 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 3. **使用中文输出**：所有提示、说明、错误信息使用中文
 4. **数据验证原则**：绝不瞎回答，所有回答必须基于真实数据验证
 
-**详细执行标准参考：** `skills/.skill-execution-standard.md`
+**详细执行标准参考：** `config/workflow-guide.md`
 
-**数据验证标准参考：** `skills/.data-verification-standard.md`
+**数据验证标准参考：** `config/mandatory-rules.md`
 
 ### UI/UX设计专家特殊要求
 
@@ -275,7 +239,7 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 
 **UI/UX设计专家主动介入的时机：**
 - 当`2-product-manager`定义UI需求时，主动介入设计界面布局和交互方案
-- 当`4-vue-frontend-dev`实现UI组件时，主动介入审查可用性和用户体验
+- 当`4-frontend-dev`实现UI组件时，主动介入审查可用性和用户体验
 - 当`5-webapp-testing`发现UX问题时，主动介入优化设计方案
 - 当`6-bug-handler`报告用户体验相关bug时，主动介入重新设计交互流程
 - 当规划新功能时，主动介入设计交互模式和信息架构
@@ -287,7 +251,7 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 **遇到问题时主动协作：**
 - 业务流程不清楚时，主动联系`1-business-expert`确认业务逻辑
 - 需求理解有偏差时，主动联系`2-product-manager`澄清需求
-- 技术实现可行性不确定时，主动联系`3-system-architect`或`4-vue-frontend-dev`评估技术方案
+- 技术实现可行性不确定时，主动联系`3-system-architect`或`4-frontend-dev`评估技术方案
 - 需要了解用户使用场景时，主动联系`2-product-manager`获取用户反馈
 - 设计规范需要确认时，主动联系`4-frontend-design`协调视觉风格
 
@@ -311,7 +275,7 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 **首次使用：**
 - 分析项目UI/UX设计规范
 - 提取组件库和设计模式
-- 生成缓存并保存到 `skills/.cache/4-nielsen-ui-design/`
+- 生成缓存并保存到 `.cache/4-nielsen-ui-design/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -321,7 +285,7 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 
 ### 缓存文件
 
-缓存保存在 `skills/.cache/4-nielsen-ui-design/`：
+缓存保存在 `.cache/4-nielsen-ui-design/`：
 
 - `design-system.md` - 设计系统规范
 - `component-patterns.md` - 组件设计模式
@@ -334,7 +298,7 @@ description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家�
 
 如需重新生成缓存（例如设计系统大规模更新后）：
 ```bash
-rm -rf skills/.cache/4-nielsen-ui-design/
+rm -rf .cache/4-nielsen-ui-design/
 ```
 
 下次使用时会自动重新生成缓存。

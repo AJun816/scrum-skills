@@ -7,47 +7,11 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 
 > 🎯 **正在使用：Scrum Master技能** - 负责组织敏捷仪式、协调团队、移除障碍、促进持续改进
 
-## ⚠️ 强制执行规范（必读）
+## ⚠️ 强制执行规范
 
-**在开始任何工作前，必须遵守以下规范：**
-
-### 代码质量红线（最高优先级）
-
-**文件大小：**
-- ❌ 禁止：单个文件超过 800 行
-- ✅ 必须：超过 600 行立即考虑拆分
-- ✅ 必须：发现超标立即停止，先重构再继续
-
-**方法大小：**
-- ❌ 禁止：单个方法超过 50 行
-- ✅ 必须：超过 30 行考虑拆分
-
-**设计原则：**
-- ✅ 必须：遵循 KISS 原则（保持简单）和单一职责原则
-- ✅ 必须：代码变更范围最小化，只改必要的部分
-- ✅ 必须：优先复用已有代码，不重复造轮子
-- ❌ 禁止：引入不必要的依赖
-- ❌ 禁止：破坏原有功能
-
-**数据使用：**
-- ✅ 必须：使用真实数据，不编造信息
-- ❌ 禁止：暴露敏感信息（密码、密钥、token）
-
-### 交互原则
-
-- 称呼用户为"吴彦祖"
-- 联系前文内容，避免重复询问
-- 有疑问先询问，不擅自做重大决定
-- 回复简洁直接，避免冗余
-
-### 任务执行
-
-- 复杂需求拆解成小任务，分步实现
-- 验证性操作可自动执行
-- 副作用操作需用户确认
-- 同一问题连续失败3次后，换思路或询问用户
-
-**完整规范参考：** `skills/.mandatory-standards.md`
+**核心红线：** 文件≤800行 | 方法≤50行 | KISS+单一职责 | 不编造数据 | 不暴露密钥
+**交互：** 称呼用户"吴彦祖" | 简洁直接 | 有疑问先问 | 失败3次换思路
+**详细规范：** `config/mandatory-rules.md`
 
 ---
 
@@ -152,7 +116,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 
 **每次执行任务前，必须先检测初始化状态：**
 
-1. **检查缓存文件：** `skills/.cache/.project-info.json`
+1. **检查缓存文件：** `.cache/.project-info.json`
 2. **根据检测结果执行相应流程：**
 
 #### 场景1：缓存存在（已初始化）
@@ -211,7 +175,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 开始执行...
 ```
 
-**详细执行标准：** `skills/.skill-execution-standard.md`
+**详细执行标准：** `config/workflow-guide.md`
 
 ### 语言规范
 
@@ -231,7 +195,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 3. **质量检查**：定期检查团队输出的准确性和可追溯性
 4. **持续改进**：识别和纠正团队中的不良实践
 
-**详细数据验证标准：** `skills/.data-verification-standard.md`
+**详细数据验证标准：** `config/mandatory-rules.md`
 
 ## 团队协作促进机制
 
@@ -275,7 +239,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 - 让团队成员主动改进流程，而不是被动接受
 - 让团队成员主动承担责任，而不是推卸责任
 
-**详细协作指南：** `skills/.team-collaboration-guide.md`
+**详细协作指南：** `config/workflow-guide.md`
 
 ## 并行工作机制
 
@@ -303,7 +267,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 - Scrum Master维护文件锁定表，防止冲突
 - 如需修改同一文件，协调顺序执行
 
-**详细并行工作机制：** `references/parallel-work.md`
+**详细并行工作机制：** `references/parallel-work-overview.md`
 
 ## 资源文件
 
@@ -313,7 +277,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 - **agile-ceremonies.md** - 敏捷仪式详细指南
 - **progress-monitoring.md** - 实时进度监控详解
 - **initialization-guide.md** - 初始化流程详解
-- **parallel-work.md** - 并行工作机制详解
+- **parallel-work-overview.md** - 并行工作机制详解
 
 ### assets/
 
@@ -329,7 +293,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 **首次使用：**
 - 分析团队工作流程和敏捷实践
 - 提取迭代计划和障碍记录
-- 生成缓存并保存到 `skills/.cache/0-scrum-master/`
+- 生成缓存并保存到 `.cache/0-scrum-master/`
 
 **后续使用：**
 - 优先加载缓存文件（快速、省token）
@@ -339,7 +303,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 
 ### 缓存文件
 
-缓存保存在 `skills/.cache/0-scrum-master/`：
+缓存保存在 `.cache/0-scrum-master/`：
 
 - `sprint-summary.md` - 迭代概览和进度
 - `impediments-log.md` - 障碍跟踪记录
@@ -351,7 +315,7 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 
 如需重新生成缓存（例如大规模重构后）：
 ```bash
-rm -rf skills/.cache/0-scrum-master/
+rm -rf .cache/0-scrum-master/
 ```
 
 下次使用时会自动重新生成缓存。
@@ -404,4 +368,4 @@ Scrum Master确保：
 - `references/agile-ceremonies.md` - 敏捷仪式详细指南
 - `references/progress-monitoring.md` - 实时进度监控详解
 - `references/initialization-guide.md` - 初始化流程详解
-- `references/parallel-work.md` - 并行工作机制详解
+- `references/parallel-work-overview.md` - 并行工作机制详解
