@@ -1,7 +1,7 @@
 # Hooks / 钩子
 
-Claude Code hooks that enforce coding standards automatically.
-自动强制执行代码规范的 Claude Code 钩子。
+Claude Code hooks for code quality enforcement.
+代码质量管控的 Claude Code 钩子。
 
 ## Auto-Active / 自动生效
 
@@ -15,10 +15,42 @@ When you clone this repo and open it in Claude Code, hooks are **automatically a
 
 | Hook | Event | Action |
 |------|-------|--------|
-| pre-bash.sh | PreToolUse:Bash | Block dangerous commands, check review mark on git commit |
-| pre-file-write.sh | PreToolUse:Write/Edit | Block files >800 lines, scan for secrets |
-| post-file-write.sh | PostToolUse:Write/Edit | Warn on code smells (console.log, TODO) |
-| commit-msg.sh | git commit-msg | Require `Reviewed-by: 8-code-reviewer` in commit messages |
+| pre-bash.sh | PreToolUse:Bash | Enforce `✅[Reviewed]` prefix on every git commit |
+| pre-file-write.sh | PreToolUse:Write/Edit | Block code files >800 lines, warn >600 lines |
+| post-file-write.sh | PostToolUse:Write/Edit | Code quality report (see below) |
+| commit-msg.sh | git commit-msg | Enforce `✅[Reviewed]` prefix (git hook layer) |
+
+## Commit Format / 提交格式
+
+Every commit **must** start with `✅[Reviewed]` prefix. No bypass, no exceptions.
+每次提交**必须**以 `✅[Reviewed]` 开头，无例外。
+
+```
+✅[Reviewed] feat: implement user login
+✅[Reviewed] fix: fix payment bug
+```
+
+Git log effect / Git日志效果：
+```
+✅[Reviewed] feat: 实现用户登录功能     ← reviewed, safe
+✅[Reviewed] fix: 修复支付失败问题      ← reviewed, safe
+feat: 紧急修复                          ← blocked, cannot commit
+```
+
+## Code Quality Checks / 代码质量检查
+
+`post-file-write.sh` runs after every file write/edit and reports:
+
+| Check | Threshold | Level |
+|-------|-----------|-------|
+| File size / 文件行数 | >800 lines: error, >600: warn | ❌ / ⚠️ |
+| Function length / 方法行数 | >50 lines | ⚠️ |
+| Nesting depth / 嵌套深度 | >6: error, >4: warn | ❌ / ⚠️ |
+| console.log | any occurrence | ⚠️ |
+| TODO/FIXME/HACK | any occurrence | ⚠️ |
+| Linter (auto-detect) | eslint / ruff / flake8 / go vet | 🔍 |
+
+Linter auto-detection: if the project has eslint, ruff, flake8, or go installed, the hook runs it automatically.
 
 ## Optional Setup / 可选配置
 
@@ -31,5 +63,5 @@ sh .claude/skills/hooks/setup.sh
 
 ## Skip Review / 跳过审查
 
-Add `[skip-review]` to commit message to bypass review mark check.
-在提交信息中添加 `[skip-review]` 可跳过审查标记检查。
+Add `[skip-review]` to commit message to bypass the review prefix check.
+在提交信息中添加 `[skip-review]` 可跳过审查前缀检查。

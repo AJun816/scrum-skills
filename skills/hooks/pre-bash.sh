@@ -1,57 +1,34 @@
 #!/bin/sh
-# Scrum Skills - PreToolUse Hook: Bash (sh version)
-# Block dangerous commands, check review mark on git commit
-# For manual users who copy skills/ directory
+# Scrum Skills - PreToolUse Hook: Bash
+# Enforce ✅[Reviewed] prefix on every git commit (mandatory, no bypass)
 
 set -e
 
-# Read stdin (JSON from Claude Code)
-# Note: JSON may contain escaped quotes \" in values
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | grep -o '"tool_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"tool_name"[[:space:]]*:[[:space:]]*"//;s/"//')
-# Use sed to extract command value, handling escaped quotes
 COMMAND=$(echo "$INPUT" | sed -n 's/.*"command"[[:space:]]*:[[:space:]]*"//p' | sed 's/"[[:space:]]*[,}].*//' | sed 's/\\"/"/g' | head -1)
 
 [ "$TOOL_NAME" != "Bash" ] && exit 0
 [ -z "$COMMAND" ] && exit 0
 
-# ---- Block dangerous commands ----
-if echo "$COMMAND" | grep -qE '\bgit\s+push\b.*(-f|--force)\b'; then
-  echo "❌ Blocked: force push / 已阻止: 强制推送" >&2
-  exit 2
-fi
-
-if echo "$COMMAND" | grep -qE '\bgit\s+reset\s+--hard\b'; then
-  echo "❌ Blocked: reset --hard / 已阻止: 硬重置" >&2
-  exit 2
-fi
-
-if echo "$COMMAND" | grep -qE '\brm\s+-rf?\s+[/~]'; then
-  echo "❌ Blocked: dangerous rm / 已阻止: 危险删除" >&2
-  exit 2
-fi
-
-if echo "$COMMAND" | grep -qiE '\bDROP\s+(DATABASE|TABLE)\b'; then
-  echo "❌ Blocked: DROP command / 已阻止: DROP命令" >&2
-  exit 2
-fi
-
-# ---- Check git commit review mark ----
+# ---- Enforce review prefix on git commit ----
 if echo "$COMMAND" | grep -qE '\bgit\s+commit\b'; then
-  # Extract message after -m flag (handles both "msg" and 'msg')
   COMMIT_MSG=$(echo "$COMMAND" | sed -n 's/.*-m[[:space:]]*['"'"'"]\([^'"'"'"]*\).*/\1/p')
-  # Fallback: try without quotes
   if [ -z "$COMMIT_MSG" ]; then
     COMMIT_MSG=$(echo "$COMMAND" | sed -n 's/.*-m[[:space:]]*\([^[:space:]]*\).*/\1/p')
   fi
   if [ -n "$COMMIT_MSG" ]; then
-    # Allow [skip-review]
+    # Allow [skip-review] bypass
     if echo "$COMMIT_MSG" | grep -q '\[skip-review\]'; then
       exit 0
     fi
-    # Check review mark
-    if ! echo "$COMMIT_MSG" | grep -q 'Reviewed-by:.*8-code-reviewer'; then
-      echo "❌ Missing review mark / 缺少审查标记: Reviewed-by: 8-code-reviewer ✅" >&2
+    if ! echo "$COMMIT_MSG" | grep -q '^✅\[Reviewed\]'; then
+      echo "❌ Commit blocked / 提交被阻止" >&2
+      echo "   Every commit must start with ✅[Reviewed] prefix" >&2
+      echo "   每次提交必须以 ✅[Reviewed] 开头" >&2
+      echo "   Format / 格式: ✅[Reviewed] your commit message" >&2
+      echo "   Run @8-code-reviewer first / 请先执行 @8-code-reviewer 代码审查" >&2
+      echo "   Or add [skip-review] to bypass / 或添加 [skip-review] 跳过" >&2
       exit 2
     fi
   fi

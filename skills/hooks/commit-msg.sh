@@ -1,10 +1,8 @@
 #!/bin/sh
-# Scrum Skills - Git commit-msg Hook (sh version)
-# Checks for review mark in commit messages
-# Installed to .git/hooks/commit-msg
-#
-# Format: Reviewed-by: 8-code-reviewer ✅ (YYYY-MM-DD HH:MM)
-# Skip:   [skip-review] in commit message
+# Scrum Skills - Git commit-msg Hook
+# Enforce ✅[Reviewed] prefix on every commit (mandatory)
+# Allow [skip-review] as bypass
+# Installed to .git/hooks/commit-msg via setup.sh
 
 MSG_FILE="$1"
 
@@ -15,21 +13,21 @@ fi
 
 COMMIT_MSG=$(cat "$MSG_FILE")
 
-# Allow [skip-review]
+# Allow [skip-review] bypass
 if echo "$COMMIT_MSG" | grep -q '\[skip-review\]'; then
   exit 0
 fi
 
-# Check for review mark
-if ! echo "$COMMIT_MSG" | grep -q 'Reviewed-by:.*8-code-reviewer'; then
+if ! echo "$COMMIT_MSG" | grep -q '^✅\[Reviewed\]'; then
   echo "" >&2
   echo "❌ Commit blocked / 提交被阻止" >&2
   echo "" >&2
-  echo "Missing review mark / 缺少审查标记:" >&2
-  echo "  Reviewed-by: 8-code-reviewer ✅ (YYYY-MM-DD HH:MM)" >&2
+  echo "Every commit must start with ✅[Reviewed] prefix" >&2
+  echo "每次提交必须以 ✅[Reviewed] 开头" >&2
   echo "" >&2
-  echo "To skip: add [skip-review] to commit message" >&2
-  echo "跳过审查: 在提交信息中添加 [skip-review]" >&2
+  echo "Format / 格式: ✅[Reviewed] your commit message" >&2
+  echo "Run @8-code-reviewer first / 请先执行 @8-code-reviewer 代码审查" >&2
+  echo "Or add [skip-review] to bypass / 或添加 [skip-review] 跳过" >&2
   echo "" >&2
   exit 1
 fi

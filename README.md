@@ -6,14 +6,19 @@ A complete set of agile AI skills for Claude Code. Let AI be your agile team.
 ## Quick Start / 快速开始
 
 ```bash
-# 1. Clone to your project / 克隆到你的项目
-cp -r skills/ your-project/.claude/skills/
-cp .claude/settings.json your-project/.claude/settings.json
+# 1. Clone this repo / 克隆仓库
+git clone https://github.com/AJun816/scrum-skills.git
+# or Gitee / 或使用 Gitee
+git clone https://gitee.com/ajun816/scrum-skills.git
 
-# 2. Done! Hooks auto-active / 完成！钩子自动生效
+# 2. Copy to your project / 复制到你的项目
+cp -r scrum-skills/skills/ your-project/.claude/skills/
+cp scrum-skills/.claude/settings.json your-project/.claude/settings.json
+
+# 3. Done! Hooks auto-active / 完成！钩子自动生效
 #    @0-scrum-master 帮我开发用户登录功能
 
-# 3. (Optional) Customize nickname / 可选：自定义昵称
+# 4. (Optional) Customize nickname / 可选：自定义昵称
 sh .claude/skills/hooks/setup.sh
 ```
 
@@ -62,10 +67,10 @@ sh .claude/skills/hooks/setup.sh
 Hooks are auto-configured via `.claude/settings.json` — no manual setup needed.
 钩子通过 `.claude/settings.json` 自动配置，无需手动设置。
 
-- **pre-bash** — Block dangerous commands (force push, rm -rf /, DROP TABLE)
-- **pre-file-write** — Block files >800 lines, detect secrets
-- **post-file-write** — Warn on code smells (console.log, TODO)
-- **commit-msg** — Require `Reviewed-by: 8-code-reviewer` in commits (needs setup.sh)
+- **pre-bash** — Enforce `✅[Reviewed]` prefix on every git commit
+- **pre-file-write** — Block code files >800 lines, warn >600 lines
+- **post-file-write** — Code quality report (function length, nesting depth, code smells, auto-linter)
+- **commit-msg** — Enforce `✅[Reviewed]` prefix (git hook layer, needs setup.sh)
 
 See [hooks/README.md](skills/hooks/README.md) for details.
 
