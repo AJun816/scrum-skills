@@ -274,7 +274,7 @@ rm -rf .cache/7-skill-creator/
 ### 创建新技能
 
 ```
-@7-skill-creator 我想创建一个新技能
+/7-skill-creator 我想创建一个新技能
 ```
 
 然后按照引导提供技能信息即可。
@@ -282,7 +282,7 @@ rm -rf .cache/7-skill-creator/
 ### 优化现有技能
 
 ```
-@7-skill-creator 帮我优化 {技能名称} 技能
+/7-skill-creator 帮我优化 {技能名称} 技能
 ```
 
 说明需要优化的方面，技能创建器会帮你改进。
@@ -290,7 +290,7 @@ rm -rf .cache/7-skill-creator/
 ### 重构超标文件
 
 ```
-@7-skill-creator 帮我重构 {技能名称}，文件超过800行了
+/7-skill-creator 帮我重构 {技能名称}，文件超过800行了
 ```
 
 技能创建器会自动拆分文件，将详细内容移到 references/。

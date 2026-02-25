@@ -16,7 +16,7 @@ cp -r scrum-skills/skills/ your-project/.claude/skills/
 cp scrum-skills/.claude/settings.json your-project/.claude/settings.json
 
 # 3. Done! Hooks auto-active / 完成！钩子自动生效
-#    @0-scrum-master 帮我开发用户登录功能
+#    /0-scrum-master 帮我开发用户登录功能
 
 # 4. (Optional) Customize nickname / 可选：自定义昵称
 sh .claude/skills/hooks/setup.sh
@@ -44,22 +44,22 @@ sh .claude/skills/hooks/setup.sh
 
 ```
 # Requirement analysis / 需求分析
-@2-product-manager 分析用户登录功能的需求
+/2-product-manager 分析用户登录功能的需求
 
 # Architecture design / 架构设计
-@3-system-architect 设计订单管理模块的架构
+/3-system-architect 设计订单管理模块的架构
 
 # Backend development / 后端开发
-@4-backend-dev 实现用户登录API
+/4-backend-dev 实现用户登录API
 
 # Frontend development / 前端开发
-@4-frontend-dev 实现登录页面
+/4-frontend-dev 实现登录页面
 
 # Testing / 测试
-@5-webapp-testing 编写登录功能的测试用例
+/5-webapp-testing 编写登录功能的测试用例
 
 # Full workflow / 完整流程（Scrum Master 自动协调）
-@0-scrum-master 开发一个用户登录功能
+/0-scrum-master 开发一个用户登录功能
 ```
 
 ## Hooks / 代码质量钩子

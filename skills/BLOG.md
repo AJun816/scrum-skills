@@ -65,14 +65,14 @@ cp scrum-skills/.claude/settings.json your-project/.claude/settings.json
 **第3步：开始使用**
 ```
 # 在Claude Code中直接调用技能
-@0-scrum-master 帮我开发用户登录功能
+/0-scrum-master 帮我开发用户登录功能
 
 # 或单独调用某个角色
-@2-product-manager 分析用户登录功能的需求
-@3-system-architect 设计订单管理模块的架构
-@4-backend-dev 实现用户登录API
-@4-frontend-dev 实现登录页面
-@5-webapp-testing 编写登录功能的测试用例
+/2-product-manager 分析用户登录功能的需求
+/3-system-architect 设计订单管理模块的架构
+/4-backend-dev 实现用户登录API
+/4-frontend-dev 实现登录页面
+/5-webapp-testing 编写登录功能的测试用例
 ```
 
 **可选：自定义昵称和安装git hook**
@@ -183,36 +183,36 @@ DevOps工程师（自动部署）→ 上线发布
 ### 场景1：新功能开发（全流程自动化）
 
 ```
-1. @2-product-manager 分析需求 → 产出需求文档
-2. @3-system-architect 设计架构 → 产出架构设计
-3. @4-backend-dev 实现后端 → 产出代码
-4. @4-frontend-dev 实现前端 → 产出代码
-5. @5-webapp-testing 测试验证 → 产出测试报告
+1. /2-product-manager 分析需求 → 产出需求文档
+2. /3-system-architect 设计架构 → 产出架构设计
+3. /4-backend-dev 实现后端 → 产出代码
+4. /4-frontend-dev 实现前端 → 产出代码
+5. /5-webapp-testing 测试验证 → 产出测试报告
 6. git commit → 检查 Reviewed-by 标记 → 通过后提交
-7. @5-devops-engineer 部署上线 → 完成发布
+7. /5-devops-engineer 部署上线 → 完成发布
 ```
 
 ### 场景2：Bug修复（快速响应）
 
 ```
-1. @6-bug-handler 分析Bug → 定位问题
-2. @4-backend-dev 修复代码 → 提交修复
+1. /6-bug-handler 分析Bug → 定位问题
+2. /4-backend-dev 修复代码 → 提交修复
 3. git commit → 检查审查标记 → 通过后提交
-4. @5-webapp-testing 回归测试 → 验证修复
+4. /5-webapp-testing 回归测试 → 验证修复
 ```
 
 ### 场景3：敏捷仪式（团队协作）
 
 ```
-@0-scrum-master 组织迭代计划会议
-@0-scrum-master 组织每日站会
-@0-scrum-master 组织迭代回顾会议
+/0-scrum-master 组织迭代计划会议
+/0-scrum-master 组织每日站会
+/0-scrum-master 组织迭代回顾会议
 ```
 
 ### 场景4：创建自定义技能
 
 ```
-@7-skill-creator 我想创建一个安全专家技能
+/7-skill-creator 我想创建一个安全专家技能
 ```
 
 技能创建器会引导你完成技能定义，自动生成符合规范的技能文件。

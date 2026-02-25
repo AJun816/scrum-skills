@@ -17,7 +17,7 @@ cp .claude/settings.json your-project/.claude/settings.json
 直接调用任何技能，第一次使用时会自动引导你初始化。
 
 ```
-@0-scrum-master 帮我组织一次迭代计划会议
+/0-scrum-master 帮我组织一次迭代计划会议
 ```
 
 首次使用会自动引导配置项目信息（名称、技术栈、业务模块）。

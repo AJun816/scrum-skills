@@ -354,13 +354,13 @@ git commit -m "feat: 添加订单管理功能"
 ### 场景2：手动触发审查
 
 ```
-@8-code-reviewer 请审查当前的变更
+/8-code-reviewer 请审查当前的变更
 ```
 
 ### 场景3：审查特定文件
 
 ```
-@8-code-reviewer 请审查 PaymentService.java
+/8-code-reviewer 请审查 PaymentService.java
 ```
 
 ## 缓存机制（Token优化）
