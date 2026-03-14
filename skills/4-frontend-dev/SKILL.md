@@ -164,26 +164,30 @@ description: 【4】前端开发技能，负责页面开发、组件实现和API
    - 状态管理方案（根据框架选择合适的方案）
    - 用户交互流程（loading、错误提示、空状态）
 
-### Phase 3: 编码实现（生成 aider 命令）
+### Phase 3: 编码实现（直接调用 aider）
 
-> **执行方式**：Claude Code 生成完整 aider 命令，用户在终端里执行。
+> **执行方式**：通过 Bash 工具直接调用 aider，无需用户手动操作。
 > 详细规范参考：`config/aider-integration.md`
 
 **执行步骤：**
 
 1. 读取 `references/code-patterns.md` 和 `references/api-integration.md`
 2. 确认目标文件列表（API/Store/Composable/Component/View 等）
-3. 输出 aider 命令让用户执行：
+3. 通过 Bash 工具直接执行：
 
-```markdown
-## 🤖 请在终端执行（先 cd 到项目根目录）
-
-aider --architect --yes-always --no-git --read .cache/shared/api-design/{feature}-api.md --read .cache/shared/architecture/{feature}.md --read skills/config/coding-standards.md --message "按照 API 文档实现 {功能名称} 前端代码：1. src/api/{feature}.ts — 封装接口调用 2. src/stores/{feature}.ts — 状态管理（如需）3. src/composables/use{Feature}.ts — 可复用逻辑 4. src/components/{feature}/ — 子组件 5. src/views/{feature}/{Page}.vue — 页面组装。约束：单文件≤800行，参数名与后端DTO严格对齐，所有异步维护loading状态，统一UI组件库" src/api/{feature}.ts src/stores/{feature}.ts src/views/{feature}/{Page}.vue
-
-执行完成后告诉我，我来进行代码审查和 git commit。
+```bash
+ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL" \
+aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
+  --read .cache/shared/api-design/{feature}-api.md \
+  --read .cache/shared/architecture/{feature}.md \
+  --read skills/config/coding-standards.md \
+  --message "按照 API 文档实现 {功能名称} 前端代码：1. src/api/{feature}.ts — 封装接口调用 2. src/stores/{feature}.ts — 状态管理（如需）3. src/composables/use{Feature}.ts — 可复用逻辑 4. src/components/{feature}/ — 子组件 5. src/views/{feature}/{Page}.vue — 页面组装。约束：单文件≤800行，参数名与后端DTO严格对齐，所有异步维护loading状态，统一UI组件库" \
+  src/api/{feature}.ts \
+  src/stores/{feature}.ts \
+  src/views/{feature}/{Page}.vue
 ```
 
-4. 用户执行完成后，读取生成的代码进行验证
+4. aider 执行完成后，读取生成的代码进行验证
 
 ### Phase 4: 验证 + 提交
 
