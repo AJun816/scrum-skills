@@ -2,6 +2,8 @@
 
 **编程类技能在代码编写阶段直接通过 Bash 工具调用 aider，无需用户手动操作。**
 
+> 首次配置或遇到调用问题？请参阅 [Aider 配置与调用指南](aider-setup-guide.md)
+
 ---
 
 ## 核心设计原则
@@ -26,20 +28,24 @@ Claude Code 主进程  →  验收层：代码审查、git commit
 | 变量 | 说明 | 示例 |
 |------|------|------|
 | `ANTHROPIC_AUTH_TOKEN` | API 密钥 | `sk-ant-api03-...` |
-| `ANTHROPIC_BASE_URL` | API 代理地址（可选） | `https://your-proxy.com` |
+| `ANTHROPIC_BASE_URL` | API 代理地址（可选） | `https://your-proxy.com/` |
 
 **配置方式（任选其一）：**
 
 ```bash
 # 方式1：写入 shell 配置（推荐，永久生效）
 echo 'export ANTHROPIC_AUTH_TOKEN=your-key' >> ~/.bashrc
-echo 'export ANTHROPIC_BASE_URL=https://your-proxy.com' >> ~/.bashrc
+echo 'export ANTHROPIC_BASE_URL=https://your-proxy.com/' >> ~/.bashrc
 
 # 方式2：~/.aider.conf.yml
 anthropic-api-key: your-key
+anthropic-api-base: https://your-proxy.com   # 注意：不带尾部斜杠，不带 /v1
 ```
 
-> 技能调用时直接使用 `$ANTHROPIC_AUTH_TOKEN` 和 `$ANTHROPIC_BASE_URL`，零硬编码，开源安全。
+> **重要：** aider 通过 litellm 调用 Anthropic API，litellm 使用 `ANTHROPIC_API_BASE`（非 `ANTHROPIC_BASE_URL`）且会自动拼接 `/v1/messages`。因此：
+> - `ANTHROPIC_API_BASE` 的值**不能带 `/v1` 后缀**，否则会变成 `/v1/v1/messages`
+> - 技能调用模板中已做转换：从 `$ANTHROPIC_BASE_URL` 去除尾部斜杠后赋给 `ANTHROPIC_API_BASE`
+> - 零硬编码，开源安全
 
 ---
 
@@ -51,7 +57,7 @@ anthropic-api-key: your-key
 
 ```bash
 ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" \
-ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL" \
+ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
 aider \
   --model anthropic/claude-sonnet-4-6 \
   --architect \
@@ -68,7 +74,7 @@ aider \
 
 ```bash
 # 后端（后台执行）
-ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL" \
+ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
 aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
   --read .cache/shared/architecture/{feature}.md \
   --message "实现后端 {功能} API" \
@@ -76,7 +82,7 @@ aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no
 BACKEND_PID=$!
 
 # 前端（后台执行，与后端并行）
-ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL" \
+ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
 aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
   --read .cache/shared/api-design/{feature}-api.md \
   --message "实现前端 {功能} 页面" \
