@@ -3,6 +3,13 @@
 A complete set of agile AI skills for Claude Code. Let AI be your agile team.
 一套完整的敏捷开发 AI 技能组，让 AI 成为你的敏捷团队。
 
+## Prerequisites / 前置条件
+
+- [Claude Code](https://claude.ai/code) — AI 主进程
+- [aider](https://aider.chat) — AI 编码执行层（`pip install aider-chat`）
+
+aider 需要在本地终端可以正常运行（`aider --version` 有输出即可）。
+
 ## Quick Start / 快速开始
 
 ```bash
@@ -15,12 +22,29 @@ git clone https://gitee.com/ajun816/scrum-skills.git
 cp -r scrum-skills/skills/ your-project/.claude/skills/
 cp scrum-skills/.claude/settings.json your-project/.claude/settings.json
 
-# 3. Done! Hooks auto-active / 完成！钩子自动生效
-#    /0-scrum-master 帮我开发用户登录功能
+# 3. (Optional) Customize / 可选：自定义昵称和安装 git hook
+sh your-project/.claude/skills/hooks/setup.sh
 
-# 4. (Optional) Customize nickname / 可选：自定义昵称
-sh .claude/skills/hooks/setup.sh
+# 4. Done! Start working / 完成！开始工作
+#    /0-scrum-master 帮我开发用户登录功能
 ```
+
+## How It Works / 工作原理
+
+```
+用户描述需求
+    ↓
+Claude Code（Scrum Master）→ 任务拆解、架构设计、生成文档
+    ↓
+Claude Code 输出 aider 命令（单行，可直接复制执行）
+    ↓
+用户在终端执行 aider → 代码写入项目文件
+    ↓
+Claude Code → 代码审查 → git commit
+```
+
+**编码任务由 aider 在用户终端执行**，规划/设计/审查由 Claude Code 完成。
+
 
 ## Skills / 技能列表
 

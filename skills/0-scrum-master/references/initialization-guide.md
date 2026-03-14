@@ -2,7 +2,269 @@
 
 ## 概述
 
-本文档详细说明 Scrum Master 的项目初始化流程，包括初始化检测、自动分析、配置生成和增量更新机制。
+本文档详细说明 Scrum Master 的项目初始化流程，包括初始化检测、自动分析、配置生成、**Agent 团队创建**和增量更新机制。
+
+## 初始化检测
+
+### 检测逻辑
+
+**每次执行任务前，必须先检测初始化状态：**
+
+1. 检查缓存文件是否存在：`.cache/.project-info.json`
+2. 根据检测结果执行相应流程
+
+### 场景1：缓存存在（已初始化）
+
+读取 `.cache/.project-info.json`，加载项目配置，直接开始工作。
+
+**输出给用户：**
+```markdown
+## 🔍 检测初始化状态
+
+✅ 检测到项目信息
+
+你好，吴彦祖！检测到这个项目之前已经初始化过了。
+
+**项目信息：**
+- 项目名称：{从缓存读取}
+- 初始化时间：{从缓存读取}
+- 上次使用：{从缓存读取}
+
+我已经加载了项目配置，可以直接开始工作了！
+```
+
+---
+
+### 场景2：缓存不存在（未初始化）
+
+**必须执行完整初始化流程，不得跳过。**
+
+```markdown
+## 🎯 欢迎使用敏捷团队技能组！
+
+检测到这是第一次使用技能组，正在自动初始化项目配置...
+
+### 🔍 自动分析项目
+```
+
+---
+
+## 自动初始化流程（完整 7 步，必须按顺序执行）
+
+### 步骤1：扫描项目结构
+
+扫描技术栈配置文件（`package.json`、`pom.xml`、`requirements.txt`、`go.mod` 等），识别项目类型和技术栈。
+
+**识别规则：**
+
+| 文件名 | 技术栈 | 项目类型 |
+|--------|--------|----------|
+| package.json | Node.js/JavaScript | 前端或全栈 |
+| pom.xml | Java/Maven | 后端 |
+| build.gradle | Java/Gradle | 后端 |
+| requirements.txt | Python | 后端或数据科学 |
+| go.mod | Go | 后端 |
+| Cargo.toml | Rust | 后端或系统 |
+
+### 步骤2：分析技术栈
+
+读取配置文件，识别具体的框架和依赖：
+- 前端：Vue/React/Angular/Svelte
+- 后端：Spring Boot/FastAPI/Express/Gin 等
+- 数据库：通过 ORM 依赖识别
+
+### 步骤3：识别业务模块
+
+扫描 `src/` 目录结构，识别业务域（Java DDD 的包结构、Vue 的 views 目录等）。
+
+### 步骤4：分析代码结构
+
+使用 Grep 分析关键类和接口，识别架构模式（MVC/DDD/分层架构等）。
+
+### 步骤5：推断项目信息并生成配置
+
+综合分析结果，生成 `PROJECT_CONFIG.md`：
+
+```markdown
+# 项目配置
+
+## 项目信息
+- 项目名称：{projectName}
+- 项目类型：{projectType}
+- 技术栈：{techStack}
+
+## 业务域
+- {domain1}: {domain1}管理
+- {domain2}: {domain2}管理
+
+## 技术架构
+- 前端：{frontend}
+- 后端：{backend}
+- 数据库：{database}
+
+## 架构模式
+- {architecture}
+
+## 代码规范
+- 文件大小：≤800行
+- 方法大小：≤50行
+- 遵循KISS原则和单一职责原则
+```
+
+### 步骤6：生成缓存文件
+
+生成 `.cache/.project-info.json`：
+
+```json
+{
+  "projectName": "{projectName}",
+  "techStack": "{techStack}",
+  "domains": ["{domain1}", "{domain2}"],
+  "initialized": true,
+  "initTime": "{ISO时间}",
+  "lastUsed": "{ISO时间}",
+  "teamCreated": true,
+  "version": "2.0"
+}
+```
+
+### 步骤7：创建 Agent 团队（必须执行）
+
+> **强制要求**：初始化完成后，必须使用 TeamCreate 创建敏捷团队，并在后续任务中优先使用多 Agent 并行执行。
+
+**创建标准敏捷团队：**
+
+```markdown
+## 🤖 创建敏捷 Agent 团队
+
+正在为项目创建敏捷开发团队...
+```
+
+**Agent 团队组成（标准配置）：**
+
+| Agent 名称 | 角色 | 任务类型 |
+|-----------|------|---------|
+| `product-manager` | 产品经理 | 需求分析、用户故事 |
+| `system-architect` | 系统架构师 | 架构设计、API契约 |
+| `backend-dev` | 后端开发 | 后端编码（生成 aider 命令） |
+| `frontend-dev` | 前端开发 | 前端编码（生成 aider 命令） |
+| `qa-tester` | 测试工程师 | 测试验证 |
+
+**创建流程（伪代码）：**
+
+```javascript
+// 1. 创建团队
+const team = TeamCreate({
+  team_name: "{projectName}-agile-team",
+  description: "敏捷开发团队：{projectName}",
+  agent_type: "scrum-master"
+})
+
+// 2. 保存团队信息到缓存
+const cache = Read(".cache/.project-info.json")
+cache.teamName = "{projectName}-agile-team"
+cache.teamCreated = true
+Write(".cache/.project-info.json", cache)
+```
+
+**输出给用户：**
+```markdown
+## ✅ 初始化完成
+
+**识别结果：**
+- 项目名称：{projectName}
+- 技术栈：{techStack}
+- 业务域：{domains}
+- 架构模式：{architecture}
+
+**已创建：**
+- ✅ PROJECT_CONFIG.md — 项目配置文件
+- ✅ .cache/.project-info.json — 缓存文件
+- ✅ 敏捷 Agent 团队 — {team_name}
+
+现在可以开始工作了！告诉我你想做什么？
+```
+
+---
+
+## 后续任务执行：多 Agent 并行默认策略
+
+初始化完成后，所有任务执行遵循以下优先顺序：
+
+### 任务路由规则（强制）
+
+```
+编码型任务（后端/前端/DevOps/Bug修复）
+  → 生成 aider 单行命令 → 用户在终端执行
+  → 执行完成后由主进程代码审查 + git commit
+
+文档型任务（需求/架构/设计/测试报告）
+  → 优先使用 Agent 子进程并行执行
+  → 产出共享文档到 .cache/shared/
+```
+
+### 并行执行策略（强制）
+
+**必须优先并行执行，不得顺序执行无依赖的任务：**
+
+```javascript
+// ✅ 正确：无依赖任务并行
+const [T1, T2] = await Promise.all([
+  // 需求分析 Agent
+  Agent({ task: "/2-product-manager 分析 {feature} 需求" }),
+  // 业务专家 Agent（可同时执行）
+  Agent({ task: "/1-business-expert 梳理 {feature} 业务规则" })
+])
+
+// ✅ 正确：架构设计 Agent（等需求完成）
+const T3 = await Agent({ task: "/3-system-architect 设计 {feature} 架构" })
+
+// ✅ 正确：后端+前端并行生成 aider 命令（架构完成后）
+// 同时输出两个 aider 命令让用户依次执行
+```
+
+---
+
+## 失败处理
+
+### 自动分析失败
+
+无法识别项目结构时，提示用户手动编辑 `PROJECT_CONFIG.md`，使用模板配置后继续。
+
+### Agent 团队创建失败
+
+Team 创建失败时，记录失败信息到缓存，回退到单进程模式继续执行（不中断初始化流程）。
+
+---
+
+## 增量更新机制
+
+已初始化的项目，每次启动通过 `git diff` 检测变更，只更新变更部分，节约 95% 的 Token 消耗。
+
+---
+
+## 最佳实践
+
+1. **首次使用**：让系统自动分析，检查生成的配置，按需调整
+2. **日常使用**：依赖增量更新机制，检查配置准确性
+3. **大规模重构后**：删除缓存文件强制重新初始化
+   ```bash
+   rm -rf .cache/.project-info.json
+   rm -rf .cache/0-scrum-master/
+   ```
+4. **多人协作**：`PROJECT_CONFIG.md` 纳入版本控制，缓存文件加入 `.gitignore`
+
+---
+
+## 总结
+
+初始化流程确保：
+1. ✅ **自动化** — 无需手动配置，自动分析项目
+2. ✅ **团队就绪** — 自动创建 Agent 团队，后续任务直接并行执行
+3. ✅ **准确性** — 基于真实代码结构识别
+4. ✅ **高效性** — 增量更新，节约Token
+5. ✅ **并行优先** — 所有无依赖任务默认并行，最大化效率
+
 
 ## 初始化检测
 

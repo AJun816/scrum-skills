@@ -39,7 +39,7 @@ else
   MSG_NICKNAME="What should AI call you? (default: 吴彦祖): "
   MSG_GIT="Install git commit-msg hook? [Y/n]: "
   MSG_DONE="Setup complete!"
-  MSG_NEXT="Use @0-scrum-master in Claude Code to get started"
+  MSG_NEXT="Use /0-scrum-master in Claude Code to get started"
   MSG_HOOKS_AUTO="Claude hooks auto-configured via .claude/settings.json"
   MSG_GIT_OK="Git commit-msg hook installed"
   MSG_SKIP="Skipped"

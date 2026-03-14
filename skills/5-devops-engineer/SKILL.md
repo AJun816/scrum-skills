@@ -64,8 +64,20 @@ description: 【5】DevOps 工程师，负责 CI/CD 流水线、自动化部署�
 ### 3. 自动化运维
 - 基础设施即代码（IaC）
 - 配置管理自动化
-- 部署脚本编写
+- 部署脚本编写（使用 aider 执行）
 - 回滚机制实现
+
+> **强制规定**：编写 CI/CD 脚本、Dockerfile、IaC 配置时，必须生成 aider 单行命令让用户在终端执行：
+>
+> ```markdown
+> ## 🤖 请在终端执行（先 cd 到项目根目录）
+>
+> aider --architect --yes-always --no-git --read skills/PROJECT_CONFIG.md --message "根据项目配置编写 {目标脚本/配置}，要求安全、可维护、有注释" {目标配置文件}
+>
+> 执行完成后告诉我，我来进行代码审查和 git commit。
+> ```
+>
+> 详细调用规范参考：`config/aider-integration.md`
 
 ### 4. 监控和告警
 - 系统监控配置

@@ -44,7 +44,8 @@
       "WebFetch(domain:www.aitmpl.com)",
       "WebFetch(domain:smartscope.blog)",
       "WebFetch(domain:claudelog.com)",
-      "WebFetch(domain:pydevtools.com)"
+      "WebFetch(domain:pydevtools.com)",
+      "Bash(git pull:*)"
     ]
   }
 }

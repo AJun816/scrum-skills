@@ -150,14 +150,32 @@ description: 【4】后端开发技能，负责API接口、业务逻辑和领域
 2. 识别跨域依赖（是否需要调用其他平台域或共享模块）
 3. 评估影响范围（新增文件 vs 修改已有文件）
 
-### Phase 3: 编码实现
-1. 读取 `references/code-patterns.md` 获取对应层的代码模板
-2. **自上而下编写**：接口层(Controller/Handler+DTO) → 应用层(Service) → 领域层(Model/Event) → 基础设施层(Repository/Adapter)
-3. 每层只引用其下层，禁止反向依赖
+### Phase 3: 编码实现（生成 aider 命令）
 
-### Phase 4: 验证
-1. 确保编译/构建通过（根据项目技术栈执行对应构建命令）
-2. 检查符合分层约束和命名规范
+> **执行方式**：Claude Code 生成完整 aider 命令，用户在终端里执行。
+> 详细规范参考：`config/aider-integration.md`
+
+**执行步骤：**
+
+1. 读取 `references/code-patterns.md` 确认代码模板和命名规范
+2. 确认目标文件列表（Controller/Service/Domain/Repository 等）
+3. 输出 aider 命令让用户执行：
+
+```markdown
+## 🤖 请在终端执行（先 cd 到项目根目录）
+
+aider --architect --yes-always --no-git --read .cache/shared/architecture/{feature}.md --read .cache/shared/api-design/{feature}-api.md --read skills/config/coding-standards.md --message "按照架构文档实现 {功能名称} 后端代码：1. Controller + DTO（接口层）2. ApplicationService（应用层）3. Domain Model / DomainService（领域层）4. Repository 实现（基础设施层）。约束：单文件≤800行，方法≤50行，构造器注入，统一响应结构，业务异常处理" src/{domain}/controller/{Feature}Controller.java src/{domain}/service/{Feature}ApplicationService.java src/{domain}/model/{Feature}.java src/{domain}/repository/{Feature}Repository.java
+
+执行完成后告诉我，我来进行代码审查和 git commit。
+```
+
+4. 用户执行完成后，读取生成的代码进行验证
+
+### Phase 4: 验证 + 提交
+
+1. 读取 aider 生成的文件，检查分层约束和命名规范
+2. 调用 `/8-code-reviewer` 进行代码审查
+3. 审查通过后执行 git commit
 
 ## 分层规范速查
 
@@ -184,6 +202,7 @@ description: 【4】后端开发技能，负责API接口、业务逻辑和领域
 
 - **项目配置**: `PROJECT_CONFIG.md` — 项目架构、技术栈、业务域、编码规范
 - **代码模板**: `references/code-patterns.md` — 各层代码示例和命名规范
+- **aider集成**: `config/aider-integration.md` — aider 调用规范、模型选择、错误处理
 
 ## 代码规范与质量标准
 

@@ -2,21 +2,26 @@
 
 ## 概述
 
-本文档详细说明 Scrum Master 的全自动化敏捷开发流程，包括真实的工具调用示例和执行逻辑。
+Scrum Master 协调三层架构完成全自动化敏捷开发：
 
-## 核心理念
+```
+决策层  Claude Code 主进程（Scrum Master）
+           ↓ 任务拆解 + 依赖设置
+规划层  Agent 子进程（产品经理/架构师/测试等文档型角色）
+           ↓ 产出共享文档到 .cache/shared/
+执行层  aider 进程（后端/前端/DevOps 等编码型角色）
+           ↓ 代码修改（--no-git，由主进程统一审查后 commit）
+```
 
-**用户只需描述需求，Scrum Master 自动完成整个敏捷开发流程：**
-- 自动分析任务类型
-- 自动创建任务列表
-- 自动分配团队成员
-- 自动监控进度
-- 自动质量检查
-- 自动输出报告
+**关键原则：**
+- 文档型任务（需求/架构/设计/测试报告）→ **Agent 子进程**执行
+- 编码型任务（后端/前端/DevOps脚本/Bug修复）→ **aider** 执行
+- 无依赖任务 → **并行**执行（Agent 并行 或 aider 并行）
+- 有依赖任务 → **顺序**执行（等上游文档产出后再触发）
 
-## 详细执行流程
+---
 
-### 第1步：任务接收和分析
+## 第1步：任务接收和分析
 
 **输出给用户：**
 ```markdown
@@ -32,355 +37,281 @@
 **执行工具调用：**
 ```javascript
 // 1. 读取项目配置
-Read({
-  file_path: "PROJECT_CONFIG.md"
-})
+Read({ file_path: "PROJECT_CONFIG.md" })
 ```
 
 **输出给用户：**
 ```markdown
 ### 读取项目配置
-✅ 项目：电商平台
-✅ 技术栈：Vue 3 + Spring Boot + MySQL
-✅ 业务域：user, order, product, payment
+✅ 项目：{项目名称}
+✅ 技术栈：{技术栈}
+✅ 业务域：{业务域列表}
 
 ### 任务类型识别
-正在分析任务类型...
-
 **识别结果：**
 - 任务类型：新功能开发
-- 涉及业务域：order, payment
+- 涉及业务域：{domain1}, {domain2}
 - 复杂度：中等
-- 需要的角色：产品经理、架构师、后端开发、前端开发、UI设计师、测试工程师
-
-开始创建任务...
+- 执行策略：Agent并行规划 → aider并行编码
 ```
 
-### 第2步：创建任务列表
+---
 
-**执行工具调用：**
+## 第2步：创建任务列表 + 设置依赖
+
 ```javascript
-// 创建任务1：需求分析
-TaskCreate({
-  subject: "需求分析",
-  description: "分析用户需求：{用户输入}\n\n要求：\n1. 理解业务目标\n2. 识别功能范围\n3. 明确验收标准\n4. 输出需求文档",
-  activeForm: "分析需求中"
-})
+// 创建文档型任务（Agent执行）
+T1 = TaskCreate({ subject: "需求分析", activeForm: "分析需求中" })
+T2 = TaskCreate({ subject: "编写用户故事", activeForm: "编写用户故事中" })
+T3 = TaskCreate({ subject: "架构设计", activeForm: "设计架构中" })
 
-// 创建任务2：编写用户故事
-TaskCreate({
-  subject: "编写用户故事",
-  description: "基于需求分析结果，编写用户故事\n\n要求：\n1. 使用标准格式（As a... I want... So that...）\n2. 定义验收标准\n3. 估算故事点\n4. 输出用户故事文档",
-  activeForm: "编写用户故事中"
-})
+// 创建编码型任务（aider执行）
+T4 = TaskCreate({ subject: "后端开发（aider）", activeForm: "aider编写后端中" })
+T5 = TaskCreate({ subject: "前端开发（aider）", activeForm: "aider编写前端中" })
 
-// 创建任务3：架构设计
-TaskCreate({
-  subject: "架构设计",
-  description: "设计技术架构和实现方案\n\n要求：\n1. 设计系统架构\n2. 定义API接口\n3. 设计数据模型\n4. 输出架构设计文档",
-  activeForm: "设计架构中"
-})
+// 创建验收型任务（Agent执行）
+T6 = TaskCreate({ subject: "UI审核", activeForm: "审核UI中" })
+T7 = TaskCreate({ subject: "功能测试", activeForm: "测试中" })
 
-// 创建任务4：后端开发
-TaskCreate({
-  subject: "后端开发",
-  description: "实现后端功能\n\n要求：\n1. 实现API接口\n2. 实现业务逻辑\n3. 编写单元测试\n4. 更新API文档",
-  activeForm: "开发后端中"
-})
-
-// 创建任务5：前端开发
-TaskCreate({
-  subject: "前端开发",
-  description: "实现前端功能\n\n要求：\n1. 实现页面和组件\n2. 对接后端API\n3. 实现交互逻辑\n4. 编写组件测试",
-  activeForm: "开发前端中"
-})
-
-// 创建任务6：UI审核
-TaskCreate({
-  subject: "UI设计审核",
-  description: "审核前端UI实现\n\n要求：\n1. 检查设计一致性\n2. 验证交互体验\n3. 检查响应式布局\n4. 输出UI审核报告",
-  activeForm: "审核UI中"
-})
-
-// 创建任务7：功能测试
-TaskCreate({
-  subject: "功能测试",
-  description: "执行功能测试\n\n要求：\n1. 编写测试用例\n2. 执行功能测试\n3. 执行集成测试\n4. 输出测试报告",
-  activeForm: "测试中"
-})
+// 设置依赖关系（顺序约束）
+TaskUpdate({ taskId: T2, addBlockedBy: [T1] })     // 故事依赖需求
+TaskUpdate({ taskId: T3, addBlockedBy: [T2] })     // 架构依赖故事
+TaskUpdate({ taskId: T4, addBlockedBy: [T3] })     // 后端依赖架构
+TaskUpdate({ taskId: T5, addBlockedBy: [T3] })     // 前端依赖架构（T4/T5可并行）
+TaskUpdate({ taskId: T6, addBlockedBy: [T5] })     // UI审核依赖前端
+TaskUpdate({ taskId: T7, addBlockedBy: [T4, T6] }) // 测试依赖后端+UI审核
 ```
 
-**输出给用户：**
-```markdown
-## 📋 创建任务列表
-
-✅ 任务列表已创建
-
-**任务列表：**
-- Task #1: 需求分析
-- Task #2: 编写用户故事
-- Task #3: 架构设计
-- Task #4: 后端开发
-- Task #5: 前端开发
-- Task #6: UI设计审核
-- Task #7: 功能测试
+**依赖关系图：**
+```
+T1(需求) → T2(故事) → T3(架构) → T4(后端aider) ─────┐
+                                 ↘ T5(前端aider) → T6(UI审核) → T7(测试)
 ```
 
-### 第3步：设置任务依赖关系
+---
 
-**执行工具调用：**
+## 第3步：规划层 — Agent 并行执行文档任务
+
+**T1/T2 分配给 Agent（产品经理），并行或串行按依赖执行：**
+
 ```javascript
-// 获取任务列表
-TaskList()
-// 假设返回的任务ID为：task1_id, task2_id, task3_id, task4_id, task5_id, task6_id, task7_id
+// Scrum Master 直接以 product-manager 角色执行，或启动 Agent 子进程
+// 产出保存到：.cache/shared/requirements/{feature}.md
 
-// 设置任务2依赖任务1
-TaskUpdate({
-  taskId: task2_id,
-  addBlockedBy: [task1_id]
-})
+TaskUpdate({ taskId: T1, owner: "product-manager", status: "in_progress" })
+// → 执行 /2-product-manager 技能，产出需求文档
+// → 文档保存到 .cache/shared/requirements/{feature}.md
+// → TaskUpdate({ taskId: T1, status: "completed" })
 
-// 设置任务3依赖任务2
-TaskUpdate({
-  taskId: task3_id,
-  addBlockedBy: [task2_id]
-})
+TaskUpdate({ taskId: T2, owner: "product-manager", status: "in_progress" })
+// → 产出用户故事文档
+// → 文档保存到 .cache/shared/requirements/{feature}-stories.md
+// → TaskUpdate({ taskId: T2, status: "completed" })
 
-// 设置任务4依赖任务3
-TaskUpdate({
-  taskId: task4_id,
-  addBlockedBy: [task3_id]
-})
-
-// 设置任务5依赖任务3（可以与任务4并行）
-TaskUpdate({
-  taskId: task5_id,
-  addBlockedBy: [task3_id]
-})
-
-// 设置任务6依赖任务5
-TaskUpdate({
-  taskId: task6_id,
-  addBlockedBy: [task5_id]
-})
-
-// 设置任务7依赖任务4和6
-TaskUpdate({
-  taskId: task7_id,
-  addBlockedBy: [task4_id, task6_id]
-})
+// T3: 架构师（等 T2 完成后触发）
+TaskUpdate({ taskId: T3, owner: "system-architect", status: "in_progress" })
+// → 执行 /3-system-architect 技能
+// → 读取需求文档，产出架构设计 + API 契约
+// → 保存到 .cache/shared/architecture/{feature}.md
+// → 保存到 .cache/shared/api-design/{feature}-api.md
+// → TaskUpdate({ taskId: T3, status: "completed" })
 ```
 
 **输出给用户：**
 ```markdown
-✅ 任务依赖关系已设置
+## 📋 规划层执行（Agent）
 
-**依赖关系：**
-- Task #2 依赖 Task #1
-- Task #3 依赖 Task #2
-- Task #4 依赖 Task #3
-- Task #5 依赖 Task #3（可与Task #4并行）
-- Task #6 依赖 Task #5
-- Task #7 依赖 Task #4 和 Task #6
+✅ T1 需求分析完成 → .cache/shared/requirements/{feature}.md
+✅ T2 用户故事完成 → .cache/shared/requirements/{feature}-stories.md
+✅ T3 架构设计完成 → .cache/shared/architecture/{feature}.md
+                   → .cache/shared/api-design/{feature}-api.md
+
+规划文档就绪，启动编码执行层...
 ```
 
-### 第4步：分配任务给团队成员
+---
 
-**执行工具调用：**
+## 第4步：执行层 — aider 并行编码
+
+**T4（后端）和 T5（前端）可并行，均输出 aider 单行命令让用户在终端执行：**
+
+> ⚠️ **强制要求**：Scrum Master 必须输出单行 aider 命令，用户在自己的终端里执行，不得通过子进程调用。
+> 详细规范参考：`config/aider-integration.md`
+
+**后端任务输出（用户在终端执行）：**
+```markdown
+## 🤖 后端任务（T4）— 请在终端执行
+
+先 cd 到项目根目录，然后执行：
+
+aider --architect --yes-always --no-git --read .cache/shared/architecture/{feature}.md --read .cache/shared/api-design/{feature}-api.md --read skills/config/coding-standards.md --message "按架构文档实现 {feature} 后端：Controller→Service→Domain→Repository，单文件≤800行，方法≤50行，统一响应结构，构造器注入" src/{domain}/controller/{Feature}Controller.java src/{domain}/service/{Feature}Service.java src/{domain}/model/{Feature}.java src/{domain}/repository/{Feature}Repository.java
+
+执行完成后告诉我，我来进行代码审查和 git commit。
+```
+
+**前端任务输出（用户在终端执行）：**
+```markdown
+## 🤖 前端任务（T5）— 请在终端执行
+
+先 cd 到项目根目录，然后执行：
+
+aider --architect --yes-always --no-git --read .cache/shared/api-design/{feature}-api.md --read skills/config/coding-standards.md --message "按 API 文档实现 {feature} 前端：api层→store层→composable→component→view→router，单文件≤800行，loading状态，统一UI组件库" src/api/{feature}.ts src/stores/{feature}.ts src/views/{feature}/{Page}.vue
+
+执行完成后告诉我，我来进行代码审查和 git commit。
+```
+
 ```javascript
-// 分配任务1和2给产品经理
-TaskUpdate({
-  taskId: task1_id,
-  owner: "product-manager"
-})
-
-TaskUpdate({
-  taskId: task2_id,
-  owner: "product-manager"
-})
-
-// 分配任务3给系统架构师
-TaskUpdate({
-  taskId: task3_id,
-  owner: "system-architect"
-})
-
-// 分配任务4给后端开发
-TaskUpdate({
-  taskId: task4_id,
-  owner: "backend-developer"
-})
-
-// 分配任务5给前端开发
-TaskUpdate({
-  taskId: task5_id,
-  owner: "frontend-developer"
-})
-
-// 分配任务6给UI设计师
-TaskUpdate({
-  taskId: task6_id,
-  owner: "ui-designer"
-})
-
-// 分配任务7给测试工程师
-TaskUpdate({
-  taskId: task7_id,
-  owner: "tester"
-})
-
-// 通知产品经理开始工作
-SendMessage({
-  type: "message",
-  recipient: "product-manager",
-  content: "你好！我是Scrum Master。\n\n我已经为你分配了2个任务：\n- Task #" + task1_id + ": 需求分析\n- Task #" + task2_id + ": 编写用户故事\n\n请先完成Task #" + task1_id + "，然后再进行Task #" + task2_id + "。\n\n用户需求：{用户输入}\n\n请开始工作吧！",
-  summary: "任务分配：需求分析和用户故事"
-})
+TaskUpdate({ taskId: T4, owner: "aider-backend", status: "in_progress" })
+TaskUpdate({ taskId: T5, owner: "aider-frontend", status: "in_progress" })
+// 用户执行完成后，更新状态
+TaskUpdate({ taskId: T4, status: "completed" })
+TaskUpdate({ taskId: T5, status: "completed" })
 ```
 
 **输出给用户：**
 ```markdown
-## 👥 分配任务
+## ⚙️ 执行层（aider 并行）
 
-✅ 所有任务已分配
+🔄 aider-backend: 实现后端 Controller/Service/Domain/Repository...
+🔄 aider-frontend: 实现前端 API/Store/Component/View...
 
-**任务分配：**
-- Task #1, #2: Product Manager（产品经理）
-- Task #3: System Architect（系统架构师）
-- Task #4: Backend Developer（后端开发）
-- Task #5: Frontend Developer（前端开发）
-- Task #6: UI Designer（UI设计师）
-- Task #7: Tester（测试工程师）
+（并行执行中，等待完成...）
 
-✅ 已通知产品经理开始工作
-
-团队成员开始并行工作...
+✅ aider-backend 完成 → 后端代码已生成
+✅ aider-frontend 完成 → 前端代码已生成
 ```
 
-### 第5步：监控进度
+---
 
-**输出给用户：**
-```markdown
-## 📊 监控团队进度
+## 第5步：验收层 — Agent 审核 + 测试
 
-正在监控团队成员工作进度...
-
-**进度：**
-- ✅ Product Manager：需求分析完成
-- ✅ Product Manager：用户故事完成
-- 🔄 System Architect：架构设计进行中...
-- ⏳ Backend Developer：等待架构设计完成
-- ⏳ Frontend Developer：等待架构设计完成
-
-**实时进度监控：**
-- 总任务数：7
-- 已完成：2 (29%)
-- 进行中：1 (14%)
-- 待处理：4 (57%)
-- 阻塞任务：2个（等待Task #3完成）
-
-⏱️ 下次更新：30秒后
+**T6 UI审核（Agent执行）：**
+```javascript
+TaskUpdate({ taskId: T6, owner: "ui-reviewer", status: "in_progress" })
+// → 执行 /4-nielsen-ui-design 或 /4-frontend-design 审核
+// → 读取前端代码，产出 UI 审核报告
+// → 保存到 .cache/shared/ui-review/{feature}-ui-review.md
+// → TaskUpdate({ taskId: T6, status: "completed" })
 ```
 
-### 第6步：代码质量检查
-
-**输出给用户：**
-```markdown
-## 🔍 代码质量检查
-
-### 协调System Architect进行代码审查
-正在请求System Architect审查代码...
-
-**审查结果：**
-- ✅ 代码结构符合架构设计
-- ✅ 遵循编码规范
-- ✅ 单元测试覆盖率达标
-- ✅ 代码可读性良好
-- ✅ 无明显性能问题
-- ✅ 无安全漏洞
-
-✅ 代码质量检查通过
+**T7 功能测试（Agent执行）：**
+```javascript
+TaskUpdate({ taskId: T7, owner: "tester", status: "in_progress" })
+// → 执行 /5-webapp-testing 技能
+// → 执行测试用例（Playwright 或 API 测试）
+// → 产出测试报告
+// → 保存到 .cache/shared/test-reports/{feature}-test-report.md
+// → TaskUpdate({ taskId: T7, status: "completed" })
 ```
 
-### 第7步：交付和总结
+---
 
-**输出给用户：**
+## 第6步：代码审查 + git commit
+
+**由 Scrum Master 协调代码审查，审查通过后统一 commit：**
+
+```javascript
+// 调用 8-code-reviewer 审查 aider 产出的代码
+// /8-code-reviewer 审查 git diff（aider --no-git 模式产出的未提交变更）
+
+// 审查通过后，Scrum Master 统一执行 git commit
+Bash({
+  command: `git add . && git commit -m "feat: 实现 {feature} 功能
+
+  - 后端：Controller/Service/Domain/Repository（aider生成）
+  - 前端：API/Store/Component/View（aider生成）
+
+  Co-Authored-By: aider <aider@anthropic.com>"`
+})
+```
+
+---
+
+## 第7步：交付总结
+
 ```markdown
 ## ✅ 任务完成
 
-### 整合结果
-正在整合所有团队成员的工作成果...
+### 交付内容
+- ✅ 需求文档：.cache/shared/requirements/{feature}.md
+- ✅ 架构设计：.cache/shared/architecture/{feature}.md
+- ✅ API 契约：.cache/shared/api-design/{feature}-api.md
+- ✅ 后端代码：{后端文件列表}（aider生成）
+- ✅ 前端代码：{前端文件列表}（aider生成）
+- ✅ UI 审核报告：.cache/shared/ui-review/{feature}-ui-review.md
+- ✅ 测试报告：.cache/shared/test-reports/{feature}-test-report.md
 
-**交付内容：**
-- ✅ 需求文档：requirements/{feature-name}.md
-- ✅ 用户故事：requirements/{feature-name}-stories.md
-- ✅ 架构设计：architecture/{feature-name}.md
-- ✅ API设计：api-design/{feature-name}-api.md
-- ✅ 后端代码：{文件列表}
-- ✅ 前端代码：{文件列表}
-- ✅ UI审核报告：ui-review/{feature-name}-ui-review.md
-- ✅ 测试报告：test-reports/{feature-name}-test-report.md
-
-### 更新PROJECT_CONFIG.md
-正在检查是否需要更新项目配置...
-✅ 项目配置已更新
-
-### 清理团队资源
-正在使用TeamDelete清理团队资源...
-✅ 团队资源已清理
-
-## 📊 交付总结
-
-**功能：** {功能名称}
-**状态：** ✅ 已完成
-**测试通过率：** 90%
-**代码质量：** ✅ 通过
-
-**输出文件：**
-- 📄 测试报告：.cache/shared/test-reports/{feature-name}-test-report.md
+### 执行统计
+- 规划层（Agent）：产出 4 份共享文档
+- 执行层（aider）：并行修改 {N} 个代码文件
+- 验收层（Agent）：UI审核通过，测试通过率 {X}%
 
 🎉 任务完成！
 ```
 
-## 任务类型识别规则
+---
+
+## 任务类型路由规则
 
 ### 1. 新功能开发
-**关键词：** 开发、实现、添加、新增、创建
-**流程：** 需求分析 → 用户故事 → 架构设计 → 开发 → UI审核 → 测试
+**流程：** Agent规划（需求/故事/架构）→ aider并行编码（后端+前端）→ Agent验收（测试）
 
 ### 2. Bug修复
-**关键词：** 修复、Bug、问题、错误、异常
-**流程：** Bug分析 → 修复方案 → 修复实现 → 回归测试
+**流程：** Agent分析（6-bug-handler定位根因）→ aider修复（最小变更）→ Agent回归测试
 
-### 3. 架构优化
-**关键词：** 优化、重构、性能、架构、改进
-**流程：** 性能分析 → 优化方案 → 优化实现 → 性能测试
+```markdown
+## 🤖 Bug修复 — 请在终端执行
+
+aider --architect --yes-always --no-git --read {问题相关代码文件} --message "修复 Bug：{描述}，根本原因：{原因}，最小变更原则，添加单元测试" {需要修改的文件}
+
+执行完成后告诉我，我来进行代码审查和 git commit。
+```
+
+### 3. 架构优化/重构
+**流程：** Agent分析（3-system-architect设计方案）→ aider重构（--architect模式）→ Agent性能测试
+
+```markdown
+## 🤖 重构任务 — 请在终端执行
+
+aider --architect --yes-always --no-git --read .cache/shared/architecture/{new-design}.md --message "按新架构方案重构，保持接口兼容性，逐文件重构" {重构目标文件}
+
+执行完成后告诉我，我来进行代码审查和 git commit。
+```
 
 ### 4. 需求变更
-**关键词：** 修改、变更、调整、更新
-**流程：** 变更影响分析 → 变更设计 → 变更实现 → 回归测试
+**流程：** Agent影响分析（2-product-manager+3-system-architect）→ aider变更实现→ Agent回归测试
 
-## 错误处理
+---
 
-### 任务创建失败
-- 重试3次
-- 记录错误日志
-- 通知用户
+## 错误处理和降级
 
-### 团队成员无响应
-- 等待30秒
-- 发送提醒
-- 超时后重新分配
+### aider 执行失败
+```
+aider 失败 1次 → 调整 --message 指令，优化任务描述后重试
+aider 失败 2次 → 缩小目标文件范围，拆分任务后重试
+aider 失败 3次 → 降级：Scrum Master 直接使用 Claude Code Edit 工具
+                  → 必须通过 SendMessage 向用户报告降级原因
+```
 
-### 代码质量检查失败
-- 标记问题代码
-- 通知相关开发人员
-- 阻止提交，要求修复
+### Agent 子进程超时
+```
+Agent 超时 → 检查 TaskList 任务状态
+           → 重新发送任务描述（SendMessage）
+           → 若持续无响应，Scrum Master 直接接管执行
+```
+
+### 并行冲突
+```
+后端/前端 aider 同时修改同一文件 → 必须顺序执行
+Scrum Master 在启动并行前检查目标文件列表，确认无重叠
+```
+
+---
 
 ## 最佳实践
 
-1. **清晰的任务描述** - 每个任务都有明确的要求和验收标准
-2. **合理的依赖关系** - 避免循环依赖，最大化并行度
-3. **及时的进度监控** - 每30秒更新一次进度
-4. **主动的障碍移除** - 发现阻塞立即处理
-5. **严格的质量把关** - 代码质量检查不通过不允许提交
+1. **共享文档优先** — 规划层产出文档后，执行层 aider 通过 `--read` 注入，不在 message 中重复描述
+2. **最小目标文件** — 每次 aider 调用明确指定文件列表，不传入整个目录
+3. **并行最大化** — 无文件冲突的任务尽量并行（后端/前端/配置可并行）
+4. **统一 git 管理** — aider 使用 `--no-git`，由 Scrum Master 统一 commit
+5. **审查先于提交** — aider 完成后，先触发 8-code-reviewer 审查，通过后再 commit
