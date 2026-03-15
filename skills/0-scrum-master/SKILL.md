@@ -144,12 +144,71 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 
 #### 场景2：缓存不存在（未初始化）
 
-**必须执行完整初始化流程（7步，不可跳过）：**
+**必须执行完整初始化流程（8步，不可跳过）：**
 
-1. 扫描项目结构，识别技术栈和业务域
-2. 生成 `PROJECT_CONFIG.md` 配置文件
-3. 生成 `.cache/.project-info.json` 缓存文件
-4. **使用 TeamCreate 创建敏捷 Agent 团队（必须执行）**
+1. **检测 aider 环境（首要步骤）**
+2. 扫描项目结构，识别技术栈和业务域
+3. 生成 `PROJECT_CONFIG.md` 配置文件
+4. 生成 `.cache/.project-info.json` 缓存文件
+5. **使用 TeamCreate 创建敏捷 Agent 团队（必须执行）**
+
+#### aider 环境检测（步骤1详解）
+
+**通过 Bash 工具依次执行以下检测：**
+
+```bash
+# 1. 检测 aider 是否安装
+aider --version
+
+# 2. 检测 API Key 是否配置
+echo ${#ANTHROPIC_AUTH_TOKEN}
+# 或检查 ~/.aider.conf.yml 中是否配置了 anthropic-api-key
+
+# 3. 检测代理地址（可选）
+echo $ANTHROPIC_BASE_URL
+```
+
+**根据检测结果输出引导：**
+
+```markdown
+## 🔧 aider 环境检测
+
+✅ aider 已安装（版本：{version}）
+✅ API Key 已配置
+✅ 代理地址已配置：{proxy_url}
+
+aider 环境就绪！
+```
+
+**如果检测到问题，输出配置指引：**
+
+```markdown
+## 🔧 aider 环境检测
+
+❌ aider 未安装
+
+**安装方法：**
+pip install aider-chat
+
+❌ API Key 未配置
+
+**配置方法（任选其一）：**
+
+方式1：环境变量（Mac/Linux 写入 ~/.zshrc，Windows 设置系统环境变量）
+  export ANTHROPIC_AUTH_TOKEN=your-api-key
+  export ANTHROPIC_BASE_URL=https://your-proxy.com/  # 可选，使用代理时配置
+
+方式2：aider 配置文件 ~/.aider.conf.yml
+  anthropic-api-key: your-api-key
+  set-env:
+    - ANTHROPIC_API_BASE=https://your-proxy.com  # 可选，不带 /v1，不带尾部 /
+
+⚠️ 代理用户注意：aider 使用 ANTHROPIC_API_BASE（不是 ANTHROPIC_BASE_URL），
+  值不能带 /v1 后缀。技能组调用模板已自动处理此转换。
+  详见：config/aider-setup-guide.md
+```
+
+**降级策略：** aider 不可用时，技能组自动降级为 Claude Code Edit/Write 工具直接编码，功能不受影响，但无法利用 aider 的 repo-map 等优势。
 
 **Agent 团队标准配置：**
 

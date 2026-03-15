@@ -176,7 +176,7 @@ description: 【4】前端开发技能，负责页面开发、组件实现和API
 3. 通过 Bash 工具直接执行：
 
 ```bash
-ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL" \
+ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
 aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
   --read .cache/shared/api-design/{feature}-api.md \
   --read .cache/shared/architecture/{feature}.md \

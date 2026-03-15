@@ -128,7 +128,7 @@ Bug专家完成分析和分类后，立即通知全团队，相关技能主动�
    > 详细调用规范参考：`config/aider-integration.md`
 
    ```bash
-   ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL" \
+   ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
    aider --model anthropic/claude-haiku-4-5-20251001 --architect --yes-always --no-git --no-show-model-warnings \
      --read {问题相关代码文件} \
      --message "修复 Bug：{Bug描述}。根本原因：{定位到的根本原因}。修复要求：最小变更原则，只改必要部分；添加单元测试防止回归；不破坏现有功能；文件≤800行，方法≤50行" \

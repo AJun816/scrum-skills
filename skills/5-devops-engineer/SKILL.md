@@ -70,7 +70,7 @@ description: 【5】DevOps 工程师，负责 CI/CD 流水线、自动化部署�
 > **强制规定**：编写 CI/CD 脚本、Dockerfile、IaC 配置时，通过 Bash 工具直接调用 aider：
 >
 > ```bash
-> ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL" \
+> ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
 > aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
 >   --read skills/PROJECT_CONFIG.md \
 >   --message "根据项目配置编写 {目标脚本/配置}，要求安全、可维护、有注释" \

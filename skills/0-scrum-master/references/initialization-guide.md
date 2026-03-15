@@ -49,7 +49,54 @@
 
 ---
 
-## 自动初始化流程（完整 7 步，必须按顺序执行）
+## 自动初始化流程（完整 8 步，必须按顺序执行）
+
+### 步骤0：检测 aider 环境
+
+**目标：** 检测 aider 是否安装、API Key 是否配置、代理地址是否正确。
+
+**执行检测：**
+
+```bash
+# 1. 检测 aider 是否安装
+aider --version
+
+# 2. 检测 API Key
+echo ${#ANTHROPIC_AUTH_TOKEN}
+
+# 3. 检测代理地址（可选）
+echo $ANTHROPIC_BASE_URL
+```
+
+**检测通过：**
+```markdown
+## 🔧 aider 环境检测
+
+✅ aider 已安装（版本：{version}）
+✅ API Key 已配置
+✅ 代理地址已配置（可选）
+
+aider 环境就绪！
+```
+
+**检测失败 — 输出配置指引：**
+```markdown
+## 🔧 aider 环境检测
+
+❌ {问题描述}
+
+**配置方法：**
+1. 安装 aider：pip install aider-chat
+2. 配置 API Key（任选其一）：
+   - 环境变量：export ANTHROPIC_AUTH_TOKEN=your-api-key
+   - 配置文件：~/.aider.conf.yml 中设置 anthropic-api-key
+3. 代理用户：ANTHROPIC_API_BASE 不能带 /v1 后缀
+   详见：config/aider-setup-guide.md
+
+⚠️ aider 不可用时，技能组自动降级为 Claude Code Edit/Write 工具，功能不受影响。
+```
+
+**不阻塞初始化：** aider 检测失败不中断初始化流程，记录状态到缓存后继续。
 
 ### 步骤1：扫描项目结构
 
@@ -124,6 +171,8 @@
   "initTime": "{ISO时间}",
   "lastUsed": "{ISO时间}",
   "teamCreated": true,
+  "aiderAvailable": true,
+  "aiderVersion": "{version}",
   "version": "2.0"
 }
 ```
