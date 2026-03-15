@@ -177,7 +177,109 @@ aider 环境就绪！
 }
 ```
 
-### 步骤7：创建 Agent 团队（必须执行）
+### 步骤7：预创建缓存目录 + 预填充技能组缓存（必须执行）
+
+> **核心目标：** 让所有技能 clone 后首次调用时直接可用，无需各自重新扫描项目。
+
+**7.1 创建完整缓存目录结构：**
+
+```bash
+# 共享文档目录
+mkdir -p .cache/shared/{requirements,architecture,api-design,test-reports,ui-review,code-review}
+
+# 各技能独立缓存目录
+mkdir -p .cache/{0-scrum-master,1-business-expert,2-product-manager,3-system-architect}
+mkdir -p .cache/{4-backend-dev,4-frontend-dev,5-devops-engineer,5-webapp-testing}
+mkdir -p .cache/{6-bug-handler,8-code-reviewer}
+```
+
+**7.2 生成共享索引文件 `.cache/shared/SHARED_INDEX.md`：**
+
+```markdown
+# 共享文档索引
+
+## 项目：{projectName}
+初始化时间：{initTime}
+
+## 目录结构
+| 目录 | 用途 | 产出角色 |
+|------|------|---------|
+| requirements/ | 需求文档 | Product Manager |
+| architecture/ | 架构设计 | System Architect |
+| api-design/ | API契约 | System Architect / Backend Dev |
+| test-reports/ | 测试报告 | QA Tester |
+| ui-review/ | UI审核报告 | UI Designer |
+| code-review/ | 代码审查报告 | Code Reviewer |
+
+## 文档列表
+（初始化完成，尚无文档。各角色执行任务后自动更新此索引。）
+```
+
+**7.3 为每个技能预填充项目概要缓存：**
+
+为每个技能的缓存目录写入 `_project-context.md`，包含项目关键信息，避免各技能重复读取 `PROJECT_CONFIG.md`：
+
+```markdown
+# 项目上下文（自动生成，勿手动修改）
+
+## 项目信息
+- 项目名称：{projectName}
+- 技术栈：{techStack}
+- 架构模式：{architecture}
+
+## 业务域
+{domains.map(d => `- ${d}`).join('\n')}
+
+## 编码规范
+- 文件大小：≤800行，方法大小：≤50行
+- KISS原则，单一职责
+- 编码任务通过 aider 执行（aider可用：{aiderAvailable}）
+
+## 技术栈详情
+- 前端：{frontend}
+- 后端：{backend}
+- 数据库：{database}
+
+---
+生成时间：{initTime}
+```
+
+**写入到以下所有缓存目录：**
+- `.cache/0-scrum-master/_project-context.md`
+- `.cache/1-business-expert/_project-context.md`
+- `.cache/2-product-manager/_project-context.md`
+- `.cache/3-system-architect/_project-context.md`
+- `.cache/4-backend-dev/_project-context.md`
+- `.cache/4-frontend-dev/_project-context.md`
+- `.cache/5-devops-engineer/_project-context.md`
+- `.cache/5-webapp-testing/_project-context.md`
+- `.cache/6-bug-handler/_project-context.md`
+- `.cache/8-code-reviewer/_project-context.md`
+
+**7.4 为各技能预填充 `_cache-meta.json`：**
+
+```json
+{
+  "version": "1.0",
+  "createdAt": "{initTime}",
+  "updatedAt": "{initTime}",
+  "source": "scrum-master-init",
+  "projectName": "{projectName}",
+  "techStack": "{techStack}",
+  "needsFullScan": true
+}
+```
+
+> `needsFullScan: true` 表示该技能首次被调用时仍需执行自己的详细扫描（如后端开发需要扫描 API 端点列表），但项目基础信息已预填充，无需重复获取。
+
+**输出给用户：**
+```markdown
+✅ 缓存目录已创建（共享目录 + 10 个技能缓存）
+✅ 项目上下文已预填充到所有技能缓存
+✅ 共享索引 SHARED_INDEX.md 已生成
+```
+
+### 步骤8：创建 Agent 团队（必须执行）
 
 > **强制要求**：初始化完成后，必须使用 TeamCreate 创建敏捷团队，并在后续任务中优先使用多 Agent 并行执行。
 
@@ -225,13 +327,18 @@ Write(".cache/.project-info.json", cache)
 - 技术栈：{techStack}
 - 业务域：{domains}
 - 架构模式：{architecture}
+- aider 状态：{aiderAvailable ? "✅ 可用" : "⚠️ 不可用（已降级）"}
 
 **已创建：**
 - ✅ PROJECT_CONFIG.md — 项目配置文件
-- ✅ .cache/.project-info.json — 缓存文件
+- ✅ .cache/.project-info.json — 项目缓存
+- ✅ .cache/shared/ — 共享文档目录（含索引）
+- ✅ .cache/{各技能}/_project-context.md — 项目上下文已预填充到所有技能
 - ✅ 敏捷 Agent 团队 — {team_name}
 
-现在可以开始工作了！告诉我你想做什么？
+所有技能已就绪，可以直接调用任何技能开始工作！
+
+💡 **快速配置指引：** config/aider-quick-start.md
 ```
 
 ---

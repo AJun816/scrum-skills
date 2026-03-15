@@ -47,6 +47,7 @@ aider --model anthropic/claude-sonnet-4-6 \
 
 > **注意：** 如果使用 API 代理，aider 底层 litellm 使用 `ANTHROPIC_API_BASE` 环境变量（不是 `ANTHROPIC_BASE_URL`），且值**不能**带 `/v1` 后缀或尾部 `/`，否则会产生路径重复错误。技能组调用模板已自动处理此转换。
 > 详细排查指南见 [aider-setup-guide.md](skills/config/aider-setup-guide.md)
+> 完整配置指南见 [aider-quick-start.md](skills/config/aider-quick-start.md)
 
 ## Quick Start / 快速开始
 

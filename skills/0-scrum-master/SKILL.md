@@ -144,13 +144,17 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 
 #### 场景2：缓存不存在（未初始化）
 
-**必须执行完整初始化流程（8步，不可跳过）：**
+**必须执行完整初始化流程（9步，不可跳过）：**
 
 1. **检测 aider 环境（首要步骤）**
 2. 扫描项目结构，识别技术栈和业务域
-3. 生成 `PROJECT_CONFIG.md` 配置文件
-4. 生成 `.cache/.project-info.json` 缓存文件
-5. **使用 TeamCreate 创建敏捷 Agent 团队（必须执行）**
+3. 分析技术栈和代码结构
+4. 识别业务模块和架构模式
+5. 生成 `PROJECT_CONFIG.md` 配置文件
+6. 生成 `.cache/.project-info.json` 缓存文件
+7. **预创建缓存目录 + 预填充技能组缓存（关键步骤）**
+8. **使用 TeamCreate 创建敏捷 Agent 团队（必须执行）**
+9. 输出初始化完成报告
 
 #### aider 环境检测（步骤1详解）
 
@@ -210,26 +214,44 @@ pip install aider-chat
 
 **降级策略：** aider 不可用时，技能组自动降级为 Claude Code Edit/Write 工具直接编码，功能不受影响，但无法利用 aider 的 repo-map 等优势。
 
+**aider 快速配置指引：** `config/aider-quick-start.md`
+
+#### 缓存预填充（步骤7详解）
+
+**初始化时必须预创建完整缓存结构，确保所有技能即装即用：**
+
+1. **创建共享文档目录**：`.cache/shared/{requirements,architecture,api-design,test-reports,ui-review,code-review}`
+2. **创建各技能缓存目录**：`.cache/{0-scrum-master,...,8-code-reviewer}/`
+3. **生成共享索引**：`.cache/shared/SHARED_INDEX.md`
+4. **预填充项目上下文到所有技能**：为每个技能缓存写入 `_project-context.md`，包含项目名称、技术栈、业务域、架构模式、编码规范
+5. **预填充缓存元数据**：为每个技能写入 `_cache-meta.json`（含 `needsFullScan: true`）
+
+> **为什么需要预填充？** 用户 `git clone` 到新项目后首次调用任意技能（如 `/4-backend-dev`），该技能无需再花时间扫描项目、读取 `PROJECT_CONFIG.md`，直接从缓存加载项目上下文，立即开始工作。
+
+**详细预填充规范：** `references/initialization-guide.md`（步骤7）
+
 **Agent 团队标准配置：**
 
 | Agent | 角色 | 执行类型 |
 |-------|------|---------|
 | product-manager | 产品经理 | 文档型（Agent 子进程） |
 | system-architect | 系统架构师 | 文档型（Agent 子进程） |
-| backend-dev | 后端开发 | 编码型（生成 aider 命令） |
-| frontend-dev | 前端开发 | 编码型（生成 aider 命令） |
+| backend-dev | 后端开发 | 编码型（aider 执行） |
+| frontend-dev | 前端开发 | 编码型（aider 执行） |
 | qa-tester | 测试工程师 | 文档型（Agent 子进程） |
 
 **初始化完成后输出：**
 ```markdown
+✅ aider 环境 — {状态}
 ✅ PROJECT_CONFIG.md — 项目配置已生成
-✅ .cache/.project-info.json — 缓存已保存
+✅ .cache/ — 缓存目录 + 项目上下文已预填充到所有技能
 ✅ 敏捷 Agent 团队 — {team_name} 已创建
 
-现在告诉我你想做什么吧！
+所有技能已就绪！告诉我你想做什么吧！
 ```
 
 **详细初始化流程：** `references/initialization-guide.md`
+**aider 快速配置：** `config/aider-quick-start.md`
 
 ### 任务执行：多 Agent 并行（强制默认策略）
 
@@ -448,13 +470,14 @@ Scrum Master自动：
 
 Scrum Master 确保：
 
-1. ✅ **初始化自动化** — 首次使用自动创建项目配置 + Agent 团队，后续直接开工
+1. ✅ **初始化自动化** — 首次使用自动检测 aider 环境 + 扫描项目 + 预填充所有技能缓存 + 创建 Agent 团队
 2. ✅ **三层架构** — 决策(主进程) + 规划(Agent) + 执行(aider)，职责清晰
 3. ✅ **并行优先** — 无依赖任务强制并行执行，最大化效率
-4. ✅ **aider 强制执行** — 编码任务必须输出 aider 单行命令，不得直接写代码
-5. ✅ **统一 git** — aider 使用 --no-git，主进程统一审查后 commit
-6. ✅ **质量保障** — 代码审查(8-code-reviewer)把关，审查通过后才 commit
-7. ✅ **降级保险** — aider 失败 3 次自动降级到 Claude Code Edit，向用户报告后继续
+4. ✅ **缓存预填充** — 初始化时为所有技能预填充项目上下文，各技能即装即用
+5. ✅ **aider 强制执行** — 编码任务通过 Bash 直接调用 aider，不得直接写代码
+6. ✅ **统一 git** — aider 使用 --no-git，主进程统一审查后 commit
+7. ✅ **质量保障** — 代码审查(8-code-reviewer)把关，审查通过后才 commit
+8. ✅ **降级保险** — aider 失败 3 次自动降级到 Claude Code Edit，向用户报告后继续
 
 ---
 
@@ -462,5 +485,7 @@ Scrum Master 确保：
 - `references/automation-workflow.md` - 详细的自动化执行逻辑
 - `references/agile-ceremonies.md` - 敏捷仪式详细指南
 - `references/progress-monitoring.md` - 实时进度监控详解
-- `references/initialization-guide.md` - 初始化流程详解
+- `references/initialization-guide.md` - 初始化流程详解（含缓存预填充）
 - `references/parallel-work-overview.md` - 并行工作机制详解
+- `config/aider-quick-start.md` - aider 快速配置指南（面向用户）
+- `config/aider-setup-guide.md` - aider 排查指南（问题定位）
