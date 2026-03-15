@@ -56,6 +56,7 @@ anthropic-api-base: https://your-proxy.com   # 注意：不带尾部斜杠，不
 ### 基础调用（单任务）
 
 ```bash
+PYTHONIOENCODING=utf-8 \
 ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" \
 ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
 aider \
@@ -70,11 +71,13 @@ aider \
   {目标文件1} {目标文件2}
 ```
 
+> **Windows 必须加 `PYTHONIOENCODING=utf-8`**，否则中文内容会触发 GBK 编码崩溃。
+
 ### 后端/前端并行调用
 
 ```bash
 # 后端（后台执行）
-ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
+PYTHONIOENCODING=utf-8 ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
 aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
   --read .cache/shared/architecture/{feature}.md \
   --message "实现后端 {功能} API" \
@@ -82,7 +85,7 @@ aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no
 BACKEND_PID=$!
 
 # 前端（后台执行，与后端并行）
-ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
+PYTHONIOENCODING=utf-8 ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
 aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
   --read .cache/shared/api-design/{feature}-api.md \
   --message "实现前端 {功能} 页面" \

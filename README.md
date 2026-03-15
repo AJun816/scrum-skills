@@ -168,6 +168,34 @@ scrum-skills/
     └── PROJECT_CONFIG.template.md
 ```
 
+## 技能同步规范（cc-switch 用户必读）
+
+本仓库的技能文件存放在 `skills/`，但 Claude Code 实际读取的是 `~/.cc-switch/skills/`（通过 symlink 挂载到 `~/.claude/skills/`）。
+
+**每次修改技能文件后，必须同步到 cc-switch：**
+
+```bash
+# 检查是否有差异
+bash sync-skills.sh --check
+
+# 执行同步（git pull 或本地修改后运行）
+bash sync-skills.sh
+```
+
+**标准工作流：**
+
+```
+修改 skills/ 中的文件
+    ↓
+bash sync-skills.sh        # 同步到 ~/.cc-switch/skills/
+    ↓
+git add + git commit + git push
+```
+
+> Mac 电脑拉取代码后同样需要运行 `bash sync-skills.sh` 才能生效。
+
+---
+
 ## License
 
 [MulanPSL-2.0](skills/LICENSE)

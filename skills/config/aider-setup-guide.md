@@ -194,6 +194,59 @@ LITELLM_LOG=DEBUG aider --model anthropic/claude-sonnet-4-6 \
 
 ---
 
+## 跨平台配置方案（Windows + Mac）
+
+环境变量不跨电脑共享，推荐使用 `~/.aider.conf.yml` 统一管理，**格式完全一致，无需区分平台**。
+
+### 一次性配置步骤
+
+**Mac（Terminal）：**
+
+```bash
+cat > ~/.aider.conf.yml << 'EOF'
+model: anthropic/claude-sonnet-4-6
+anthropic-api-key: sk-ant-xxx
+set-env:
+  - ANTHROPIC_API_BASE=https://your-proxy.com
+yes-always: true
+auto-commits: false
+dark-mode: true
+chat-language: chinese
+EOF
+```
+
+**Windows（PowerShell）：**
+
+```powershell
+@"
+model: anthropic/claude-sonnet-4-6
+anthropic-api-key: sk-ant-xxx
+set-env:
+  - ANTHROPIC_API_BASE=https://your-proxy.com
+yes-always: true
+auto-commits: false
+dark-mode: true
+chat-language: chinese
+"@ | Out-File "$env:USERPROFILE\.aider.conf.yml" -Encoding utf8
+```
+
+### 注意事项
+
+- `ANTHROPIC_API_BASE` 不带 `/v1`，不带尾部 `/`
+- 配置文件**不要提交到 git**（包含 API Key）
+- 配置完成后，技能组通过 Bash 调用 aider 时会自动读取此文件
+
+### 验证配置是否生效
+
+```bash
+aider --model anthropic/claude-sonnet-4-6 \
+  --yes-always --no-git --no-show-model-warnings \
+  --no-restore-chat-history \
+  --message "只回复两个字：成功" --exit
+```
+
+---
+
 ## 降级策略
 
 ```
