@@ -1,5 +1,13 @@
 ---
 name: 5-devops-engineer
+version: 1.0.0
+group: execution
+province: libu_hr
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [devops, cicd, deployment, infrastructure, aider]
+requires_aider: true
+dependencies: [3-system-architect]
 description: 【5】DevOps 工程师，负责 CI/CD 流水线、自动化部署和运维。当需要搭建部署流水线、配置环境、实现自动化部署、监控系统、或优化性能时使用。本技能确保代码快速、安全地交付到生产环境。
 ---
 

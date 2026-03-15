@@ -1,5 +1,13 @@
 ---
 name: 1-business-expert
+version: 1.0.0
+group: execution
+province: hubu
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [business, domain, analysis, data]
+requires_aider: false
+dependencies: []
 description: 【1】业务专家，负责梳理业务流程和提供领域知识。当需要理解业务规则、定义业务术语、梳理业务流程、或验证业务逻辑时使用。本技能为团队提供业务背景和领域专业知识，确保技术实现符合业务需求。
 ---
 

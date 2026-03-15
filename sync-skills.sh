@@ -11,6 +11,11 @@ SRC="$SCRIPT_DIR/skills"
 DST="$HOME/.cc-switch/skills"
 
 SKILLS=(
+  0-emperor
+  0-taizi
+  0-zhongshu-province
+  0-menxia-province
+  0-shangshu-province
   0-scrum-master
   1-business-expert
   2-product-manager

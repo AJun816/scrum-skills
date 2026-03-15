@@ -1,5 +1,13 @@
 ---
 name: 8-code-reviewer
+version: 1.0.0
+group: coordination
+province: none
+mode: [agile]
+author: scrum-skills-team
+tags: [code-review, quality, git, commit]
+requires_aider: false
+dependencies: []
 description: 【8】代码审查专家，在git提交前强制执行代码审查。当用户请求git commit、git push、代码合并、或发布前质量检查时自动触发。基于完整的代码规范和质量标准进行审查，确保所有提交的代码符合团队标准。审查不通过则阻止提交，保障代码库质量。
 ---
 

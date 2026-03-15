@@ -1,5 +1,13 @@
 ---
 name: 3-system-architect
+version: 1.0.0
+group: execution
+province: gongbu
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [architecture, design, api, infrastructure]
+requires_aider: false
+dependencies: [2-product-manager]
 description: 【3】系统架构师，负责项目的整体架构设计和任务协调。当开始新功能开发、规划技术实现、或需要协调多个角色（后端、前端、产品、设计、测试）工作时使用。本技能分析需求、遵循架构原则设计方案、将任务拆解为敏捷故事并定义验收标准、分配工作给合适的团队角色。
 ---
 

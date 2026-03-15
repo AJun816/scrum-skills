@@ -1,7 +1,15 @@
 ---
 name: 5-webapp-testing
-description: 【5】使用Playwright与本地Web应用程序交互和测试的工具包。支持验证前端功能、调试UI行为、捕获浏览器截图和查看浏览器日志。
+version: 1.0.0
+group: execution
+province: xingbu
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [testing, e2e, playwright, quality]
+requires_aider: false
+dependencies: [4-backend-dev, 4-frontend-dev]
 license: Complete terms in LICENSE.txt
+description: 【5】使用Playwright与本地Web应用程序交互和测试的工具包。支持验证前端功能、调试UI行为、捕获浏览器截图和查看浏览器日志。
 ---
 
 # Web应用测试

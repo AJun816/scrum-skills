@@ -1,5 +1,13 @@
 ---
 name: 4-backend-dev
+version: 1.0.0
+group: execution
+province: bingbu
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [backend, api, coding, aider]
+requires_aider: true
+dependencies: [3-system-architect, 8-code-reviewer]
 description: 【4】后端开发技能，负责API接口、业务逻辑和领域模型实现。根据PROJECT_CONFIG.md中的技术栈自动适配语言和框架（Java/Go/Python/Node.js等），按项目架构模式分析需求并编写代码。适用于新增/修改API接口、实现业务逻辑、领域模型设计、修复Bug、代码重构等场景。
 ---
 

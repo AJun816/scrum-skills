@@ -1,5 +1,13 @@
 ---
 name: 2-product-manager
+version: 1.0.0
+group: execution
+province: libu
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [product, requirements, user-story, documentation]
+requires_aider: false
+dependencies: [1-business-expert]
 description: 【2】产品经理，负责需求分析和用户故事编写。当用户描述新功能、需要需求分析、或需要文档化业务需求时使用。本技能将用户的口语化需求转化为结构化的需求文档和用户故事，基于现有架构（Vue 3 + Spring Boot + DDD）设计解决方案，输出包含业务流程、数据模型、API设计和实现建议的完整需求分析文档。
 ---
 

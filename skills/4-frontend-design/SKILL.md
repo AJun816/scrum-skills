@@ -1,7 +1,15 @@
 ---
 name: 4-frontend-design
-description: 【4】创建独特的、生产级前端界面，具有高设计质量。当用户要求构建Web组件、页面、工件、海报或应用程序时使用此技能（例如网站、落地页、仪表板、React组件、HTML/CSS布局，或美化任何Web UI）。生成创意、精致的代码和UI设计，避免通用的AI美学。
+version: 1.0.0
+group: execution
+province: bingbu
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [frontend, design, ui, creative]
+requires_aider: true
+dependencies: [4-nielsen-ui-design]
 license: Complete terms in LICENSE.txt
+description: 【4】创建独特的、生产级前端界面，具有高设计质量。当用户要求构建Web组件、页面、工件、海报或应用程序时使用此技能（例如网站、落地页、仪表板、React组件、HTML/CSS布局，或美化任何Web UI）。生成创意、精致的代码和UI设计，避免通用的AI美学。
 ---
 
 # 前端设计技能

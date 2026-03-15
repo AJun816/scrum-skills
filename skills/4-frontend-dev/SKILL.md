@@ -1,5 +1,13 @@
 ---
 name: 4-frontend-dev
+version: 1.0.0
+group: execution
+province: bingbu
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [frontend, ui, coding, aider]
+requires_aider: true
+dependencies: [3-system-architect, 4-frontend-design, 8-code-reviewer]
 description: 【4】前端开发技能，负责页面开发、组件实现和API对接。根据PROJECT_CONFIG.md中的技术栈自动适配框架（Vue/React/Angular/Svelte等），配合后端API和UI设计进行开发。适用于新增/修改页面、对接API、实现组件、状态管理、修复Bug、代码重构、UI/UX优化等场景。
 ---
 

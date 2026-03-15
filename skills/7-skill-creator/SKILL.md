@@ -1,5 +1,13 @@
 ---
 name: 7-skill-creator
+version: 1.0.0
+group: utility
+province: none
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [skill, creator, tool, meta]
+requires_aider: false
+dependencies: []
 description: 【工具】技能创建器，用于创建新的技能或优化现有技能。当用户需要创建新技能、扩展团队能力、或优化现有技能时使用。本技能会引导用户输入简要信息，结合项目配置自动生成符合敏捷团队技能组风格的技能，包括标准的执行流程、团队协作机制、缓存优化等特性。
 ---
 

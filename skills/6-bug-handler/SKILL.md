@@ -1,5 +1,13 @@
 ---
 name: 6-bug-handler
+version: 1.0.0
+group: coordination
+province: none
+mode: [agile]
+author: scrum-skills-team
+tags: [bug, fix, debugging, triage]
+requires_aider: false
+dependencies: [4-backend-dev, 4-frontend-dev, 8-code-reviewer]
 description: 【6】Bug处理专家，负责接收、分析和协调bug修复流程。当用户报告错误、提交报错信息、或发现系统问题时使用。本技能按照敏捷团队标准流程处理bug，从接收到修复验证的全流程管理，确保问题得到快速解决。
 ---
 

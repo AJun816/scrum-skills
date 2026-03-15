@@ -1,5 +1,13 @@
 ---
 name: 4-nielsen-ui-design
+version: 1.0.0
+group: execution
+province: bingbu
+mode: [agile, imperial]
+author: scrum-skills-team
+tags: [ui, ux, nielsen, usability, design]
+requires_aider: false
+dependencies: [2-product-manager]
 description: 【4】基于尼尔森十大可用性原则的 UI/UX 设计专家技能，输出可直接落地的界面设计方案、设计规范和组件交互描述。适用于 Web/App/工具型系统的高可用性产品界面设计。
 ---
 
