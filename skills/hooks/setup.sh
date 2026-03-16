@@ -176,6 +176,25 @@ if [ "$NICKNAME" != "吴彦祖" ]; then
   find "$SKILLS_DIR" -name "*.bak" -delete 2>/dev/null || true
 fi
 
+# ---- Create .claude/skills symlinks ----
+CLAUDE_SKILLS_DIR="$PROJECT_ROOT/.claude/skills"
+mkdir -p "$CLAUDE_SKILLS_DIR"
+LINK_COUNT=0
+for SKILL_DIR in "$SKILLS_DIR"/0-* "$SKILLS_DIR"/1-* "$SKILLS_DIR"/2-* "$SKILLS_DIR"/3-* "$SKILLS_DIR"/4-* "$SKILLS_DIR"/5-* "$SKILLS_DIR"/6-* "$SKILLS_DIR"/7-* "$SKILLS_DIR"/8-*; do
+  [ ! -d "$SKILL_DIR" ] && continue
+  SKILL_NAME=$(basename "$SKILL_DIR")
+  LINK_TARGET="../../skills/${SKILL_NAME}"
+  if [ ! -L "$CLAUDE_SKILLS_DIR/$SKILL_NAME" ]; then
+    ln -sf "$LINK_TARGET" "$CLAUDE_SKILLS_DIR/$SKILL_NAME"
+    LINK_COUNT=$((LINK_COUNT + 1))
+  fi
+done
+if [ "$LANG" = "en" ]; then
+  echo "  Skills symlinks ready ($LINK_COUNT new) in .claude/skills/"
+else
+  echo "  技能软连接就绪（新增 $LINK_COUNT 个）：.claude/skills/"
+fi
+
 # ---- Git commit-msg Hook ----
 if [ "$INSTALL_GIT_HOOK" = "yes" ]; then
   GIT_HOOKS_DIR="$PROJECT_ROOT/.git/hooks"
