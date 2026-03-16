@@ -10,17 +10,26 @@
 # 复制技能目录和hooks配置
 cp -r skills/ your-project/.claude/skills/
 cp .claude/settings.json your-project/.claude/settings.json
+
+# 可选：非交互式配置（CI/自动化场景）
+sh your-project/.claude/skills/hooks/setup.sh --default
 ```
 
 ### 2. 开始使用
 
-直接调用任何技能，第一次使用时会自动引导你初始化。
+**自动编排模式（推荐）：** 输入需求，全自动流转到底。
 
 ```
-/0-scrum-master 帮我组织一次迭代计划会议
+# 三省六部模式（复杂任务，全流程审核）
+/0-emperor 开发用户登录功能，要求 JWT 鉴权 + Redis 缓存
+
+# 敏捷模式（简单任务，快速处理）
+/0-scrum-master 修复登录按钮样式问题
 ```
 
-首次使用会自动引导配置项目信息（名称、技术栈、业务模块）。
+无需手动调用每个技能，workflow-runner 自动按链条调度：
+- 三省六部：太子→中书省→门下省→尚书省→六部→门下省→中书省→皇上
+- 敏捷：PM + Architect 并行→Dev 并行→Code Review→提交
 
 ## 文件说明
 
@@ -34,6 +43,12 @@ skills/
 ├── hooks/                         # 代码质量钩子（自动生效）
 ├── .cache/                        # 缓存目录（自动生成，已gitignore）
 │
+├── 0-emperor/                     # 👑 皇上（三省六部入口）
+├── 0-taizi/                       # 🤴 太子（消息分拣）
+├── 0-zhongshu-province/           # 📜 中书省（规划中枢）
+├── 0-menxia-province/             # 🔍 门下省（质量门禁）
+├── 0-shangshu-province/           # 📮 尚书省（派发协调）
+├── 0-workflow-runner/             # 🔄 工作流编排器（自动驱动全流程）
 ├── 0-scrum-master/                # 敏捷教练
 ├── 1-business-expert/             # 业务专家
 ├── 2-product-manager/             # 产品经理
@@ -57,6 +72,12 @@ skills/
 
 | 技能 | 说明 | 使用场景 |
 |------|------|----------|
+| 0-emperor | 👑 皇上 | 三省六部模式入口，下旨启动全流程 |
+| 0-taizi | 🤴 太子 | 消息分拣，闲聊直接回 / 旨意传中书省 |
+| 0-zhongshu-province | 📜 中书省 | 规划中枢，调用 PM + Architect |
+| 0-menxia-province | 🔍 门下省 | 质量门禁，审核/封驳 |
+| 0-shangshu-province | 📮 尚书省 | 派发协调，调度六部执行 |
+| 0-workflow-runner | 🔄 工作流编排器 | 自动驱动全流程，无需手动调用每个技能 |
 | 0-scrum-master | 敏捷教练 | 组织敏捷仪式、协调团队、移除障碍 |
 | 1-business-expert | 业务专家 | 梳理业务流程、定义业务规则 |
 | 2-product-manager | 产品经理 | 需求分析、用户故事、需求变更 |
@@ -101,6 +122,8 @@ skills/
 
 1. **复制粘贴就能用** — skills 目录自包含，无外部依赖
 2. **开箱即用** — hooks 自动生效，首次使用自动初始化
-3. **配置驱动** — 统一配置，所有技能共享
-4. **通用适配** — 后端/前端技能不限语言，根据项目自动适配
-5. **质量内建** — hooks 强制执行代码规范，代码审查把关提交
+3. **全自动编排** — `/0-emperor` 或 `/0-scrum-master` 启动后全流程自动流转，无需手动调用每个技能
+4. **配置驱动** — 统一配置，所有技能共享
+5. **通用适配** — 后端/前端技能不限语言，根据项目自动适配
+6. **质量内建** — hooks 强制执行代码规范，门下省/code-reviewer 把关提交
+7. **中断恢复** — workflow-state.json 记录进度，中断后可从断点恢复

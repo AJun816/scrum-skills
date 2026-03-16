@@ -16,7 +16,7 @@ province: bingbu                  # 三省六部映射（见下方预定义值�
 mode: [agile, imperial]           # 适用模式：agile | imperial | both
 author: scrum-skills-team         # 作者/团队
 tags: [backend, api, coding]      # 标签列表
-requires_aider: true              # 是否需要 aider 执行编码
+requires_aider: false              # 是否需要 aider（已废弃，保持 false）
 dependencies: [3-system-architect] # 依赖的其他技能
 ---
 ```
@@ -31,6 +31,7 @@ dependencies: [3-system-architect] # 依赖的其他技能
 | `planning` | 规划层（三省） | 0-zhongshu-province |
 | `review` | 审核层（三省） | 0-menxia-province |
 | `dispatch` | 派发层（三省） | 0-shangshu-province |
+| `orchestration` | 编排层 | 0-workflow-runner |
 | `execution` | 执行层（六部） | 4-backend-dev, 4-frontend-dev |
 | `coordination` | 协调层 | 0-scrum-master, 6-bug-handler |
 | `utility` | 工具层 | 7-skill-creator |

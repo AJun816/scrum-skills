@@ -9,6 +9,10 @@ author: scrum-skills-team
 tags: [review, quality, gate, approval, rejection, imperial]
 requires_aider: false
 dependencies: []
+workflow:
+  next_on_approve: return
+  next_on_reject: return
+  max_rejections: 3
 ---
 
 # 🔍 门下省 (Menxia Province)
@@ -177,6 +181,29 @@ dependencies: []
 
 - 尚书省、六部执行层（门下省只审核，不执行）
 - PM、Architect（门下省不参与规划）
+
+## 自动编排接口
+
+当被 workflow-runner 通过 Agent 调用时，完成后在输出末尾附加：
+
+```json
+{
+  "workflow_signal": {
+    "skill": "0-menxia-province",
+    "status": "completed|rejected|error",
+    "review_stage": 1,
+    "decision": "approved|rejected|force_passed",
+    "outputs": [".cache/shared/review-reports/xxx.md"],
+    "rejection_reason": "封驳原因（仅 rejected 时）",
+    "message": "简要说明"
+  }
+}
+```
+
+**decision 说明：**
+- `approved` — 准奏，workflow 继续下一步
+- `rejected` — 封驳，workflow 回退到提审方修改
+- `force_passed` — 达到 3 轮封驳上限，强制通过并记录风险
 
 ## 资源文件
 

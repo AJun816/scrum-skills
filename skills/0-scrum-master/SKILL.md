@@ -27,25 +27,36 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 
 本技能作为敏捷团队的教练和促进者，负责组织敏捷仪式、移除障碍、促进协作、保护团队专注。确保团队遵循敏捷原则，持续改进工作方式。
 
+## 自动编排模式（敏捷）
+
+**收到需求后，Scrum Master 可自动调用工作流编排器驱动全流程。**
+
+当用户选择敏捷模式时：
+1. Scrum Master 分析任务，判断复杂度
+2. 自动调用 `0-workflow-runner`（mode=agile）
+3. workflow-runner 驱动：PM + Architect 并行规划 → Dev 并行执行 → Code Review → 提交
+
+**用户只需：** `/0-scrum-master 开发用户登录功能` → 全自动流转
+
+---
+
 ## 核心职责
 
-### 1. 全自动化工作流程（三层架构）
+### 1. 全自动化工作流程（两层架构）
 
-**Scrum Master 协调三层执行架构，用户只需描述需求：**
+**Scrum Master 协调两层执行架构，用户只需描述需求：**
 
 ```
 决策层  Scrum Master（主进程）
   ↓ 任务拆解 + 依赖设置
-规划层  Agent 子进程（文档型角色）
-  ↓ 产出共享文档到 .cache/shared/
-执行层  aider 进程（编码型角色）
-  ↓ 代码修改（--no-git，由主进程统一 commit）
+执行层  Agent 子进程（所有角色，使用 Claude Code Edit/Write 工具执行编码任务）
+  ↓ 文档产出到 .cache/shared/，代码直接修改项目文件
 ```
 
 **任务路由规则（自动判断）：**
 - 需求分析/用户故事/架构设计/UI审核/测试报告 → **Agent 子进程**执行
-- 后端代码/前端代码/DevOps脚本/Bug修复 → **aider** 执行
-- 无依赖关系的任务 → **并行**（Agent并行 或 aider并行）
+- 后端代码/前端代码/DevOps脚本/Bug修复 → **Agent 子进程**执行（使用 Claude Code Edit/Write 工具）
+- 无依赖关系的任务 → **并行**执行
 - 有依赖关系的任务 → 等上游完成后**顺序**触发
 
 **详细自动化流程参考：** `references/automation-workflow.md`
@@ -202,77 +213,15 @@ description: 【协调】敏捷教练，负责组织和促进敏捷开发流程�
 
 #### 场景2：缓存不存在（未初始化）
 
-**必须执行完整初始化流程（9步，不可跳过）：**
+**必须执行完整初始化流程（8步，不可跳过）：**
 
-1. **检测 aider 环境（首要步骤）**
-2. 扫描项目结构，识别技术栈和业务域
+1. 扫描项目结构，识别技术栈和业务域
 3. 分析技术栈和代码结构
 4. 识别业务模块和架构模式
 5. 生成 `PROJECT_CONFIG.md` 配置文件
 6. 生成 `.cache/.project-info.json` 缓存文件
 7. **预创建缓存目录 + 预填充技能组缓存（关键步骤）**
 8. **使用 TeamCreate 创建敏捷 Agent 团队（必须执行）**
-9. 输出初始化完成报告
-
-#### aider 环境检测（步骤1详解）
-
-**通过 Bash 工具依次执行以下检测：**
-
-```bash
-# 1. 检测 aider 是否安装
-aider --version
-
-# 2. 检测 API Key 是否配置
-echo ${#ANTHROPIC_AUTH_TOKEN}
-# 或检查 ~/.aider.conf.yml 中是否配置了 anthropic-api-key
-
-# 3. 检测代理地址（可选）
-echo $ANTHROPIC_BASE_URL
-```
-
-**根据检测结果输出引导：**
-
-```markdown
-## 🔧 aider 环境检测
-
-✅ aider 已安装（版本：{version}）
-✅ API Key 已配置
-✅ 代理地址已配置：{proxy_url}
-
-aider 环境就绪！
-```
-
-**如果检测到问题，输出配置指引：**
-
-```markdown
-## 🔧 aider 环境检测
-
-❌ aider 未安装
-
-**安装方法：**
-pip install aider-chat
-
-❌ API Key 未配置
-
-**配置方法（任选其一）：**
-
-方式1：环境变量（Mac/Linux 写入 ~/.zshrc，Windows 设置系统环境变量）
-  export ANTHROPIC_AUTH_TOKEN=your-api-key
-  export ANTHROPIC_BASE_URL=https://your-proxy.com/  # 可选，使用代理时配置
-
-方式2：aider 配置文件 ~/.aider.conf.yml
-  anthropic-api-key: your-api-key
-  set-env:
-    - ANTHROPIC_API_BASE=https://your-proxy.com  # 可选，不带 /v1，不带尾部 /
-
-⚠️ 代理用户注意：aider 使用 ANTHROPIC_API_BASE（不是 ANTHROPIC_BASE_URL），
-  值不能带 /v1 后缀。技能组调用模板已自动处理此转换。
-  详见：config/aider-setup-guide.md
-```
-
-**降级策略：** aider 不可用时，技能组自动降级为 Claude Code Edit/Write 工具直接编码，功能不受影响，但无法利用 aider 的 repo-map 等优势。
-
-**aider 快速配置指引：** `config/aider-quick-start.md`
 
 #### 缓存预填充（步骤7详解）
 
@@ -294,13 +243,12 @@ pip install aider-chat
 |-------|------|---------|
 | product-manager | 产品经理 | 文档型（Agent 子进程） |
 | system-architect | 系统架构师 | 文档型（Agent 子进程） |
-| backend-dev | 后端开发 | 编码型（aider 执行） |
-| frontend-dev | 前端开发 | 编码型（aider 执行） |
+| backend-dev | 后端开发 | 编码型（Agent 子进程） |
+| frontend-dev | 前端开发 | 编码型（Agent 子进程） |
 | qa-tester | 测试工程师 | 文档型（Agent 子进程） |
 
 **初始化完成后输出：**
 ```markdown
-✅ aider 环境 — {状态}
 ✅ PROJECT_CONFIG.md — 项目配置已生成
 ✅ .cache/ — 缓存目录 + 项目上下文已预填充到所有技能
 ✅ 敏捷 Agent 团队 — {team_name} 已创建
@@ -309,16 +257,15 @@ pip install aider-chat
 ```
 
 **详细初始化流程：** `references/initialization-guide.md`
-**aider 快速配置：** `config/aider-quick-start.md`
 
 ### 任务执行：多 Agent 并行（强制默认策略）
 
 **收到任务后，必须按以下规则执行：**
 
 1. **并行优先**：无依赖关系的任务必须并行执行，不得顺序等待
-2. **编码任务生成 aider 命令**：后端/前端/DevOps/Bug修复 → 输出单行 aider 命令让用户执行
+2. **编码任务通过 Agent 子进程**：后端/前端/DevOps/Bug修复 → Agent 子进程使用 Claude Code Edit/Write 工具执行
 3. **文档任务使用 Agent 子进程**：需求/架构/设计/测试报告 → 使用 Agent 并行执行
-4. **统一 git 管理**：所有 aider 使用 `--no-git`，由主进程统一审查后 commit
+4. **统一 git 管理**：由主进程统一审查后 commit
 
 ### 执行可见性（必须遵守）
 
@@ -528,14 +475,13 @@ Scrum Master自动：
 
 Scrum Master 确保：
 
-1. ✅ **初始化自动化** — 首次使用自动检测 aider 环境 + 扫描项目 + 预填充所有技能缓存 + 创建 Agent 团队
-2. ✅ **三层架构** — 决策(主进程) + 规划(Agent) + 执行(aider)，职责清晰
+1. ✅ **初始化自动化** — 首次使用自动扫描项目 + 预填充所有技能缓存 + 创建 Agent 团队
+2. ✅ **两层架构** — 决策(主进程) + 执行(Agent子进程)，职责清晰
 3. ✅ **并行优先** — 无依赖任务强制并行执行，最大化效率
 4. ✅ **缓存预填充** — 初始化时为所有技能预填充项目上下文，各技能即装即用
-5. ✅ **aider 强制执行** — 编码任务通过 Bash 直接调用 aider，不得直接写代码
-6. ✅ **统一 git** — aider 使用 --no-git，主进程统一审查后 commit
+5. ✅ **Agent 子进程执行** — 编码任务通过 Agent 子进程使用 Claude Code Edit/Write 工具
+6. ✅ **统一 git** — 主进程统一审查后 commit
 7. ✅ **质量保障** — 代码审查(8-code-reviewer)把关，审查通过后才 commit
-8. ✅ **降级保险** — aider 失败 3 次自动降级到 Claude Code Edit，向用户报告后继续
 
 ---
 
@@ -545,5 +491,3 @@ Scrum Master 确保：
 - `references/progress-monitoring.md` - 实时进度监控详解
 - `references/initialization-guide.md` - 初始化流程详解（含缓存预填充）
 - `references/parallel-work-overview.md` - 并行工作机制详解
-- `config/aider-quick-start.md` - aider 快速配置指南（面向用户）
-- `config/aider-setup-guide.md` - aider 排查指南（问题定位）

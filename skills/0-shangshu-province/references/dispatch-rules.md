@@ -8,11 +8,11 @@
 
 | 任务类型 | 关键词 | 派发目标 | 执行方式 |
 |---|---|---|---|
-| 后端 API 开发 | API、接口、后端、数据库、模型 | `/4-backend-dev` | aider |
-| 前端页面开发 | 页面、组件、前端、UI实现 | `/4-frontend-dev` | aider |
+| 后端 API 开发 | API、接口、后端、数据库、模型 | `/4-backend-dev` | Agent 子进程 |
+| 前端页面开发 | 页面、组件、前端、UI实现 | `/4-frontend-dev` | Agent 子进程 |
 | UI 设计 | 设计稿、原型、交互设计 | `/4-frontend-design` | Agent |
 | UI 可用性审核 | 可用性、Nielsen、用户体验 | `/4-nielsen-ui-design` | Agent |
-| DevOps 脚本 | CI/CD、Docker、部署、脚本 | `/5-devops-engineer` | aider |
+| DevOps 脚本 | CI/CD、Docker、部署、脚本 | `/5-devops-engineer` | Agent 子进程 |
 | 自动化测试 | 测试、E2E、单元测试 | `/5-webapp-testing` | Agent |
 
 ## 并行策略
@@ -30,40 +30,20 @@
 - 测试依赖开发完成 → 开发先完成
 - UI 实现依赖 UI 设计 → 设计先完成
 
-## aider 调用模板
+## 编码任务执行模板
 
 ### 单任务派发
 
-```bash
-PYTHONIOENCODING=utf-8 \
-ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" \
-ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
-aider \
-  --model anthropic/claude-sonnet-4-6 \
-  --architect \
-  --yes-always \
-  --no-git \
-  --no-show-model-warnings \
-  --read .cache/shared/requirements/{feature}.md \
-  --read .cache/shared/architecture/{feature}.md \
-  --read .cache/shared/api-design/{feature}-api.md \
-  --message "{尚书省派发的具体任务指令}。约束：单文件≤800行，方法≤50行" \
-  {target_files}
-```
+编码型任务通过 Agent 子进程执行，使用 Claude Code 内置的 Edit/Write 工具直接修改代码文件。
+
+**执行要求：**
+- 读取共享文档（`.cache/shared/requirements/`、`.cache/shared/architecture/`、`.cache/shared/api-design/`）
+- 约束：单文件≤800行，方法≤50行
+- 由主进程统一审查后 commit
 
 ### 并行派发
 
-```bash
-# 后端（后台）
-aider ... --message "实现后端 {功能}" {后端文件} &
-BACKEND_PID=$!
-
-# 前端（后台）
-aider ... --message "实现前端 {功能}" {前端文件} &
-FRONTEND_PID=$!
-
-wait $BACKEND_PID $FRONTEND_PID
-```
+无文件冲突的编码任务可通过多个 Agent 子进程并行执行，每个子进程独立处理不同的目标文件。
 
 ## 文件冲突预防
 
@@ -75,7 +55,7 @@ wait $BACKEND_PID $FRONTEND_PID
 
 | 异常 | 处理方式 |
 |---|---|
-| aider 执行失败 | 重试 1 次，仍失败则降级为 Claude Code Edit/Write |
+| Agent 子进程执行失败 | 重试 1 次，仍失败则由主进程直接使用 Claude Code Edit/Write 工具 |
 | 六部执行超时 | 记录超时原因，向中书省报告 |
 | 文件冲突 | 改为串行执行，手动合并 |
 | 依赖未满足 | 等待上游任务完成后再派发 |

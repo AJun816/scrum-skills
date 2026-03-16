@@ -75,25 +75,14 @@
 **编码中：** 每完成一个类/方法检查行数是否超标
 **编码后：** 确认所有文件≤800行、方法≤50行、无安全漏洞
 
-## 编码执行规范（aider 强制要求）
+## 编码执行规范
 
 **所有编码型任务（后端/前端/DevOps脚本/Bug修复）必须遵守：**
 
-- ✅ **必须**：通过 aider 命令执行代码编写（生成单行命令，用户在终端执行）
-- ✅ **必须**：aider 命令包含 `--no-git` 参数，由主进程统一管理 git
-- ✅ **必须**：aider 完成后，由 `/8-code-reviewer` 审查代码，审查通过后才能 git commit
-- ✅ **必须**：aider 命令输出为单行（不换行），方便用户直接复制粘贴执行
-- ✅ **必须**：aider 命令包含 `--read` 注入相关上下文文档（架构设计、API契约等）
-- ❌ **禁止**：跳过 aider 直接用 Edit/Write 工具写代码（aider 不可用时除外，需向用户报告）
-- ❌ **禁止**：aider 命令省略 `--architect` 和 `--yes-always` 参数
+- ✅ **必须**：通过 Agent 子进程使用 Claude Code Edit/Write 工具执行代码编写
+- ✅ **必须**：编码完成后，由 `/8-code-reviewer` 审查代码，审查通过后才能 git commit
+- ✅ **必须**：读取共享文档（需求、架构、API 契约）作为编码上下文
 - ❌ **禁止**：直接执行 git commit，必须先经过代码审查
-
-**aider 不可用时降级策略（必须执行）：**
-1. 向用户报告 aider 不可用的原因
-2. 经用户确认后，降级使用 Claude Code Edit/Write 工具实现
-3. 降级实现同样必须经过 `/8-code-reviewer` 审查后才能 commit
-
-**详细规范参考：** `config/aider-integration.md`
 
 ## 三省六部模式规则
 
@@ -120,7 +109,7 @@
 ### 共享文档规则
 - 所有产出物存入 `.cache/shared/` 对应目录
 - 审核报告存入 `.cache/shared/review-reports/`
-- 尚书省派发任务时自动注入共享文档到 aider `--read`
+- 尚书省派发任务时自动注入共享文档作为编码上下文
 
 **详细权限矩阵：** `config/permission-matrix.md`
 **技能分组定义：** `config/skill-groups.md`

@@ -5,8 +5,8 @@ group: execution
 province: bingbu
 mode: [agile, imperial]
 author: scrum-skills-team
-tags: [backend, api, coding, aider]
-requires_aider: true
+tags: [backend, api, coding]
+requires_aider: false
 dependencies: [3-system-architect, 8-code-reviewer]
 description: 【4】后端开发技能，负责API接口、业务逻辑和领域模型实现。根据PROJECT_CONFIG.md中的技术栈自动适配语言和框架（Java/Go/Python/Node.js等），按项目架构模式分析需求并编写代码。适用于新增/修改API接口、实现业务逻辑、领域模型设计、修复Bug、代码重构等场景。
 ---
@@ -158,35 +158,25 @@ description: 【4】后端开发技能，负责API接口、业务逻辑和领域
 2. 识别跨域依赖（是否需要调用其他平台域或共享模块）
 3. 评估影响范围（新增文件 vs 修改已有文件）
 
-### Phase 3: 编码实现（直接调用 aider）
+### Phase 3: 编码实现（Claude Code Edit/Write 工具）
 
-> **执行方式**：通过 Bash 工具直接调用 aider，无需用户手动操作。
-> 详细规范参考：`config/aider-integration.md`
+> **执行方式**：通过 Claude Code 内置的 Edit/Write 工具直接修改代码文件。
 
 **执行步骤：**
 
 1. 读取 `references/code-patterns.md` 确认代码模板和命名规范
-2. 确认目标文件列表（Controller/Service/Domain/Repository 等）
-3. 通过 Bash 工具直接执行：
-
-```bash
-ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
-aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
-  --read .cache/shared/architecture/{feature}.md \
-  --read .cache/shared/api-design/{feature}-api.md \
-  --read skills/config/coding-standards.md \
-  --message "按照架构文档实现 {功能名称} 后端代码：1. Controller + DTO（接口层）2. ApplicationService（应用层）3. Domain Model / DomainService（领域层）4. Repository 实现（基础设施层）。约束：单文件≤800行，方法≤50行，构造器注入，统一响应结构，业务异常处理" \
-  src/{domain}/controller/{Feature}Controller.java \
-  src/{domain}/service/{Feature}ApplicationService.java \
-  src/{domain}/model/{Feature}.java \
-  src/{domain}/repository/{Feature}Repository.java
-```
-
-4. aider 执行完成后，读取生成的代码进行验证
+2. 读取共享架构文档（`.cache/shared/architecture/{feature}.md`、`.cache/shared/api-design/{feature}-api.md`）
+3. 确认目标文件列表（Controller/Service/Domain/Repository 等）
+4. 使用 Edit/Write 工具按分层逐一实现代码：
+   - Controller + DTO（接口层）
+   - ApplicationService（应用层）
+   - Domain Model / DomainService（领域层）
+   - Repository 实现（基础设施层）
+5. 约束：单文件≤800行，方法≤50行，构造器注入，统一响应结构，业务异常处理
 
 ### Phase 4: 验证 + 提交
 
-1. 读取 aider 生成的文件，检查分层约束和命名规范
+1. 读取生成的文件，检查分层约束和命名规范
 2. 调用 `/8-code-reviewer` 进行代码审查
 3. 审查通过后执行 git commit
 
@@ -215,7 +205,6 @@ aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no
 
 - **项目配置**: `PROJECT_CONFIG.md` — 项目架构、技术栈、业务域、编码规范
 - **代码模板**: `references/code-patterns.md` — 各层代码示例和命名规范
-- **aider集成**: `config/aider-integration.md` — aider 调用规范、模型选择、错误处理
 
 ## 代码规范与质量标准
 

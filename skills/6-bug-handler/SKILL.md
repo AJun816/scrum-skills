@@ -130,20 +130,17 @@ Bug专家完成分析和分类后，立即通知全团队，相关技能主动�
    - 评估影响范围
    - 考虑是否需要数据迁移
 
-3. **代码修复（直接调用 aider）**
+3. **代码修复（Claude Code Edit/Write 工具）**
 
-   > **强制规定**：代码修复阶段通过 Bash 工具直接调用 aider，无需用户手动操作。
-   > 详细调用规范参考：`config/aider-integration.md`
+   > **执行方式**：通过 Claude Code 内置的 Edit/Write 工具直接修改代码文件。
 
-   ```bash
-   ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
-   aider --model anthropic/claude-haiku-4-5-20251001 --architect --yes-always --no-git --no-show-model-warnings \
-     --read {问题相关代码文件} \
-     --message "修复 Bug：{Bug描述}。根本原因：{定位到的根本原因}。修复要求：最小变更原则，只改必要部分；添加单元测试防止回归；不破坏现有功能；文件≤800行，方法≤50行" \
-     {需要修改的目标文件}
-   ```
+   **修复要求：**
+   - 最小变更原则，只改必要部分
+   - 添加单元测试防止回归
+   - 不破坏现有功能
+   - 文件≤800行，方法≤50行
 
-   - aider 失败 3 次 → 降级使用 Claude Code Edit 工具并向 Scrum Master 报告
+   - 修复失败 3 次 → 换思路重新分析根因，向 Scrum Master 报告
 
 4. **代码审查**
    - 提交代码审查

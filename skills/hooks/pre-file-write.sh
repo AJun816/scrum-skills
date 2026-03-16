@@ -19,19 +19,6 @@ is_code_file() {
   echo "$1" | grep -qiE "\.($CODE_EXTENSIONS)$"
 }
 
-# ---- aider 强制检查（代码文件必须通过 aider 修改） ----
-if is_code_file "$FILE_PATH"; then
-  # 允许绕过：AIDER_BYPASS=true 环境变量（紧急情况，需在 commit message 中说明）
-  if [ "$AIDER_BYPASS" = "true" ]; then
-    echo "⚠️ aider bypass enabled for: $FILE_PATH — 请在 commit message 中说明原因" >&2
-  elif [ "$AIDER_ACTIVE" != "true" ]; then
-    echo "⛔ 代码文件必须通过 aider 修改: $FILE_PATH" >&2
-    echo "💡 请使用 aider --no-git --message '...' $FILE_PATH" >&2
-    echo "💡 紧急情况可设置 AIDER_BYPASS=true 绕过（需在 commit message 中说明原因）" >&2
-    exit 2
-  fi
-fi
-
 # ---- File size check (code files only, Write only) ----
 if is_code_file "$FILE_PATH" && [ "$TOOL_NAME" = "Write" ]; then
   CONTENT=$(echo "$INPUT" | sed -n 's/.*"content"[[:space:]]*:[[:space:]]*"//p' | sed 's/"[[:space:]]*[,}].*//' | sed 's/\\"/"/g' | head -1)

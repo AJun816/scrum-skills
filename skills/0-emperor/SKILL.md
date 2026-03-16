@@ -9,6 +9,10 @@ author: scrum-skills-team
 tags: [emperor, decision, imperial, workflow]
 requires_aider: false
 dependencies: [0-taizi]
+workflow:
+  next: [0-taizi]
+  auto_chain: true
+  entry_point: true
 ---
 
 # 👑 皇上 (Emperor)
@@ -30,6 +34,21 @@ dependencies: [0-taizi]
 - 御览回奏，验收最终成果
 - 御批决策，紧急情况可跳过门下省审核
 - 叫停任何流程
+
+## 自动编排模式
+
+**收到用户需求后，皇上自动启动工作流编排器，无需手动调用每个技能。**
+
+流程：
+1. 皇上接收需求，判断复杂度
+2. 简单任务 → 建议敏捷模式（`/0-scrum-master`）
+3. 中等/复杂任务 → 自动调用 `0-workflow-runner`（mode=imperial）
+4. workflow-runner 驱动全流程：太子→中书省→门下省→尚书省→六部→门下省→中书省→皇上
+5. 皇上御览回奏，确认后 git commit
+
+**用户只需：** `/0-emperor 开发用户登录功能` → 全自动流转到底
+
+---
 
 ## 核心职责
 
@@ -87,9 +106,9 @@ dependencies: [0-taizi]
   封驳 ← 修改意见      准奏 ✅
   (回中书省修改)          ↓
                     📮 尚书省 派发
-                        ├→ 后端开发 (aider)
-                        ├→ 前端开发 (aider)
-                        ├→ DevOps (aider)
+                        ├→ 后端开发 (Agent 子进程)
+                        ├→ 前端开发 (Agent 子进程)
+                        ├→ DevOps (Agent 子进程)
                         ↓
                     📮 尚书省 汇总 → 🔍 门下省 代码审核
                         ↓                    ↓

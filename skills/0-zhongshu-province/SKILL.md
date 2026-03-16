@@ -9,6 +9,10 @@ author: scrum-skills-team
 tags: [planning, requirements, architecture, coordination, imperial]
 requires_aider: false
 dependencies: [2-product-manager, 3-system-architect, 0-menxia-province, 0-shangshu-province]
+workflow:
+  next: [0-menxia-province]
+  on_rejection: self
+  auto_chain: true
 ---
 
 # 📜 中书省 (Zhongshu Province)
@@ -191,6 +195,26 @@ dependencies: [2-product-manager, 3-system-architect, 0-menxia-province, 0-shang
 ├── api-design/      # API 设计（Architect 产出）
 └── review-reports/  # 审核报告（门下省产出）
 ```
+
+## 自动编排接口
+
+当被 workflow-runner 通过 Agent 调用时，完成后在输出末尾附加：
+
+```json
+{
+  "workflow_signal": {
+    "skill": "0-zhongshu-province",
+    "status": "completed|rejected|error",
+    "outputs": [".cache/shared/requirements/xxx.md", ".cache/shared/architecture/xxx.md"],
+    "phase": "plan|report",
+    "message": "简要说明（如：规划完成，提交门下省审核）"
+  }
+}
+```
+
+**phase 说明：**
+- `plan` — 规划阶段完成，产出需求+架构文档
+- `report` — 回奏阶段完成，产出最终报告
 
 ## 资源文件
 

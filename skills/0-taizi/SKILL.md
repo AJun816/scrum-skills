@@ -9,6 +9,10 @@ author: scrum-skills-team
 tags: [triage, filter, message, classification, imperial]
 requires_aider: false
 dependencies: [0-zhongshu-province]
+workflow:
+  next: [0-zhongshu-province]
+  auto_chain: true
+  triage_exits: [chat, simple]
 ---
 
 # 🤴 太子 (Taizi)
@@ -147,6 +151,27 @@ dependencies: [0-zhongshu-province]
 - **皇上** 负责：模式选择（三省六部 vs 敏捷）、御览回奏、御批、叫停
 - **太子** 负责：消息分拣（闲聊 vs 旨意）、旨意整理、传旨
 - 流转顺序：皇上决定走三省六部 → 太子分拣整理 → 中书省接旨
+
+## 自动编排接口
+
+当被 workflow-runner 通过 Agent 调用时，完成后在输出末尾附加：
+
+```json
+{
+  "workflow_signal": {
+    "skill": "0-taizi",
+    "status": "completed|rejected|error",
+    "triage_result": "edict|chat|simple",
+    "outputs": [],
+    "message": "简要说明（如：正式旨意，已整理传旨）"
+  }
+}
+```
+
+**triage_result 说明：**
+- `edict` — 正式旨意，workflow 继续流转到中书省
+- `chat` — 闲聊，太子已直接回复，workflow 结束
+- `simple` — 简单任务，建议走敏捷模式，workflow 结束或切换
 
 ## 资源文件
 

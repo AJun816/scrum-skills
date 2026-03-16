@@ -51,53 +51,6 @@
 
 ## 自动初始化流程（完整 8 步，必须按顺序执行）
 
-### 步骤0：检测 aider 环境
-
-**目标：** 检测 aider 是否安装、API Key 是否配置、代理地址是否正确。
-
-**执行检测：**
-
-```bash
-# 1. 检测 aider 是否安装
-aider --version
-
-# 2. 检测 API Key
-echo ${#ANTHROPIC_AUTH_TOKEN}
-
-# 3. 检测代理地址（可选）
-echo $ANTHROPIC_BASE_URL
-```
-
-**检测通过：**
-```markdown
-## 🔧 aider 环境检测
-
-✅ aider 已安装（版本：{version}）
-✅ API Key 已配置
-✅ 代理地址已配置（可选）
-
-aider 环境就绪！
-```
-
-**检测失败 — 输出配置指引：**
-```markdown
-## 🔧 aider 环境检测
-
-❌ {问题描述}
-
-**配置方法：**
-1. 安装 aider：pip install aider-chat
-2. 配置 API Key（任选其一）：
-   - 环境变量：export ANTHROPIC_AUTH_TOKEN=your-api-key
-   - 配置文件：~/.aider.conf.yml 中设置 anthropic-api-key
-3. 代理用户：ANTHROPIC_API_BASE 不能带 /v1 后缀
-   详见：config/aider-setup-guide.md
-
-⚠️ aider 不可用时，技能组自动降级为 Claude Code Edit/Write 工具，功能不受影响。
-```
-
-**不阻塞初始化：** aider 检测失败不中断初始化流程，记录状态到缓存后继续。
-
 ### 步骤1：扫描项目结构
 
 扫描技术栈配置文件（`package.json`、`pom.xml`、`requirements.txt`、`go.mod` 等），识别项目类型和技术栈。
@@ -171,8 +124,6 @@ aider 环境就绪！
   "initTime": "{ISO时间}",
   "lastUsed": "{ISO时间}",
   "teamCreated": true,
-  "aiderAvailable": true,
-  "aiderVersion": "{version}",
   "version": "2.0"
 }
 ```
@@ -233,7 +184,7 @@ mkdir -p .cache/{6-bug-handler,8-code-reviewer}
 ## 编码规范
 - 文件大小：≤800行，方法大小：≤50行
 - KISS原则，单一职责
-- 编码任务通过 aider 执行（aider可用：{aiderAvailable}）
+- 编码任务通过 Agent 子进程使用 Claude Code Edit/Write 工具执行
 
 ## 技术栈详情
 - 前端：{frontend}
@@ -297,8 +248,8 @@ mkdir -p .cache/{6-bug-handler,8-code-reviewer}
 |-----------|------|---------|
 | `product-manager` | 产品经理 | 需求分析、用户故事 |
 | `system-architect` | 系统架构师 | 架构设计、API契约 |
-| `backend-dev` | 后端开发 | 后端编码（生成 aider 命令） |
-| `frontend-dev` | 前端开发 | 前端编码（生成 aider 命令） |
+| `backend-dev` | 后端开发 | 后端编码（Agent 子进程） |
+| `frontend-dev` | 前端开发 | 前端编码（Agent 子进程） |
 | `qa-tester` | 测试工程师 | 测试验证 |
 
 **创建流程（伪代码）：**
@@ -327,7 +278,6 @@ Write(".cache/.project-info.json", cache)
 - 技术栈：{techStack}
 - 业务域：{domains}
 - 架构模式：{architecture}
-- aider 状态：{aiderAvailable ? "✅ 可用" : "⚠️ 不可用（已降级）"}
 
 **已创建：**
 - ✅ PROJECT_CONFIG.md — 项目配置文件
@@ -337,8 +287,6 @@ Write(".cache/.project-info.json", cache)
 - ✅ 敏捷 Agent 团队 — {team_name}
 
 所有技能已就绪，可以直接调用任何技能开始工作！
-
-💡 **快速配置指引：** config/aider-quick-start.md
 ```
 
 ---
@@ -351,7 +299,7 @@ Write(".cache/.project-info.json", cache)
 
 ```
 编码型任务（后端/前端/DevOps/Bug修复）
-  → 生成 aider 单行命令 → 用户在终端执行
+  → Agent 子进程使用 Claude Code Edit/Write 工具执行
   → 执行完成后由主进程代码审查 + git commit
 
 文档型任务（需求/架构/设计/测试报告）
@@ -375,8 +323,8 @@ const [T1, T2] = await Promise.all([
 // ✅ 正确：架构设计 Agent（等需求完成）
 const T3 = await Agent({ task: "/3-system-architect 设计 {feature} 架构" })
 
-// ✅ 正确：后端+前端并行生成 aider 命令（架构完成后）
-// 同时输出两个 aider 命令让用户依次执行
+// ✅ 正确：后端+前端 Agent 子进程并行编码（架构完成后）
+// Agent 子进程使用 Claude Code Edit/Write 工具执行
 ```
 
 ---

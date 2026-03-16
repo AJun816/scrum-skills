@@ -17,4 +17,6 @@ skills/.cache/
 # Environment
 .env
 .env.local
+
+# Aider artifacts (if any remain)
 .aider*

@@ -1,58 +1,15 @@
 # Scrum Skills / 敏捷团队技能组
 
-A complete set of agile AI skills for Claude Code. Let AI be your agile team.
-一套完整的敏捷开发 AI 技能组，让 AI 成为你的敏捷团队。
+一套完整的 AI 敏捷开发团队技能组，让 AI 成为你的开发团队。支持**三省六部模式**（全流程审核）和**敏捷模式**（快速交付）双模式自动编排。
 
 ## Prerequisites / 前置条件
 
-- [Claude Code](https://claude.ai/code) — AI 主进程
-- [aider](https://aider.chat) — AI 编码执行层（`pip install aider-chat`）
-
-### aider 环境配置 / aider Setup
-
-技能组通过 aider 执行编码任务，需要配置 API 密钥。根据你的使用方式选择配置：
-
-**方式1：环境变量（推荐）**
-
-```bash
-# Mac/Linux: 写入 ~/.zshrc 或 ~/.bashrc
-export ANTHROPIC_AUTH_TOKEN=your-api-key
-export ANTHROPIC_BASE_URL=https://your-proxy.com/   # 可选，使用代理时配置
-
-# Windows: 系统环境变量
-set ANTHROPIC_AUTH_TOKEN=your-api-key
-set ANTHROPIC_BASE_URL=https://your-proxy.com/       # 可选
-```
-
-**方式2：aider 配置文件 `~/.aider.conf.yml`**
-
-```yaml
-model: anthropic/claude-sonnet-4-6
-anthropic-api-key: your-api-key
-set-env:
-  - ANTHROPIC_API_BASE=https://your-proxy.com    # 可选，不带 /v1，不带尾部 /
-yes-always: true
-auto-commits: false
-```
-
-**验证 aider 是否可用：**
-
-```bash
-aider --version                          # 确认已安装
-aider --model anthropic/claude-sonnet-4-6 \
-  --yes-always --no-git --no-show-model-warnings \
-  --no-restore-chat-history \
-  --message "只回复两个字：成功" --exit   # 确认 API 连通
-```
-
-> **注意：** 如果使用 API 代理，aider 底层 litellm 使用 `ANTHROPIC_API_BASE` 环境变量（不是 `ANTHROPIC_BASE_URL`），且值**不能**带 `/v1` 后缀或尾部 `/`，否则会产生路径重复错误。技能组调用模板已自动处理此转换。
-> 详细排查指南见 [aider-setup-guide.md](skills/config/aider-setup-guide.md)
-> 完整配置指南见 [aider-quick-start.md](skills/config/aider-quick-start.md)
+- [Claude Code](https://claude.ai/code) — 仅此一个，无需 pip/npm/brew
 
 ## Quick Start / 快速开始
 
 ```bash
-# 1. Clone this repo / 克隆仓库
+# 1. Clone / 克隆
 git clone https://gitee.com/ajun816/scrum-skills.git
 # or GitHub
 git clone https://github.com/AJun816/scrum-skills.git
@@ -61,138 +18,147 @@ git clone https://github.com/AJun816/scrum-skills.git
 cp -r scrum-skills/skills/ your-project/.claude/skills/
 cp scrum-skills/.claude/settings.json your-project/.claude/settings.json
 
-# 3. (Optional) Install git hooks / 可选：安装 git hook
-sh your-project/.claude/skills/hooks/setup.sh
+# 3. (Optional) Setup / 可选：配置昵称和 git hook
+sh your-project/.claude/skills/hooks/setup.sh --default    # 非交互模式
+# 或
+sh your-project/.claude/skills/hooks/setup.sh              # 交互模式
 
-# 4. Done! Start with Scrum Master / 完成！用敏捷教练开始
-#    /0-scrum-master 初始化技能组
+# 4. Start Claude Code / 启动
+cd your-project && claude
 ```
 
-**首次使用：** 运行 `/0-scrum-master` 会自动扫描项目结构、识别技术栈、检测 aider 环境、生成项目配置，并引导你完成初始化。
+**然后输入需求，全自动流转：**
+
+```
+# 三省六部模式（复杂任务，全流程质量审核）
+/0-emperor 开发用户登录功能，要求 JWT 鉴权 + Redis 缓存
+
+# 敏捷模式（简单任务，快速处理）
+/0-scrum-master 修复登录按钮样式问题
+```
+
+无需手动调用每个技能，`workflow-runner` 自动按链条调度到底。
 
 ## How It Works / 工作原理
 
+### 三省六部模式（推荐用于复杂任务）
+
 ```
-用户描述需求
+👑 皇上（用户下旨）
     ↓
-Claude Code（Scrum Master）→ 任务拆解、架构设计、生成共享文档
+🤴 太子 分拣（闲聊直接回 / 正式旨意传旨）
     ↓
-Claude Code Bash 直接调用 aider → 代码写入项目文件
+📜 中书省 规划（调用 PM + Architect）
     ↓
-Claude Code → 代码审查（/8-code-reviewer）→ git commit
+🔍 门下省 审核（可封驳，max 3轮）
+    ↓
+📮 尚书省 派发（六部并行执行）
+    ↓
+🔍 门下省 代码审核（可封驳，max 3轮）
+    ↓
+📜 中书省 回奏
+    ↓
+👑 皇上 御览 → git commit ✅[Reviewed]
 ```
 
-**三层架构：**
-- **决策层** — Scrum Master 主进程：理解需求、拆解任务、协调团队
-- **规划层** — Agent 子进程：需求分析、架构设计、测试报告（文档型任务）
-- **执行层** — aider 进程：后端/前端/DevOps 编码（`--no-git`，主进程统一 commit）
+### 敏捷模式（推荐用于简单任务）
+
+```
+Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Review → 提交
+```
+
+### 两层架构
+
+- **决策层** — 主进程：理解需求、拆解任务、协调团队
+- **执行层** — Agent 子进程：所有角色通过 Claude Code Edit/Write 工具执行
 
 ## Skills / 技能列表
 
 | # | Skill | Role / 职责 |
 |---|-------|-------------|
-| 0 | scrum-master | Agile coach / 敏捷教练（协调全流程） |
-| 1 | business-expert | Business analyst / 业务专家 |
-| 2 | product-manager | Product manager / 产品经理 |
-| 3 | system-architect | System architect / 系统架构师 |
-| 4 | backend-dev | Backend dev / 后端开发（通用语言） |
-| 4 | frontend-dev | Frontend dev / 前端开发（通用框架） |
-| 4 | nielsen-ui-design | UI/UX design / UI设计 |
-| 4 | frontend-design | Visual design / 前端视觉设计 |
-| 5 | devops-engineer | DevOps / 运维工程师 |
-| 5 | webapp-testing | Testing / 测试工程师 |
-| 6 | bug-handler | Bug handler / Bug处理专家 |
-| 7 | skill-creator | Skill creator / 技能创建器 |
-| 8 | code-reviewer | Code reviewer / 代码审查 |
+| 0 | emperor | 👑 皇上（三省六部入口，下旨启动全流程） |
+| 0 | taizi | 🤴 太子（消息分拣，闲聊/旨意分流） |
+| 0 | zhongshu-province | 📜 中书省（规划中枢） |
+| 0 | menxia-province | 🔍 门下省（质量门禁，审核/封驳） |
+| 0 | shangshu-province | 📮 尚书省（派发协调，调度六部执行） |
+| 0 | workflow-runner | 🔄 工作流编排器（自动驱动全流程） |
+| 0 | scrum-master | 敏捷教练（协调全流程） |
+| 1 | business-expert | 业务专家 |
+| 2 | product-manager | 产品经理 |
+| 3 | system-architect | 系统架构师 |
+| 4 | backend-dev | 后端开发（通用语言） |
+| 4 | frontend-dev | 前端开发（通用框架） |
+| 4 | nielsen-ui-design | UI/UX设计 |
+| 4 | frontend-design | 前端视觉设计 |
+| 5 | devops-engineer | DevOps工程师 |
+| 5 | webapp-testing | 测试工程师 |
+| 6 | bug-handler | Bug处理专家 |
+| 7 | skill-creator | 技能创建器 |
+| 8 | code-reviewer | 代码审查专家 |
 
 ## Usage Examples / 使用示例
 
 ```
-# 首次使用：初始化技能组（自动扫描项目+检测aider环境）
-/0-scrum-master 初始化技能组
-
-# Full workflow / 完整流程（Scrum Master 自动协调）
+# 全自动编排（推荐）
+/0-emperor 开发一个用户登录功能
 /0-scrum-master 开发一个用户登录功能
 
-# Requirement analysis / 需求分析
+# 单独调用某个角色
 /2-product-manager 分析用户登录功能的需求
-
-# Architecture design / 架构设计
 /3-system-architect 设计订单管理模块的架构
-
-# Backend development / 后端开发
 /4-backend-dev 实现用户登录API
-
-# Frontend development / 前端开发
 /4-frontend-dev 实现登录页面
-
-# Testing / 测试
 /5-webapp-testing 编写登录功能的测试用例
 ```
 
 ## Hooks / 代码质量钩子
 
-Hooks are auto-configured via `.claude/settings.json` — no manual setup needed.
-钩子通过 `.claude/settings.json` 自动配置，无需手动设置。
+通过 `.claude/settings.json` 自动生效，无需手动配置：
 
-- **pre-bash** — Enforce `✅[Reviewed]` prefix on every git commit
-- **pre-file-write** — Block code files >800 lines, warn >600 lines
-- **post-file-write** — Code quality report (function length, nesting depth, code smells, auto-linter)
-- **commit-msg** — Enforce `✅[Reviewed]` prefix (git hook layer, needs setup.sh)
-
-See [hooks/README.md](skills/hooks/README.md) for details.
+- **pre-bash** — git commit 强制要求 `✅[Reviewed]` 前缀
+- **pre-file-write** — 代码文件 >800 行阻止写入，>600 行警告
+- **post-file-write** — 代码质量报告（方法行数、嵌套深度、代码异味、auto-linter）
+- **commit-msg** — git hook 层强制 `✅[Reviewed]` 前缀（需 setup.sh）
 
 ## Project Structure / 项目结构
 
 ```
 scrum-skills/
 ├── .claude/
-│   └── settings.json      ← Hooks auto-config (copy to your project)
-├── README.md               ← You are here
-└── skills/                 ← Copy this to .claude/skills/
-    ├── 0-scrum-master/
-    ├── 1-business-expert/
-    ├── 2-product-manager/
-    ├── 3-system-architect/
-    ├── 4-backend-dev/
-    ├── 4-frontend-dev/
-    ├── 4-nielsen-ui-design/
-    ├── 4-frontend-design/
-    ├── 5-devops-engineer/
-    ├── 5-webapp-testing/
-    ├── 6-bug-handler/
-    ├── 7-skill-creator/
-    ├── 8-code-reviewer/
-    ├── config/              ← Shared config files
-    ├── hooks/               ← Code quality hooks
-    └── PROJECT_CONFIG.template.md
+│   └── settings.json      ← Hooks 配置（复制到你的项目）
+├── README.md               ← 本文件
+└── skills/                 ← 复制到 .claude/skills/
+    ├── 0-emperor/           # 👑 皇上
+    ├── 0-taizi/             # 🤴 太子
+    ├── 0-zhongshu-province/ # 📜 中书省
+    ├── 0-menxia-province/   # 🔍 门下省
+    ├── 0-shangshu-province/ # 📮 尚书省
+    ├── 0-workflow-runner/   # 🔄 工作流编排器
+    ├── 0-scrum-master/      # 敏捷教练
+    ├── 1~8-*/               # 六部执行层
+    ├── config/              # 共享配置
+    └── hooks/               # 代码质量钩子
 ```
 
-## 技能同步规范（cc-switch 用户必读）
-
-本仓库的技能文件存放在 `skills/`，但 Claude Code 实际读取的是 `~/.cc-switch/skills/`（通过 symlink 挂载到 `~/.claude/skills/`）。
-
-**每次修改技能文件后，必须同步到 cc-switch：**
+## Setup Options / 配置选项
 
 ```bash
-# 检查是否有差异
-bash sync-skills.sh --check
-
-# 执行同步（git pull 或本地修改后运行）
-bash sync-skills.sh
+sh setup.sh                # 自动检测（终端=交互，管道=默认）
+sh setup.sh --default      # 非交互模式，使用默认值
+sh setup.sh --interactive  # 强制交互模式
+sh setup.sh --lang=en      # 设置语言
+sh setup.sh --nickname=XX  # 设置昵称（默认：吴彦祖）
+sh setup.sh --no-git-hook  # 跳过 git hook 安装
 ```
 
-**标准工作流：**
+## Design Principles / 设计原则
 
-```
-修改 skills/ 中的文件
-    ↓
-bash sync-skills.sh        # 同步到 ~/.cc-switch/skills/
-    ↓
-git add + git commit + git push
-```
-
-> Mac 电脑拉取代码后同样需要运行 `bash sync-skills.sh` 才能生效。
+1. **零安装** — 无需 pip/npm/brew，复制粘贴即用
+2. **全自动编排** — 输入需求后全流程自动流转，无需手动调用每个技能
+3. **双模式** — 三省六部（质量优先）+ 敏捷（效率优先），按需切换
+4. **中断恢复** — workflow-state.json 记录进度，中断后可从断点恢复
+5. **质量内建** — hooks 强制代码规范 + 门下省/code-reviewer 把关提交
+6. **通用适配** — 不限语言框架，根据项目自动适配
 
 ---
 

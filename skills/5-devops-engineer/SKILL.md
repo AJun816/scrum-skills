@@ -5,8 +5,8 @@ group: execution
 province: libu_hr
 mode: [agile, imperial]
 author: scrum-skills-team
-tags: [devops, cicd, deployment, infrastructure, aider]
-requires_aider: true
+tags: [devops, cicd, deployment, infrastructure]
+requires_aider: false
 dependencies: [3-system-architect]
 description: 【5】DevOps 工程师，负责 CI/CD 流水线、自动化部署和运维。当需要搭建部署流水线、配置环境、实现自动化部署、监控系统、或优化性能时使用。本技能确保代码快速、安全地交付到生产环境。
 ---
@@ -72,20 +72,10 @@ description: 【5】DevOps 工程师，负责 CI/CD 流水线、自动化部署�
 ### 3. 自动化运维
 - 基础设施即代码（IaC）
 - 配置管理自动化
-- 部署脚本编写（直接调用 aider 执行）
+- 部署脚本编写（通过 Claude Code Edit/Write 工具执行）
 - 回滚机制实现
 
-> **强制规定**：编写 CI/CD 脚本、Dockerfile、IaC 配置时，通过 Bash 工具直接调用 aider：
->
-> ```bash
-> ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN" ANTHROPIC_API_BASE="${ANTHROPIC_BASE_URL%/}" \
-> aider --model anthropic/claude-sonnet-4-6 --architect --yes-always --no-git --no-show-model-warnings \
->   --read skills/PROJECT_CONFIG.md \
->   --message "根据项目配置编写 {目标脚本/配置}，要求安全、可维护、有注释" \
->   {目标配置文件}
-> ```
->
-> 详细调用规范参考：`config/aider-integration.md`
+> **强制规定**：编写 CI/CD 脚本、Dockerfile、IaC 配置时，通过 Claude Code 内置的 Edit/Write 工具直接创建和修改配置文件。
 
 ### 4. 监控和告警
 - 系统监控配置

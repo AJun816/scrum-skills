@@ -9,6 +9,10 @@ author: scrum-skills-team
 tags: [dispatch, coordination, execution, parallel, imperial]
 requires_aider: false
 dependencies: [0-menxia-province, 4-backend-dev, 4-frontend-dev, 5-devops-engineer, 5-webapp-testing]
+workflow:
+  dispatch_to: [4-backend-dev, 4-frontend-dev, 4-frontend-design, 5-devops-engineer, 5-webapp-testing]
+  next: [0-menxia-province]
+  auto_chain: true
 ---
 
 # 📮 尚书省 (Shangshu Province)
@@ -43,25 +47,22 @@ dependencies: [0-menxia-province, 4-backend-dev, 4-frontend-dev, 5-devops-engine
 
 | 任务类型 | 派发目标 | 执行方式 |
 |---|---|---|
-| 后端开发 | `/4-backend-dev` | aider |
-| 前端开发 | `/4-frontend-dev` | aider |
+| 后端开发 | `/4-backend-dev` | Agent 子进程 |
+| 前端开发 | `/4-frontend-dev` | Agent 子进程 |
 | UI 设计 | `/4-frontend-design` | Agent 子进程 |
-| DevOps | `/5-devops-engineer` | aider |
+| DevOps | `/5-devops-engineer` | Agent 子进程 |
 | 测试 | `/5-webapp-testing` | Agent 子进程 |
 
-### 3. aider 上下文注入
+### 3. 共享文档注入
 
-派发编码任务时，自动注入共享文档到 aider：
+派发编码任务时，Agent 子进程自动读取共享文档：
 
-```bash
-aider \
-  --read .cache/shared/requirements/{feature}.md \
-  --read .cache/shared/architecture/{feature}.md \
-  --read .cache/shared/api-design/{feature}-api.md \
-  --read .cache/shared/review-reports/{feature}-review.md \
-  --message "{具体任务指令}" \
-  {target_files}
-```
+- `.cache/shared/requirements/{feature}.md` — 需求文档
+- `.cache/shared/architecture/{feature}.md` — 架构设计
+- `.cache/shared/api-design/{feature}-api.md` — API 契约
+- `.cache/shared/review-reports/{feature}-review.md` — 审核报告
+
+Agent 子进程读取以上文档后，使用 Claude Code Edit/Write 工具执行编码任务。
 
 ### 4. 并行协调
 
@@ -97,7 +98,7 @@ aider \
 
 1. 接收指令 → 读取共享文档，分析任务
 2. 制定计划 → 确定派发目标和并行策略
-3. 派发任务 → 调用六部执行（aider + Agent）
+3. 派发任务 → 调用六部执行（Agent 子进程）
 4. 协调执行 → 跟踪进度，处理异常
 5. 汇总结果 → 收集执行成果和修改文件
 6. 提交审核 → 提交门下省代码审核（阶段3）
@@ -117,8 +118,8 @@ aider \
 
 | 序号 | 任务 | 派发目标 | 执行方式 | 依赖 |
 |---|---|---|---|---|
-| 1 | 后端 API 开发 | /4-backend-dev | aider | 无 |
-| 2 | 前端页面开发 | /4-frontend-dev | aider | 无 |
+| 1 | 后端 API 开发 | /4-backend-dev | Agent 子进程 | 无 |
+| 2 | 前端页面开发 | /4-frontend-dev | Agent 子进程 | 无 |
 | 3 | 单元测试 | /5-webapp-testing | Agent | 任务1,2 |
 
 **并行策略：** 任务1和2并行执行，任务3等待1和2完成后执行
@@ -148,7 +149,7 @@ aider \
 ## 质量标准
 
 - 派发前必须确认门下省已准奏
-- 编码任务必须通过 aider 执行，注入完整上下文
+- 编码任务必须通过 Agent 子进程使用 Claude Code Edit/Write 工具执行，注入完整上下文
 - 并行任务必须确认无文件冲突
 - 汇总必须包含所有修改文件的完整列表
 
@@ -171,6 +172,26 @@ aider \
 
 - PM、Architect（规划由中书省负责）
 - 皇上（通过中书省中转）
+
+## 自动编排接口
+
+当被 workflow-runner 通过 Agent 调用时，完成后在输出末尾附加：
+
+```json
+{
+  "workflow_signal": {
+    "skill": "0-shangshu-province",
+    "status": "completed|rejected|error",
+    "outputs": ["修改的文件路径列表"],
+    "dispatch_summary": {
+      "total_tasks": 3,
+      "completed": 3,
+      "failed": 0
+    },
+    "message": "简要说明（如：六部执行完成，提交门下省代码审核）"
+  }
+}
+```
 
 ## 资源文件
 

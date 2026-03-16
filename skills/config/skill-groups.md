@@ -32,6 +32,12 @@
 | 刑部 | `5-webapp-testing` | 测试、合规 |
 | 吏部 | `5-devops-engineer` | 运维、部署 |
 
+### 编排层
+
+| 技能 | 角色 | 职责 |
+|---|---|---|
+| `0-workflow-runner` | 🔄 工作流编排器 | 自动驱动全流程，派发 Agent 子进程，跟踪状态 |
+
 ### 独立角色
 
 | 分类 | 技能 | 说明 |
@@ -86,9 +92,9 @@
   封驳 ← 修改意见      准奏
   (回中书省修改)          ↓
                     📜 中书省 → 📮 尚书省 派发
-                        ├→ /4-backend-dev (aider)
-                        ├→ /4-frontend-dev (aider)
-                        ├→ /5-devops-engineer (aider)
+                        ├→ /4-backend-dev (Agent 子进程)
+                        ├→ /4-frontend-dev (Agent 子进程)
+                        ├→ /5-devops-engineer (Agent 子进程)
                         ↓
                     📮 尚书省 汇总 → 🔍 门下省 审核（阶段3: 代码）
                         ↓                    ↓

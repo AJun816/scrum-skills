@@ -46,9 +46,9 @@
 ### 阶段 3：尚书省派发 + 六部执行
 
 尚书省根据任务类型派发到对应六部：
-- 后端 → `/4-backend-dev`（aider）
-- 前端 → `/4-frontend-dev`（aider）
-- DevOps → `/5-devops-engineer`（aider）
+- 后端 → `/4-backend-dev`（Agent 子进程）
+- 前端 → `/4-frontend-dev`（Agent 子进程）
+- DevOps → `/5-devops-engineer`（Agent 子进程）
 - 可并行的任务同时派发
 
 ### 阶段 4：门下省代码审核
