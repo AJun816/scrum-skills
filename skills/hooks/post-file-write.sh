@@ -1,7 +1,7 @@
 #!/bin/sh
 # Scrum Skills - PostToolUse Hook: Write/Edit
 # Code quality checks after file write
-# Post hooks can only warn (exit 0), cannot block
+# Post hooks: exit 0 = warn, exit 2 = block (used for lint errors)
 
 set -e
 
@@ -120,37 +120,62 @@ if echo "$FILE_PATH" | grep -qiE '\.py$'; then
   fi
 fi
 
-# ---- 5. Run project linter if available ----
+# ---- 5. Run project linter if available (errors block, warnings report) ----
 EXT=$(echo "$FILE_PATH" | sed 's/.*\.//' | tr '[:upper:]' '[:lower:]')
 LINTER_OUTPUT=""
+LINT_HAS_ERROR=""
 
 case "$EXT" in
   js|jsx|ts|tsx|vue)
     if command -v npx >/dev/null 2>&1 && [ -f "node_modules/.bin/eslint" ]; then
       LINTER_OUTPUT=$(npx eslint --no-error-on-unmatched-pattern --format compact "$FILE_PATH" 2>/dev/null | tail -5 || true)
+      if echo "$LINTER_OUTPUT" | grep -qE '[0-9]+ error'; then
+        LINT_HAS_ERROR="yes"
+      fi
     fi
     ;;
   py)
     if command -v ruff >/dev/null 2>&1; then
       LINTER_OUTPUT=$(ruff check "$FILE_PATH" 2>/dev/null | tail -5 || true)
+      if [ -n "$LINTER_OUTPUT" ]; then
+        LINT_HAS_ERROR="yes"
+      fi
     elif command -v flake8 >/dev/null 2>&1; then
       LINTER_OUTPUT=$(flake8 --max-line-length=120 "$FILE_PATH" 2>/dev/null | tail -5 || true)
+      if [ -n "$LINTER_OUTPUT" ]; then
+        LINT_HAS_ERROR="yes"
+      fi
     fi
     ;;
   go)
     if command -v go >/dev/null 2>&1; then
       LINTER_OUTPUT=$(go vet "$FILE_PATH" 2>&1 | tail -5 || true)
+      if [ -n "$LINTER_OUTPUT" ]; then
+        LINT_HAS_ERROR="yes"
+      fi
     fi
     ;;
 esac
 
 if [ -n "$LINTER_OUTPUT" ]; then
-  WARNINGS="${WARNINGS}\n  - 🔍 Linter issues / Linter问题:\n    ${LINTER_OUTPUT}"
+  if [ "$LINT_HAS_ERROR" = "yes" ]; then
+    WARNINGS="${WARNINGS}\n  - ❌ Lint errors detected (must fix) / 检测到Lint错误（必须修复）:\n    ${LINTER_OUTPUT}"
+  else
+    WARNINGS="${WARNINGS}\n  - ⚠️ Lint warnings / Lint警告:\n    ${LINTER_OUTPUT}"
+  fi
 fi
 
 # ---- Output ----
 if [ -n "$WARNINGS" ]; then
   printf "📋 Code quality report / 代码质量报告 [%s]:%b\n" "$(basename "$FILE_PATH")" "$WARNINGS" >&2
+fi
+
+# Block if lint errors found — AI must fix before continuing
+if [ "$LINT_HAS_ERROR" = "yes" ]; then
+  echo "" >&2
+  echo "🚫 Lint errors block further edits. Fix the errors above first." >&2
+  echo "   Lint 错误阻止后续编辑，请先修复上述错误。" >&2
+  exit 2
 fi
 
 exit 0

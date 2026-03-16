@@ -191,6 +191,174 @@ else
   echo "  $MSG_SKIP"
 fi
 
+# ---- Generate Repo Map (.cache/shared/repo-map.md) ----
+generate_repo_map() {
+  SHARED_DIR="$PROJECT_ROOT/.cache/shared"
+  mkdir -p "$SHARED_DIR"
+  REPO_MAP="$SHARED_DIR/repo-map.md"
+
+  TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC" 2>/dev/null || date +"%Y-%m-%d %H:%M:%S")
+  COMMIT_HASH=$(cd "$PROJECT_ROOT" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
+  # Detect tech stack
+  TECH_BACKEND="unknown"
+  TECH_FRONTEND="unknown"
+  TECH_DB="unknown"
+  TECH_BUILD="unknown"
+
+  if [ -f "$PROJECT_ROOT/pom.xml" ]; then
+    TECH_BACKEND="Java + Spring Boot"
+    TECH_BUILD="Maven"
+  elif [ -f "$PROJECT_ROOT/build.gradle" ] || [ -f "$PROJECT_ROOT/build.gradle.kts" ]; then
+    TECH_BACKEND="Java/Kotlin + Spring Boot"
+    TECH_BUILD="Gradle"
+  elif [ -f "$PROJECT_ROOT/go.mod" ]; then
+    TECH_BACKEND="Go"
+    TECH_BUILD="Go Modules"
+  elif [ -f "$PROJECT_ROOT/requirements.txt" ] || [ -f "$PROJECT_ROOT/pyproject.toml" ]; then
+    TECH_BACKEND="Python"
+    TECH_BUILD="pip/poetry"
+  elif [ -f "$PROJECT_ROOT/Cargo.toml" ]; then
+    TECH_BACKEND="Rust"
+    TECH_BUILD="Cargo"
+  fi
+
+  if [ -f "$PROJECT_ROOT/package.json" ]; then
+    if grep -q '"vue"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+      TECH_FRONTEND="Vue"
+    elif grep -q '"react"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+      TECH_FRONTEND="React"
+    elif grep -q '"angular"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+      TECH_FRONTEND="Angular"
+    elif grep -q '"svelte"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+      TECH_FRONTEND="Svelte"
+    fi
+    if grep -q '"vite"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+      TECH_BUILD="Vite"
+    elif grep -q '"webpack"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+      TECH_BUILD="Webpack"
+    fi
+    # If backend is unknown but package.json exists, detect Node.js backend
+    if [ "$TECH_BACKEND" = "unknown" ]; then
+      if grep -q '"express"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+        TECH_BACKEND="Node.js + Express"
+      elif grep -q '"@nestjs/core"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+        TECH_BACKEND="Node.js + NestJS"
+      elif grep -q '"fastify"' "$PROJECT_ROOT/package.json" 2>/dev/null; then
+        TECH_BACKEND="Node.js + Fastify"
+      fi
+    fi
+  fi
+
+  # Detect database from config files
+  if [ -f "$PROJECT_ROOT/docker-compose.yml" ] || [ -f "$PROJECT_ROOT/docker-compose.yaml" ]; then
+    COMPOSE_FILE=$([ -f "$PROJECT_ROOT/docker-compose.yml" ] && echo "$PROJECT_ROOT/docker-compose.yml" || echo "$PROJECT_ROOT/docker-compose.yaml")
+    if grep -qi 'mysql' "$COMPOSE_FILE" 2>/dev/null; then
+      TECH_DB="MySQL"
+    elif grep -qi 'postgres' "$COMPOSE_FILE" 2>/dev/null; then
+      TECH_DB="PostgreSQL"
+    elif grep -qi 'mongo' "$COMPOSE_FILE" 2>/dev/null; then
+      TECH_DB="MongoDB"
+    elif grep -qi 'redis' "$COMPOSE_FILE" 2>/dev/null; then
+      TECH_DB="Redis"
+    fi
+  fi
+
+  # Generate directory tree (depth 2, exclude common noise)
+  DIR_TREE=""
+  if command -v tree >/dev/null 2>&1; then
+    DIR_TREE=$(cd "$PROJECT_ROOT" && tree -L 2 -d --noreport -I 'node_modules|.git|dist|build|.cache|.venv|venv|__pycache__|.idea|.vscode|target|.gradle' 2>/dev/null || echo "(tree command failed)")
+  else
+    DIR_TREE=$(cd "$PROJECT_ROOT" && find . -maxdepth 2 -type d \
+      -not -path '*/node_modules*' -not -path '*/.git*' -not -path '*/dist*' \
+      -not -path '*/build*' -not -path '*/.cache*' -not -path '*/.venv*' \
+      -not -path '*/venv*' -not -path '*/__pycache__*' -not -path '*/.idea*' \
+      -not -path '*/.vscode*' -not -path '*/target*' -not -path '*/.gradle*' \
+      2>/dev/null | sort || echo "(find failed)")
+  fi
+
+  # Detect entry files
+  ENTRY_BACKEND="(not detected)"
+  ENTRY_FRONTEND="(not detected)"
+  CONFIG_FILES=""
+
+  # Backend entries
+  for f in src/main/java src/main.ts src/main.py src/index.ts src/index.js src/app.ts src/app.js src/app.py main.go cmd/main.go src/main.rs; do
+    if [ -f "$PROJECT_ROOT/$f" ]; then
+      ENTRY_BACKEND="$f"
+      break
+    fi
+  done
+
+  # Frontend entries
+  for f in src/main.ts src/main.js src/index.tsx src/index.js src/App.vue src/App.tsx; do
+    if [ -f "$PROJECT_ROOT/$f" ]; then
+      ENTRY_FRONTEND="$f"
+      break
+    fi
+  done
+
+  # Config files
+  for f in package.json tsconfig.json vite.config.ts vite.config.js webpack.config.js pom.xml build.gradle go.mod Cargo.toml pyproject.toml requirements.txt docker-compose.yml docker-compose.yaml Dockerfile .env.example; do
+    if [ -f "$PROJECT_ROOT/$f" ]; then
+      CONFIG_FILES="${CONFIG_FILES}${f}, "
+    fi
+  done
+  CONFIG_FILES=$(echo "$CONFIG_FILES" | sed 's/, $//')
+
+  # Detect public/shared modules
+  UTILS_DESC="(not found)"
+  COMMON_DESC="(not found)"
+  SHARED_DESC="(not found)"
+  [ -d "$PROJECT_ROOT/src/utils" ] || [ -d "$PROJECT_ROOT/utils" ] && UTILS_DESC="Utility functions"
+  [ -d "$PROJECT_ROOT/src/common" ] || [ -d "$PROJECT_ROOT/common" ] && COMMON_DESC="Common modules"
+  [ -d "$PROJECT_ROOT/src/shared" ] || [ -d "$PROJECT_ROOT/shared" ] && SHARED_DESC="Shared resources"
+  [ -d "$PROJECT_ROOT/src/lib" ] || [ -d "$PROJECT_ROOT/lib" ] && UTILS_DESC="Library utilities"
+
+  # Write repo map
+  cat > "$REPO_MAP" << EOFMAP
+# 仓库地图
+
+**生成时间：** ${TIMESTAMP}
+**最后更新：** ${TIMESTAMP}
+**基于提交：** ${COMMIT_HASH}
+
+## 技术栈概览
+- 后端：${TECH_BACKEND}
+- 前端：${TECH_FRONTEND}
+- 数据库：${TECH_DB}
+- 构建工具：${TECH_BUILD}
+
+## 目录结构
+\`\`\`
+${DIR_TREE}
+\`\`\`
+
+## 核心模块
+| 模块 | 路径 | 职责 | 关键文件 |
+|------|------|------|----------|
+| (初始化时自动填充或手动补充) | | | |
+
+## 入口文件
+- 后端入口：${ENTRY_BACKEND}
+- 前端入口：${ENTRY_FRONTEND}
+- 配置文件：${CONFIG_FILES}
+
+## 公共模块（复用扫描参考）
+- utils/：${UTILS_DESC}
+- common/：${COMMON_DESC}
+- shared/：${SHARED_DESC}
+EOFMAP
+
+  if [ "$LANG" = "en" ]; then
+    echo "  Repo map generated: .cache/shared/repo-map.md"
+  else
+    echo "  仓库地图已生成：.cache/shared/repo-map.md"
+  fi
+}
+
+generate_repo_map
+
 echo ""
 echo "$MSG_DONE"
 echo ""
