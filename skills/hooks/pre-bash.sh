@@ -31,6 +31,25 @@ if echo "$INPUT" | grep -q '\[skip-review\]'; then
   exit 0
 fi
 
+# ---- Check 0a: Co-Authored-By warning ----
+if ! echo "$COMMAND" | grep -q 'Co-Authored-By' && ! echo "$INPUT" | grep -q 'Co-Authored-By'; then
+  echo "⚠️ 建议添加 Co-Authored-By 标签" >&2
+fi
+
+# ---- Check 0b: Commit summary to change-log ----
+LOG_DIR=".cache/shared"
+LOG_FILE="$LOG_DIR/change-log.md"
+STAGED_SUMMARY=$(git diff --cached --name-only 2>/dev/null | tr '\n' ', ' | sed 's/,$//')
+if [ -n "$STAGED_SUMMARY" ]; then
+  mkdir -p "$LOG_DIR"
+  if [ ! -s "$LOG_FILE" ]; then
+    printf "| 时间 | 文件 | 类型 | 工具 |\n" > "$LOG_FILE"
+    printf "| --- | --- | --- | --- |\n" >> "$LOG_FILE"
+  fi
+  TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+  printf "| %s | [COMMIT] %s | commit | git |\n" "$TIMESTAMP" "$STAGED_SUMMARY" >> "$LOG_FILE"
+fi
+
 # ---- Check 1: Enforce ✅[Reviewed] prefix ----
 if echo "$COMMAND" | grep -q '✅\[Reviewed\]'; then
   : # pass

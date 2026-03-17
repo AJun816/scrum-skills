@@ -19,6 +19,36 @@ echo "$FILE_PATH" | grep -qiE '\.(js|ts|jsx|tsx|vue|java|py|go|rs|rb|php|cs|cpp|
 
 WARNINGS=""
 
+# ---- 0. Append change log ----
+append_change_log() {
+  LOG_DIR=".cache/shared"
+  LOG_FILE="$LOG_DIR/change-log.md"
+  TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+  FILE_ARG="$1"
+  TOOL_ARG="$2"
+
+  # Determine change type: add or modify
+  if git ls-files --error-unmatch "$FILE_ARG" >/dev/null 2>&1; then
+    CHANGE_TYPE="modify"
+  else
+    CHANGE_TYPE="add"
+  fi
+
+  # Ensure directory exists
+  mkdir -p "$LOG_DIR"
+
+  # Create header if file doesn't exist or is empty
+  if [ ! -s "$LOG_FILE" ]; then
+    printf "| 时间 | 文件 | 类型 | 工具 |\n" > "$LOG_FILE"
+    printf "| --- | --- | --- | --- |\n" >> "$LOG_FILE"
+  fi
+
+  # Append record
+  printf "| %s | %s | %s | %s |\n" "$TIMESTAMP" "$FILE_ARG" "$CHANGE_TYPE" "$TOOL_ARG" >> "$LOG_FILE"
+}
+
+append_change_log "$FILE_PATH" "$TOOL_NAME"
+
 # ---- 1. File size warning (Edit may push file over limit) ----
 LINE_COUNT=$(wc -l < "$FILE_PATH" 2>/dev/null || echo "0")
 LINE_COUNT=$(echo "$LINE_COUNT" | tr -d ' ')

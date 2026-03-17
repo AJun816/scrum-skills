@@ -4,6 +4,18 @@
 
 ---
 
+## 生产环境原则（Production Environment Principle）
+
+**所有技能、所有任务，一律视为生产环境操作，使用真实数据。**
+
+- ❌ 禁止：使用虚构/伪造/占位数据（fake data, placeholder, mock data for delivery）
+- ❌ 禁止：使用假实现（stub implementation, TODO placeholder that ships）
+- ❌ 禁止：输出"示例"代码代替真实实现
+- ✅ 必须：所有代码、配置、脚本均可直接在生产环境运行
+- ✅ 必须：所有数据操作基于真实数据源，不编造测试数据交付
+- ✅ 必须：不确定时询问用户，不用假数据填充
+- ⚠️ 例外：单元测试中的 mock/fixture 数据不受此限制（测试专用）
+
 ## 代码质量红线
 
 **文件大小：**

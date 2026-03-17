@@ -386,6 +386,84 @@ EOFMAP
 
 generate_repo_map
 
+# ---- Generate Code Skeleton (appended to repo-map.md) ----
+generate_code_skeleton() {
+  SHARED_DIR="$PROJECT_ROOT/.cache/shared"
+  REPO_MAP="$SHARED_DIR/repo-map.md"
+  [ ! -f "$REPO_MAP" ] && return 0
+
+  # Collect source files (max 50, exclude test/spec/node_modules/vendor/.git)
+  SRC_FILES=""
+  FILE_COUNT=0
+  for search_dir in src lib app cmd pkg; do
+    [ ! -d "$PROJECT_ROOT/$search_dir" ] && continue
+    FOUND=$(find "$PROJECT_ROOT/$search_dir" -type f \
+      \( -name '*.js' -o -name '*.ts' -o -name '*.tsx' -o -name '*.jsx' \
+         -o -name '*.py' -o -name '*.java' -o -name '*.go' -o -name '*.rs' \) \
+      -not -path '*/node_modules/*' -not -path '*/.git/*' \
+      -not -path '*/vendor/*' \
+      -not -name '*.test.*' -not -name '*.spec.*' \
+      -not -name '*_test.go' -not -name '*_test.rs' \
+      2>/dev/null | head -n $((50 - FILE_COUNT)))
+    for f in $FOUND; do
+      SRC_FILES="$SRC_FILES $f"
+      FILE_COUNT=$((FILE_COUNT + 1))
+      [ "$FILE_COUNT" -ge 50 ] && break
+    done
+    [ "$FILE_COUNT" -ge 50 ] && break
+  done
+
+  [ -z "$SRC_FILES" ] && return 0
+
+  # Append skeleton header
+  printf '\n## 代码骨架（Code Skeleton）\n\n' >> "$REPO_MAP"
+  printf '> 自动提取的顶层函数/类/接口签名，帮助 AI 快速理解代码结构\n' >> "$REPO_MAP"
+
+  for filepath in $SRC_FILES; do
+    REL_PATH=$(echo "$filepath" | sed "s|^$PROJECT_ROOT/||")
+    EXT="${filepath##*.}"
+    SIGS=""
+    case "$EXT" in
+      js|ts|tsx|jsx)
+        SIGS=$(grep -n '^export \(function\|class\|const\|interface\|type\|enum\)' "$filepath" 2>/dev/null | head -n 10)
+        ;;
+      py)
+        SIGS=$(grep -n '^def \|^class ' "$filepath" 2>/dev/null | head -n 10)
+        ;;
+      java)
+        SIGS=$(grep -n '^\(public\|protected\) \(class\|interface\|abstract class\)' "$filepath" 2>/dev/null | head -n 5)
+        METHOD_SIGS=$(grep -n '^\s*public\s\|^\s*protected\s' "$filepath" 2>/dev/null | grep '(' | head -n 5)
+        [ -n "$METHOD_SIGS" ] && SIGS=$(printf '%s\n%s' "$SIGS" "$METHOD_SIGS")
+        SIGS=$(echo "$SIGS" | head -n 10)
+        ;;
+      go)
+        SIGS=$(grep -n '^func [A-Z]\|^type [A-Z]' "$filepath" 2>/dev/null | head -n 10)
+        ;;
+      rs)
+        SIGS=$(grep -n '^pub fn \|^pub struct \|^pub enum \|^pub trait ' "$filepath" 2>/dev/null | head -n 10)
+        ;;
+    esac
+
+    [ -z "$SIGS" ] && continue
+
+    printf '\n### `%s`\n' "$REL_PATH" >> "$REPO_MAP"
+    echo "$SIGS" | while IFS= read -r line; do
+      [ -z "$line" ] && continue
+      # Strip line number prefix, trim whitespace
+      SIG=$(echo "$line" | sed 's/^[0-9]*://' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+      [ -n "$SIG" ] && printf -- '- %s\n' "$SIG" >> "$REPO_MAP"
+    done
+  done
+
+  if [ "$LANG" = "en" ]; then
+    echo "  Code skeleton appended to repo-map.md"
+  else
+    echo "  代码骨架已追加到 repo-map.md"
+  fi
+}
+
+generate_code_skeleton
+
 echo ""
 echo "$MSG_DONE"
 echo ""

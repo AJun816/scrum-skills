@@ -144,6 +144,19 @@
 - utils/：{描述}
 - common/：{描述}
 - shared/：{描述}
+
+## 代码骨架（Code Skeleton）
+
+> 自动提取的顶层函数/类/接口签名，帮助 AI 快速理解代码结构
+
+### `src/example.ts`
+- export function handleRequest(req: Request): Response
+- export class UserService
+- export interface Config
+
+### `src/utils/helper.py`
+- def parse_config(path: str) -> dict
+- class ConfigLoader
 ```
 
 **增量更新规则：**
