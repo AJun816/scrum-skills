@@ -15,7 +15,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 HOOKS_DIR="$SCRIPT_DIR"
-PROJECT_ROOT="$(cd "$SKILLS_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SKILLS_DIR/.." && pwd)"
 
 # ---- Defaults ----
 MODE=""
@@ -180,6 +180,14 @@ fi
 CLAUDE_SKILLS_DIR="$PROJECT_ROOT/.claude/skills"
 mkdir -p "$CLAUDE_SKILLS_DIR"
 LINK_COUNT=0
+
+# Link hooks directory (critical for settings.json hook paths)
+if [ ! -L "$CLAUDE_SKILLS_DIR/hooks" ]; then
+  ln -sf "../../skills/hooks" "$CLAUDE_SKILLS_DIR/hooks"
+  LINK_COUNT=$((LINK_COUNT + 1))
+fi
+
+# Link all skill directories
 for SKILL_DIR in "$SKILLS_DIR"/0-* "$SKILLS_DIR"/1-* "$SKILLS_DIR"/2-* "$SKILLS_DIR"/3-* "$SKILLS_DIR"/4-* "$SKILLS_DIR"/5-* "$SKILLS_DIR"/6-* "$SKILLS_DIR"/7-* "$SKILLS_DIR"/8-*; do
   [ ! -d "$SKILL_DIR" ] && continue
   SKILL_NAME=$(basename "$SKILL_DIR")
