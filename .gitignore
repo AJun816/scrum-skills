@@ -10,6 +10,7 @@ Thumbs.db
 
 # Claude Code (personal config)
 .claude/settings.local.json
+.claude/skills/
 
 # Cache (auto-generated)
 .cache/
