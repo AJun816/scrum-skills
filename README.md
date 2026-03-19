@@ -19,9 +19,10 @@ cp -r scrum-skills/skills/ your-project/.claude/skills/
 cp scrum-skills/.claude/settings.json your-project/.claude/settings.json
 
 # 3. (Optional) Setup / 可选：配置昵称和 git hook
-sh your-project/.claude/skills/hooks/setup.sh --default    # 非交互模式
+sh your-project/.claude/skills/hooks/setup.sh --default    # 非交互模式（推荐）
 # 或
 sh your-project/.claude/skills/hooks/setup.sh              # 交互模式
+# setup.sh 会自动创建 .claude/skills/ 软链接、安装 git hook、生成项目 repo map
 
 # 4. Start Claude Code / 启动
 cd your-project && claude
@@ -143,12 +144,12 @@ scrum-skills/
 ## Setup Options / 配置选项
 
 ```bash
-sh setup.sh                # 自动检测（终端=交互，管道=默认）
-sh setup.sh --default      # 非交互模式，使用默认值
-sh setup.sh --interactive  # 强制交互模式
-sh setup.sh --lang=en      # 设置语言
-sh setup.sh --nickname=XX  # 设置昵称（默认：吴彦祖）
-sh setup.sh --no-git-hook  # 跳过 git hook 安装
+sh .claude/skills/hooks/setup.sh                # 自动检测（终端=交互，管道=默认）
+sh .claude/skills/hooks/setup.sh --default      # 非交互模式，使用默认值
+sh .claude/skills/hooks/setup.sh --interactive  # 强制交互模式
+sh .claude/skills/hooks/setup.sh --lang=en      # 设置语言
+sh .claude/skills/hooks/setup.sh --nickname=XX  # 设置昵称（默认：吴彦祖）
+sh .claude/skills/hooks/setup.sh --no-git-hook  # 跳过 git hook 安装
 ```
 
 ## Design Principles / 设计原则
