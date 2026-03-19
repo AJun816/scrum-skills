@@ -9,7 +9,8 @@ Thumbs.db
 *.swo
 
 # Claude Code (personal config)
-.claude/
+.claude/settings.json
+.claude/settings.local.json
 
 # Cache (auto-generated)
 .cache/
