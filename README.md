@@ -2,9 +2,6 @@
 
 一套完整的 AI 敏捷开发团队技能组，让 AI 成为你的开发团队。支持**三省六部模式**（全流程审核）和**敏捷模式**（快速交付）双模式自动编排。
 
-## Prerequisites / 前置条件
-
-- [Claude Code](https://claude.ai/code) — 仅此一个，无需 pip/npm/brew
 
 ## Quick Start / 快速开始
 
