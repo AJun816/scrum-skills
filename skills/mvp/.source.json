@@ -1,0 +1,11 @@
+{
+  "name": "mvp",
+  "sourceRepo": "slavingia/skills",
+  "sourceUrl": "https://github.com/slavingia/skills/tree/f4e1bf8dd9c3a63eebab662fc57396183446068b/skills/mvp",
+  "sourceCommit": "f4e1bf8dd9c3a63eebab662fc57396183446068b",
+  "version": "1.0.0",
+  "license": "MIT",
+  "checksum": "git:f4e1bf8dd9c3a63eebab662fc57396183446068b",
+  "addedAt": "2026-03-26T00:00:00Z",
+  "lastUpdated": "2026-03-26T00:00:00Z"
+}

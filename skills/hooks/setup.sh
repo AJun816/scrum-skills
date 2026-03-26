@@ -219,8 +219,9 @@ if [ "$SKILLS_LAYOUT" = "repo" ]; then
     fi
   fi
 
-  for SKILL_DIR in "$SKILLS_DIR"/0-* "$SKILLS_DIR"/1-* "$SKILLS_DIR"/2-* "$SKILLS_DIR"/3-* "$SKILLS_DIR"/4-* "$SKILLS_DIR"/5-* "$SKILLS_DIR"/6-* "$SKILLS_DIR"/7-* "$SKILLS_DIR"/8-*; do
-    [ ! -d "$SKILL_DIR" ] && continue
+  for SKILL_FILE in "$SKILLS_DIR"/*/SKILL.md; do
+    [ ! -f "$SKILL_FILE" ] && continue
+    SKILL_DIR=$(dirname "$SKILL_FILE")
     SKILL_NAME=$(basename "$SKILL_DIR")
     DEST_PATH="$CLAUDE_SKILLS_DIR/$SKILL_NAME"
     if [ -L "$DEST_PATH" ] || [ -e "$DEST_PATH" ]; then
@@ -244,6 +245,20 @@ else
     echo "  Embedded layout detected, skip symlink creation"
   else
     echo "  检测到嵌入式目录结构，跳过软链接创建"
+  fi
+fi
+
+if [ -d "$SKILLS_DIR/gstack" ] && [ -f "$SKILLS_DIR/gstack/setup" ]; then
+  if [ "$LANG" = "en" ]; then
+    echo "  gstack vendored: run .claude/skills/gstack/setup to enable its full skill pack"
+    if ! command -v bun >/dev/null 2>&1; then
+      echo "  note: bun is required before gstack can finish setup"
+    fi
+  else
+    echo "  已检测到 vendored gstack：如需启用其完整技能组，请执行 .claude/skills/gstack/setup"
+    if ! command -v bun >/dev/null 2>&1; then
+      echo "  提示：gstack 需要先安装 bun 才能完成 setup"
+    fi
   fi
 fi
 

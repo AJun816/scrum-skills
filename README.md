@@ -2,11 +2,17 @@
 
 一套完整的 AI 敏捷开发团队技能组，让 AI 成为你的开发团队。支持**三省六部模式**（全流程审核）和**敏捷模式**（快速交付）双模式自动编排。
 
+当前版本已整合两类外部扩展：
+
+- **The Minimalist Entrepreneur** 创业增长扩展包：`/find-community`、`/validate-idea`、`/processize`、`/minimalist-review` 等
+- **gstack** 完整工程工作流扩展包：`/office-hours`、`/plan-design-review`、`/review`、`/qa`、`/ship`、`/browse` 等
+
 ## Prerequisites / 前置条件
 
 - [Claude Code](https://claude.ai/code)
 - macOS/Linux: `sh`（系统自带）
 - Windows: PowerShell（系统自带，使用 `install.bat`）
+- `bun >= 1.0`：仅在你需要启用 `gstack` 完整工作流时才需要
 
 ## Quick Start / 快速开始
 
@@ -21,7 +27,11 @@ cd scrum-skills
 sh install.sh
 # Windows: double-click install.bat (PowerShell, no Git Bash required)
 
-# 3. Start Claude Code in your project / 在你的项目里启动
+# 3. (Optional) Enable gstack / 可选：启用 gstack 完整技能组
+cd ~/.claude/skills/gstack && ./setup
+# 如果你使用 --target，请把 ~/.claude 替换为你的目标目录
+
+# 4. Start Claude Code in your project / 在你的项目里启动
 cd your-project && claude
 ```
 
@@ -105,6 +115,39 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 | 7 | skill-creator | 技能创建器 |
 | 8 | code-reviewer | 代码审查专家 |
 
+## Extension Packs / 扩展技能包
+
+### gstack
+
+同步来源：`garrytan/gstack` 主分支快照（版本 `0.11.20.0`，下载于 `2026-03-26`）
+
+- 集成方式：以 vendored 形式保留完整运行时于 [skills/gstack](/Users/ajun/projects/github/scrum-skills/skills/gstack)
+- 适用场景：设计审查、浏览器 QA、发布、回顾、安全审查、自动计划等完整工程流程
+- 代表命令：`/office-hours`、`/plan-ceo-review`、`/plan-design-review`、`/review`、`/qa`、`/ship`、`/browse`、`/retro`
+- 启用方式：复制本仓库到项目后，进入 `~/.claude/skills/gstack && ./setup`
+- 额外依赖：`bun >= 1.0`，首次 setup 会处理生成技能文档和 Playwright/Chromium
+
+由于 gstack 自带 `setup`、`browse`、遥测与生成流程，这一包采用整仓集成，而不是把 28 个技能直接平铺进当前 `skills/` 根目录。
+
+### The Minimalist Entrepreneur
+
+同步来源：`slavingia/skills@f4e1bf8`
+
+| Skill | Command | Role / 职责 |
+|---|---|---|
+| Find Community | `/find-community` | 从你已加入的社群里识别值得长期服务的人群和持续痛点 |
+| Validate Idea | `/validate-idea` | 先验证问题和付费意愿，再决定是否值得投入构建 |
+| MVP | `/mvp` | 约束 MVP 范围，优先手工、无代码或极小实现 |
+| Processize | `/processize` | 先把产品设想变成今天就能交付的手工流程 |
+| First Customers | `/first-customers` | 为前 100 个客户制定一对一销售策略 |
+| Pricing | `/pricing` | 制定起始定价并校准成本与价值逻辑 |
+| Marketing Plan | `/marketing-plan` | 在有初步 PMF 后，用内容而非广告扩大受众 |
+| Grow Sustainably | `/grow-sustainably` | 用盈利、可逆性和耐久性评估增长决策 |
+| Company Values | `/company-values` | 明确公司价值观、文化边界和招聘信号 |
+| Minimalist Review | `/minimalist-review` | 用极简创业原则审视任何商业决策 |
+
+这些扩展技能保留了上游命令名，方便直接迁移和后续同步；它们不接入 `0-workflow-runner` 自动编排，建议按需单独调用。
+
 ## Usage Examples / 使用示例
 
 ```
@@ -118,6 +161,16 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 /4-backend-dev 实现用户登录API
 /4-frontend-dev 实现登录页面
 /5-webapp-testing 编写登录功能的测试用例
+
+# 创业增长扩展技能
+/find-community 帮我找出 scrum-skills 最适合服务的 3 个用户社群
+/processize 把“AI 敏捷开发陪跑服务”先设计成手工可交付流程
+/minimalist-review 评估是否要把当前项目做成付费产品
+
+# gstack 扩展技能（需先执行 ~/.claude/skills/gstack/setup）
+/office-hours 帮我重新定义这个功能真正要解决的问题
+/plan-design-review 审一下当前设计方案是否有 AI slop
+/qa https://staging.example.com
 ```
 
 ## Hooks / 代码质量钩子
@@ -146,14 +199,32 @@ scrum-skills/
     ├── 0-workflow-runner/   # 🔄 工作流编排器
     ├── 0-scrum-master/      # 敏捷教练
     ├── 1~8-*/               # 六部执行层
+    ├── gstack/              # 外部整仓扩展：完整工程工作流技能组
+    ├── find-community/      # 外部扩展：社群发现
+    ├── validate-idea/       # 外部扩展：创业验证
+    ├── mvp/                 # 外部扩展：MVP 收敛
+    ├── processize/          # 外部扩展：手工流程设计
+    ├── first-customers/     # 外部扩展：前 100 客户
+    ├── pricing/             # 外部扩展：定价策略
+    ├── marketing-plan/      # 外部扩展：内容增长
+    ├── grow-sustainably/    # 外部扩展：可持续增长
+    ├── company-values/      # 外部扩展：公司价值观
+    ├── minimalist-review/   # 外部扩展：极简创业评审
     ├── config/              # 共享配置（含 harness-playbook.md）
     └── hooks/               # 代码质量钩子
 ```
 
+## Upstream Sync / 外部来源
+
+- 创业增长扩展包同步自 `https://github.com/slavingia/skills`
+- 当前集成提交：`f4e1bf8dd9c3a63eebab662fc57396183446068b`
+- 每个外部技能目录下都包含 `.source.json`，用于记录来源、版本和更新时间
+- gstack 以 vendored 形式集成在 `skills/gstack/`，保持其原始目录结构和 setup 流程
+
 ## Setup Options / 配置选项
 
 ```bash
-sh install.sh                                  # 推荐：一键安装（自动执行 setup）
+sh install.sh                                    # 推荐：一键安装（自动执行 setup）
 sh ~/.claude/skills/hooks/setup.sh               # 手动执行 setup（自动检测交互模式）
 sh ~/.claude/skills/hooks/setup.sh --default     # 非交互模式，使用默认值
 sh ~/.claude/skills/hooks/setup.sh --interactive # 强制交互模式
@@ -161,18 +232,19 @@ sh ~/.claude/skills/hooks/setup.sh --lang=en     # 设置语言
 sh ~/.claude/skills/hooks/setup.sh --nickname=XX # 设置昵称（默认：吴彦祖）
 sh ~/.claude/skills/hooks/setup.sh --no-git-hook # 跳过 git hook 安装
 sh ~/.claude/skills/hooks/setup.sh --skip-repo-map # 跳过 repo-map 生成
-sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo # 对指定仓库安装commit-msg hook
+sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo # 对指定仓库安装 commit-msg hook
 ```
 
 ## Design Principles / 设计原则
 
-1. **零安装** — 无需 pip/npm/brew，一条 `sh install.sh` 即用
+1. **核心一键安装** — 主技能组通过 `sh install.sh` 即可启用；`gstack` 属于可选扩展，启用时需 `bun`
 2. **全自动编排** — 输入需求后全流程自动流转，无需手动调用每个技能
 3. **双模式** — 三省六部（质量优先）+ 敏捷（效率优先），按需切换
 4. **中断恢复** — workflow-state.json 记录进度，中断后可从断点恢复
 5. **质量内建** — hooks 强制代码规范 + 门下省/code-reviewer 把关提交
 6. **通用适配** — 不限语言框架，根据项目自动适配
 7. **Harness 化协作** — `AGENTS.md` 作为活文档，约束执行顺序与持续反馈
+8. **外部技能可整合** — `setup.sh` 会自动发现并链接所有含 `SKILL.md` 的技能目录，便于引入第三方技能包
 
 ## Harness Baseline / 驭缰基线
 

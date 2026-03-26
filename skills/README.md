@@ -2,6 +2,10 @@
 
 **推荐通过仓库根目录一键安装（`sh install.sh`）后使用。**
 
+当前目录已额外整合 `slavingia/skills` 的 10 个创业增长技能，保留原始命令名，适合在做产品方向、验证商业价值、设计手工交付流程和早期增长策略时直接调用。
+
+同时也 vendoring 进来了 `garrytan/gstack`，保留其完整运行时目录，适合在需要设计审查、浏览器 QA、发布和复盘流程时启用。
+
 ## 快速开始
 
 ### 1. 一键安装（推荐）
@@ -51,6 +55,15 @@ sh ~/.claude/skills/hooks/setup.sh --skip-repo-map
 sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
 ```
 
+### 4. 创业增长扩展技能（独立调用，不接入自动编排）
+
+```text
+/find-community 识别你已经身处其中、且可长期服务的社群
+/validate-idea 先验证问题和付费意愿，再决定是否投入开发
+/processize 把产品想法改写成今天就能手工交付的流程
+/minimalist-review 用极简创业视角审查你的商业决策
+```
+
 ## 文件说明
 
 ```
@@ -83,6 +96,17 @@ skills/
 ├── 6-bug-handler/                 # Bug处理专家
 ├── 7-skill-creator/               # 技能创建器
 ├── 8-code-reviewer/               # 代码审查专家
+├── gstack/                        # 外部整仓扩展：完整工程工作流技能组
+├── find-community/                # 外部扩展：社群发现
+├── validate-idea/                 # 外部扩展：创业验证
+├── mvp/                           # 外部扩展：MVP 收敛
+├── processize/                    # 外部扩展：手工流程设计
+├── first-customers/               # 外部扩展：前 100 客户
+├── pricing/                       # 外部扩展：定价策略
+├── marketing-plan/                # 外部扩展：内容增长
+├── grow-sustainably/              # 外部扩展：可持续增长
+├── company-values/                # 外部扩展：公司价值观
+├── minimalist-review/             # 外部扩展：极简创业评审
 │
 ├── PROJECT_CONFIG.md              # 项目配置（自动生成）
 ├── PROJECT_CONFIG.template.md     # 配置模板（参考）
@@ -112,6 +136,38 @@ skills/
 | 6-bug-handler | Bug处理专家 | Bug分析、修复协调、验证 |
 | 7-skill-creator | 技能创建器 | 创建新技能、扩展团队能力 |
 | 8-code-reviewer | 代码审查专家 | git提交前代码审查、质量把关 |
+
+### 外部扩展技能：The Minimalist Entrepreneur
+
+同步来源：`slavingia/skills@f4e1bf8`
+
+| 技能 | 命令 | 使用场景 |
+|------|------|----------|
+| Find Community | `/find-community` | 寻找商业方向、识别最值得服务的社群 |
+| Validate Idea | `/validate-idea` | 验证创业想法是否值得继续推进 |
+| MVP | `/mvp` | 收敛 MVP 范围，避免过度构建 |
+| Processize | `/processize` | 先用手工流程交付价值，再决定自动化 |
+| First Customers | `/first-customers` | 制定前 100 个客户的销售动作 |
+| Pricing | `/pricing` | 设置初始定价和未来分层 |
+| Marketing Plan | `/marketing-plan` | 设计内容驱动的增长方案 |
+| Grow Sustainably | `/grow-sustainably` | 评估花钱、招聘、扩张是否可持续 |
+| Company Values | `/company-values` | 定义公司文化和价值观边界 |
+| Minimalist Review | `/minimalist-review` | 用极简创业原则快速复盘决策 |
+
+这些技能与主流程技能并列存在，但不会自动加入 `0-workflow-runner` 调度。
+
+### 外部整仓扩展：gstack
+
+同步来源：`garrytan/gstack` 主分支快照（版本 `0.11.20.0`，下载于 `2026-03-26`）
+
+| 入口 | 说明 | 启用方式 |
+|------|------|----------|
+| `gstack/` | 保留完整运行时、setup、browse、review、qa、ship 等工作流能力 | 复制到项目后执行 `~/.claude/skills/gstack/setup` |
+
+说明：
+- 这不是纯 `SKILL.md` 技能包，而是带运行时和生成流程的完整工程工具栈
+- 代表命令包括 `/office-hours`、`/plan-design-review`、`/review`、`/qa`、`/ship`、`/browse`
+- 需要 `bun >= 1.0`；首次 setup 会处理生成技能文档和 Playwright/Chromium
 
 ## 核心机制
 
@@ -160,3 +216,5 @@ skills/
 5. **通用适配** — 后端/前端技能不限语言，根据项目自动适配
 6. **质量内建** — hooks 强制执行代码规范，门下省/code-reviewer 把关提交
 7. **中断恢复** — workflow-state.json 记录进度，中断后可从断点恢复
+8. **外部技能可整合** — `setup.sh` 会自动发现并链接所有含 `SKILL.md` 的技能目录，便于引入第三方技能包
+9. **完整运行时可 vendoring** — 像 `gstack` 这种带 `setup` 和运行时资产的技能组也可以整仓接入，而不是只复制提示词

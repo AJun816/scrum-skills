@@ -1,0 +1,11 @@
+{
+  "name": "gstack",
+  "sourceRepo": "garrytan/gstack",
+  "sourceUrl": "https://github.com/garrytan/gstack",
+  "sourceRef": "main",
+  "version": "0.11.20.0",
+  "license": "MIT",
+  "addedAt": "2026-03-26T00:00:00Z",
+  "lastUpdated": "2026-03-26T00:00:00Z",
+  "notes": "Vendored source snapshot. Requires running skills/gstack/setup with bun to enable the full generated skill set."
+}
