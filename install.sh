@@ -1,25 +1,19 @@
 #!/bin/sh
 # Scrum Skills - One-click Installer
-# 双击或运行此脚本，自动检测环境并安装技能组
-#
-# 支持的 Agent 目录：
-#   ~/.claude/        Claude Code
-#   ~/.warp/          Warp Terminal AI
-#   ~/.cursor/        Cursor IDE
-#   ~/.windsurf/      Windsurf IDE
-#   ~/.cline/         Cline
-#   ~/.continue/      Continue
+# 目标：clone 后执行 `sh install.sh` 即可安装，无需额外依赖管理器
 #
 # 用法：
-#   sh install.sh            # 自动检测
-#   sh install.sh --force    # 跳过确认直接安装
+#   sh install.sh
+#   sh install.sh --agent=claude
+#   sh install.sh --target=/custom/path/.claude
+#   sh install.sh --keep-settings
+#   sh install.sh --lang=en
 
 set -e
 
-# ---- 路径检测 ----
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# 获取 home 目录（兼容 Windows/Mac/Linux）
+# Home path (Windows/Git Bash + Unix)
 if [ -n "$USERPROFILE" ]; then
   HOME_DIR="$(echo "$USERPROFILE" | sed 's|\\|/|g')"
 elif [ -n "$HOME" ]; then
@@ -28,113 +22,128 @@ else
   HOME_DIR="$(cd ~ && pwd)"
 fi
 
-# 支持的 agent 根目录
-AGENT_DIRS=".claude .warp .cursor .windsurf .cline .continue"
+DEFAULT_AGENT=".claude"
+TARGET_BASE=""
+LANG="zh"
+KEEP_SETTINGS=0
 
-# ---- 检测当前是否在 agent 目录下 ----
-DETECTED_AGENT=""
-DETECTED_AGENT_DIR=""
+usage() {
+  echo "Usage: sh install.sh [OPTIONS]"
+  echo ""
+  echo "Options:"
+  echo "  --agent=NAME       Install to ~/.[name], e.g. claude|warp|cursor"
+  echo "  --target=PATH      Install to exact path (higher priority than --agent)"
+  echo "  --keep-settings    Keep existing settings.json (do not overwrite)"
+  echo "  --lang=zh|en       Installer output language (default: zh)"
+  echo "  -h, --help         Show this help"
+}
 
-for agent in $AGENT_DIRS; do
-  AGENT_PATH="$HOME_DIR/$agent"
-  case "$SCRIPT_DIR" in
-    "$AGENT_PATH"*)
-      DETECTED_AGENT="$agent"
-      DETECTED_AGENT_DIR="$AGENT_PATH"
-      break
+for arg in "$@"; do
+  case "$arg" in
+    --agent=*)
+      AGENT_NAME="${arg#--agent=}"
+      AGENT_NAME="$(echo "$AGENT_NAME" | sed 's/^[.]*//')"
+      [ -n "$AGENT_NAME" ] && TARGET_BASE="$HOME_DIR/.${AGENT_NAME}"
+      ;;
+    --target=*)
+      TARGET_BASE="${arg#--target=}"
+      ;;
+    --keep-settings)
+      KEEP_SETTINGS=1
+      ;;
+    --lang=*)
+      LANG="${arg#--lang=}"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $arg"
+      usage
+      exit 1
       ;;
   esac
 done
 
-echo ""
-echo "=== Scrum Skills 技能组安装 ==="
-echo ""
-
-# ---- 确认安装目标 ----
-FORCE=0
-for arg in "$@"; do
-  case "$arg" in --force) FORCE=1 ;; esac
-done
-
-if [ -n "$DETECTED_AGENT" ]; then
-  echo "✅ 检测到 Agent 目录：$DETECTED_AGENT_DIR"
-  INSTALL_BASE="$DETECTED_AGENT_DIR"
-else
-  echo "⚠️  未检测到已知 Agent 目录"
-  echo "   当前路径：$SCRIPT_DIR"
-  echo ""
-  if [ "$FORCE" = "0" ]; then
-    printf "是否仍要安装到 ~/.claude/ ？[y/N]: "
-    read CONFIRM
-    case "$CONFIRM" in
-      [yY]*) ;;
-      *)
-        echo "已取消安装。"
-        echo "请将本仓库 clone 到以下目录之一后重试："
-        for agent in $AGENT_DIRS; do
-          echo "  $HOME_DIR/$agent/"
-        done
-        exit 0
+# Auto-detect: if cloned under a known agent directory, install there; else fallback ~/.claude
+if [ -z "$TARGET_BASE" ]; then
+  for agent in .claude .warp .cursor .windsurf .cline .continue; do
+    AGENT_PATH="$HOME_DIR/$agent"
+    case "$SCRIPT_DIR" in
+      "$AGENT_PATH"*)
+        TARGET_BASE="$AGENT_PATH"
+        break
         ;;
     esac
-  fi
-  INSTALL_BASE="$HOME_DIR/.claude"
-  mkdir -p "$INSTALL_BASE"
+  done
 fi
 
-SKILLS_DST="$INSTALL_BASE/skills"
-SETTINGS_DST="$INSTALL_BASE/settings.json"
+[ -z "$TARGET_BASE" ] && TARGET_BASE="$HOME_DIR/$DEFAULT_AGENT"
+case "$TARGET_BASE" in
+  "~"*) TARGET_BASE="$HOME_DIR${TARGET_BASE#\~}" ;;
+esac
+TARGET_BASE="$(echo "$TARGET_BASE" | sed 's|\\|/|g')"
+
+SKILLS_SRC="$SCRIPT_DIR/skills"
+SETTINGS_SRC="$SCRIPT_DIR/.claude/settings.json"
+SKILLS_DST="$TARGET_BASE/skills"
+SETTINGS_DST="$TARGET_BASE/settings.json"
+HOOKS_DST="$TARGET_BASE/skills/hooks"
+
+if [ ! -d "$SKILLS_SRC" ]; then
+  echo "ERROR: skills directory not found: $SKILLS_SRC"
+  exit 1
+fi
 
 echo ""
-echo "安装目标：$INSTALL_BASE"
+echo "=== Scrum Skills Installer ==="
+echo "Source : $SCRIPT_DIR"
+echo "Target : $TARGET_BASE"
 echo ""
 
-# ---- 复制 skills/ ----
-echo "📦 复制技能组..."
+mkdir -p "$TARGET_BASE"
 mkdir -p "$SKILLS_DST"
-cp -rf "$SCRIPT_DIR/skills/." "$SKILLS_DST/"
-echo "   ✅ skills/ → $SKILLS_DST"
 
-# ---- 复制 settings.json（不覆盖已有配置）----
-if [ -f "$SCRIPT_DIR/.claude/settings.json" ]; then
-  if [ -f "$SETTINGS_DST" ]; then
-    echo "   ⚠️  $SETTINGS_DST 已存在，跳过（避免覆盖现有配置）"
-    echo "      如需更新，手动复制：$SCRIPT_DIR/.claude/settings.json"
+echo "📦 Installing skills..."
+cp -rf "$SKILLS_SRC/." "$SKILLS_DST/"
+echo "  ✅ $SKILLS_DST"
+
+if [ -f "$SETTINGS_SRC" ]; then
+  if [ -f "$SETTINGS_DST" ] && [ "$KEEP_SETTINGS" = "1" ]; then
+    echo "  ⚠️  Keeping existing settings: $SETTINGS_DST"
+    echo "     Existing hook paths are not rewritten in --keep-settings mode."
   else
-    cp "$SCRIPT_DIR/.claude/settings.json" "$SETTINGS_DST"
-    echo "   ✅ settings.json → $SETTINGS_DST"
+    if [ -f "$SETTINGS_DST" ]; then
+      TS="$(date +%Y%m%d%H%M%S 2>/dev/null || echo backup)"
+      BACKUP_PATH="${SETTINGS_DST}.${TS}.bak"
+      cp "$SETTINGS_DST" "$BACKUP_PATH"
+      echo "  ℹ️  Backed up existing settings to: $BACKUP_PATH"
+    fi
+    HOOKS_ESCAPED="$(printf '%s' "$HOOKS_DST" | sed 's|\\|/|g' | sed 's|[&]|\\&|g')"
+    sed "s|\\.claude/skills/hooks|$HOOKS_ESCAPED|g" "$SETTINGS_SRC" > "$SETTINGS_DST"
+    echo "  ✅ $SETTINGS_DST"
   fi
 fi
 
-# ---- 运行 setup.sh ----
 echo ""
-echo "⚙️  运行配置脚本..."
+echo "⚙️  Running setup..."
 SETUP_SCRIPT="$SKILLS_DST/hooks/setup.sh"
 if [ -f "$SETUP_SCRIPT" ]; then
-  sh "$SETUP_SCRIPT" --default
+  sh "$SETUP_SCRIPT" --default --skip-repo-map --lang="$LANG"
 else
-  echo "   ⚠️  setup.sh 未找到，跳过"
+  echo "  ⚠️  setup.sh not found at: $SETUP_SCRIPT"
 fi
 
-# ---- 清理仓库文件 ----
-echo ""
-echo "🧹 清理仓库文件..."
-cd "$SCRIPT_DIR"
-rm -rf .git/ .claude/ .cache/
-rm -f README.md LICENSE sync-skills.sh install.sh install.bat .gitignore
-rm -rf skills/
-echo "   ✅ 安装完成，仓库文件已清理"
-
-# ---- 完成 ----
 echo ""
 echo "================================"
-echo "✅ 安装完成！"
+echo "✅ Installation complete."
+echo "No repository files were deleted."
 echo ""
-echo "在你的项目中启动 Claude Code："
-echo "  cd your-project && claude"
-echo ""
-echo "然后输入："
-echo "  /0-emperor 开发用户登录功能    # 三省六部模式（复杂任务）"
-echo "  /0-scrum-master 修复某个bug    # 敏捷模式（简单任务）"
+echo "Next:"
+echo "  1) Open your project with Claude Code"
+echo "  2) Use /0-emperor or /0-scrum-master"
+echo "  3) Optional git hook:"
+echo "     sh $TARGET_BASE/skills/hooks/setup.sh --project-root=/path/to/repo"
 echo "================================"
 echo ""

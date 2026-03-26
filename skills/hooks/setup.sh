@@ -4,10 +4,11 @@
 # Hooks are auto-configured via .claude/settings.json (no manual setup needed)
 #
 # Usage:
-#   sh .claude/skills/hooks/setup.sh              # auto-detect (terminal=interactive, pipe=default)
-#   sh .claude/skills/hooks/setup.sh --default    # non-interactive, use all defaults
-#   sh .claude/skills/hooks/setup.sh --interactive # force interactive mode
-#   sh .claude/skills/hooks/setup.sh --lang=en --nickname=John --no-git-hook
+#   sh ~/.claude/skills/hooks/setup.sh              # auto-detect (terminal=interactive, pipe=default)
+#   sh ~/.claude/skills/hooks/setup.sh --default    # non-interactive, use all defaults
+#   sh ~/.claude/skills/hooks/setup.sh --interactive # force interactive mode
+#   sh ~/.claude/skills/hooks/setup.sh --lang=en --nickname=John --no-git-hook
+#   sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
 
 set -e
 
@@ -15,13 +16,24 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 HOOKS_DIR="$SCRIPT_DIR"
-PROJECT_ROOT="$(cd "$SKILLS_DIR/.." && pwd)"
+SKILLS_PARENT_DIR="$(basename "$(cd "$SKILLS_DIR/.." && pwd)")"
+if [ "$SKILLS_PARENT_DIR" = ".claude" ]; then
+  # Embedded mode: project/.claude/skills
+  PROJECT_ROOT="$(cd "$SKILLS_DIR/../.." && pwd)"
+  SKILLS_LAYOUT="embedded"
+else
+  # Repo mode: project/skills
+  PROJECT_ROOT="$(cd "$SKILLS_DIR/.." && pwd)"
+  SKILLS_LAYOUT="repo"
+fi
 
 # ---- Defaults ----
 MODE=""
 LANG="zh"
 NICKNAME="吴彦祖"
 INSTALL_GIT_HOOK="yes"
+GENERATE_REPO_MAP="yes"
+PROJECT_ROOT_OVERRIDE=""
 
 # ---- Parse arguments ----
 for arg in "$@"; do
@@ -41,6 +53,12 @@ for arg in "$@"; do
     --no-git-hook)
       INSTALL_GIT_HOOK="no"
       ;;
+    --skip-repo-map)
+      GENERATE_REPO_MAP="no"
+      ;;
+    --project-root=*)
+      PROJECT_ROOT_OVERRIDE="${arg#--project-root=}"
+      ;;
     --help|-h)
       echo "Usage: sh setup.sh [OPTIONS]"
       echo ""
@@ -50,6 +68,8 @@ for arg in "$@"; do
       echo "  --lang=LANG      Set language: zh (default) or en"
       echo "  --nickname=NAME  Set nickname (default: 吴彦祖)"
       echo "  --no-git-hook    Skip git commit-msg hook installation"
+      echo "  --skip-repo-map  Skip .cache/shared/repo-map.md generation"
+      echo "  --project-root=PATH Install git hook/repo-map against specific project root"
       echo "  -h, --help       Show this help"
       echo ""
       echo "Without flags: auto-detect (terminal=interactive, pipe/CI=default)"
@@ -61,6 +81,13 @@ for arg in "$@"; do
       ;;
   esac
 done
+
+if [ -n "$PROJECT_ROOT_OVERRIDE" ]; then
+  case "$PROJECT_ROOT_OVERRIDE" in
+    "~"*) PROJECT_ROOT_OVERRIDE="${HOME}${PROJECT_ROOT_OVERRIDE#\~}" ;;
+  esac
+  PROJECT_ROOT="$PROJECT_ROOT_OVERRIDE"
+fi
 
 # ---- Auto-detect mode if not specified ----
 if [ -z "$MODE" ]; then
@@ -176,37 +203,64 @@ if [ "$NICKNAME" != "吴彦祖" ]; then
   find "$SKILLS_DIR" -name "*.bak" -delete 2>/dev/null || true
 fi
 
-# ---- Create .claude/skills symlinks ----
-CLAUDE_SKILLS_DIR="$PROJECT_ROOT/.claude/skills"
-mkdir -p "$CLAUDE_SKILLS_DIR"
-LINK_COUNT=0
+# ---- Create .claude/skills symlinks (repo layout only) ----
+if [ "$SKILLS_LAYOUT" = "repo" ]; then
+  CLAUDE_SKILLS_DIR="$PROJECT_ROOT/.claude/skills"
+  mkdir -p "$CLAUDE_SKILLS_DIR"
+  LINK_COUNT=0
+  COPY_COUNT=0
 
-# Link hooks directory (critical for settings.json hook paths)
-if [ ! -L "$CLAUDE_SKILLS_DIR/hooks" ]; then
-  ln -sf "../../skills/hooks" "$CLAUDE_SKILLS_DIR/hooks"
-  LINK_COUNT=$((LINK_COUNT + 1))
-fi
-
-# Link all skill directories
-for SKILL_DIR in "$SKILLS_DIR"/0-* "$SKILLS_DIR"/1-* "$SKILLS_DIR"/2-* "$SKILLS_DIR"/3-* "$SKILLS_DIR"/4-* "$SKILLS_DIR"/5-* "$SKILLS_DIR"/6-* "$SKILLS_DIR"/7-* "$SKILLS_DIR"/8-*; do
-  [ ! -d "$SKILL_DIR" ] && continue
-  SKILL_NAME=$(basename "$SKILL_DIR")
-  LINK_TARGET="../../skills/${SKILL_NAME}"
-  if [ ! -L "$CLAUDE_SKILLS_DIR/$SKILL_NAME" ]; then
-    ln -sf "$LINK_TARGET" "$CLAUDE_SKILLS_DIR/$SKILL_NAME"
-    LINK_COUNT=$((LINK_COUNT + 1))
+  if [ ! -L "$CLAUDE_SKILLS_DIR/hooks" ] && [ ! -e "$CLAUDE_SKILLS_DIR/hooks" ]; then
+    if ln -sf "../../skills/hooks" "$CLAUDE_SKILLS_DIR/hooks" 2>/dev/null; then
+      LINK_COUNT=$((LINK_COUNT + 1))
+    else
+      cp -R "$SKILLS_DIR/hooks" "$CLAUDE_SKILLS_DIR/hooks"
+      COPY_COUNT=$((COPY_COUNT + 1))
+    fi
   fi
-done
-if [ "$LANG" = "en" ]; then
-  echo "  Skills symlinks ready ($LINK_COUNT new) in .claude/skills/"
+
+  for SKILL_DIR in "$SKILLS_DIR"/0-* "$SKILLS_DIR"/1-* "$SKILLS_DIR"/2-* "$SKILLS_DIR"/3-* "$SKILLS_DIR"/4-* "$SKILLS_DIR"/5-* "$SKILLS_DIR"/6-* "$SKILLS_DIR"/7-* "$SKILLS_DIR"/8-*; do
+    [ ! -d "$SKILL_DIR" ] && continue
+    SKILL_NAME=$(basename "$SKILL_DIR")
+    DEST_PATH="$CLAUDE_SKILLS_DIR/$SKILL_NAME"
+    if [ -L "$DEST_PATH" ] || [ -e "$DEST_PATH" ]; then
+      continue
+    fi
+    if ln -sf "../../skills/${SKILL_NAME}" "$DEST_PATH" 2>/dev/null; then
+      LINK_COUNT=$((LINK_COUNT + 1))
+    else
+      cp -R "$SKILL_DIR" "$DEST_PATH"
+      COPY_COUNT=$((COPY_COUNT + 1))
+    fi
+  done
+
+  if [ "$LANG" = "en" ]; then
+    echo "  .claude/skills ready (links: $LINK_COUNT, copies: $COPY_COUNT)"
+  else
+    echo "  .claude/skills 已就绪（软链接 $LINK_COUNT，复制 $COPY_COUNT）"
+  fi
 else
-  echo "  技能软连接就绪（新增 $LINK_COUNT 个）：.claude/skills/"
+  if [ "$LANG" = "en" ]; then
+    echo "  Embedded layout detected, skip symlink creation"
+  else
+    echo "  检测到嵌入式目录结构，跳过软链接创建"
+  fi
 fi
 
 # ---- Git commit-msg Hook ----
 if [ "$INSTALL_GIT_HOOK" = "yes" ]; then
   GIT_HOOKS_DIR="$PROJECT_ROOT/.git/hooks"
-  if [ -d "$PROJECT_ROOT/.git" ]; then
+  HOME_DIR_CURRENT="${HOME:-$USERPROFILE}"
+  HOME_DIR_CURRENT="$(echo "$HOME_DIR_CURRENT" | sed 's|\\|/|g')"
+  PROJECT_ROOT_NORMALIZED="$(echo "$PROJECT_ROOT" | sed 's|\\|/|g')"
+
+  if [ "$SKILLS_LAYOUT" = "embedded" ] && [ "$PROJECT_ROOT_NORMALIZED" = "$HOME_DIR_CURRENT" ] && [ -z "$PROJECT_ROOT_OVERRIDE" ]; then
+    if [ "$LANG" = "en" ]; then
+      echo "  Skipped git hook in home directory (use --project-root=PATH for a repo)"
+    else
+      echo "  检测为用户主目录，跳过 git hook（可用 --project-root=PATH 指定仓库）"
+    fi
+  elif [ -d "$PROJECT_ROOT/.git" ]; then
     mkdir -p "$GIT_HOOKS_DIR"
     cp "$HOOKS_DIR/commit-msg.sh" "$GIT_HOOKS_DIR/commit-msg"
     chmod +x "$GIT_HOOKS_DIR/commit-msg" 2>/dev/null || true
@@ -384,8 +438,6 @@ EOFMAP
   fi
 }
 
-generate_repo_map
-
 # ---- Generate Code Skeleton (appended to repo-map.md) ----
 generate_code_skeleton() {
   SHARED_DIR="$PROJECT_ROOT/.cache/shared"
@@ -462,7 +514,24 @@ generate_code_skeleton() {
   fi
 }
 
-generate_code_skeleton
+if [ "$GENERATE_REPO_MAP" = "yes" ] && [ -d "$PROJECT_ROOT/.git" ]; then
+  generate_repo_map
+  generate_code_skeleton
+else
+  if [ "$GENERATE_REPO_MAP" = "no" ]; then
+    if [ "$LANG" = "en" ]; then
+      echo "  Repo-map generation skipped by option"
+    else
+      echo "  已按参数跳过 repo-map 生成"
+    fi
+  else
+    if [ "$LANG" = "en" ]; then
+      echo "  No .git repository at project root, skipping repo-map generation"
+    else
+      echo "  项目根目录无 .git，跳过 repo-map 生成"
+    fi
+  fi
+fi
 
 echo ""
 echo "$MSG_DONE"
