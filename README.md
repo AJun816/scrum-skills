@@ -4,7 +4,9 @@
 
 ## Prerequisites / 前置条件
 
-- [Claude Code](https://claude.ai/code) — 仅此一个，无需 pip/npm/brew
+- [Claude Code](https://claude.ai/code)
+- macOS/Linux: `sh`（系统自带）
+- Windows: PowerShell（系统自带，使用 `install.bat`）
 
 ## Quick Start / 快速开始
 
@@ -14,19 +16,25 @@ git clone https://gitee.com/ajun816/scrum-skills.git
 # or GitHub
 git clone https://github.com/AJun816/scrum-skills.git
 
-# 2. Copy to your project / 复制到你的项目
-cp -r scrum-skills/skills/ your-project/.claude/skills/
-cp scrum-skills/.claude/settings.json your-project/.claude/settings.json
+# 2. Install (one command) / 一键安装
+cd scrum-skills
+sh install.sh
+# Windows: double-click install.bat (PowerShell, no Git Bash required)
 
-# 3. (Optional) Setup / 可选：配置昵称和 git hook
-sh your-project/.claude/skills/hooks/setup.sh --default    # 非交互模式（推荐）
-# 或
-sh your-project/.claude/skills/hooks/setup.sh              # 交互模式
-# setup.sh 会自动创建 .claude/skills/ 软链接、安装 git hook、生成项目 repo map
-
-# 4. Start Claude Code / 启动
+# 3. Start Claude Code in your project / 在你的项目里启动
 cd your-project && claude
 ```
+
+默认会安装到 `~/.claude/`。可选参数：
+
+```bash
+sh install.sh --agent=warp                # 安装到 ~/.warp
+sh install.sh --target=/path/to/.claude   # 指定安装目录
+sh install.sh --keep-settings             # 保留已有 settings.json
+sh install.sh --lang=en                   # 英文输出
+```
+
+若使用 `--target`，后续 `setup.sh` 路径请将 `~/.claude` 替换为你的目标目录。
 
 **然后输入需求，全自动流转：**
 
@@ -119,16 +127,17 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 - **pre-bash** — git commit 强制要求 `✅[Reviewed]` 前缀
 - **pre-file-write** — 代码文件 >800 行阻止写入，>600 行警告
 - **post-file-write** — 代码质量报告（方法行数、嵌套深度、代码异味、auto-linter）
-- **commit-msg** — git hook 层强制 `✅[Reviewed]` 前缀（需 setup.sh）
+- **commit-msg** — git hook 层强制 `✅[Reviewed]` 前缀（可选，需在目标仓库执行 setup）
 
 ## Project Structure / 项目结构
 
 ```
 scrum-skills/
+├── AGENTS.md               ← Harness 地图式入口
 ├── .claude/
-│   └── settings.json      ← Hooks 配置（复制到你的项目）
+│   └── settings.json       ← 安装脚本会部署到目标 Agent 目录
 ├── README.md               ← 本文件
-└── skills/                 ← 复制到 .claude/skills/
+└── skills/                 ← 安装脚本部署的技能目录
     ├── 0-emperor/           # 👑 皇上
     ├── 0-taizi/             # 🤴 太子
     ├── 0-zhongshu-province/ # 📜 中书省
@@ -137,32 +146,59 @@ scrum-skills/
     ├── 0-workflow-runner/   # 🔄 工作流编排器
     ├── 0-scrum-master/      # 敏捷教练
     ├── 1~8-*/               # 六部执行层
-    ├── config/              # 共享配置
+    ├── config/              # 共享配置（含 harness-playbook.md）
     └── hooks/               # 代码质量钩子
 ```
 
 ## Setup Options / 配置选项
 
 ```bash
-sh .claude/skills/hooks/setup.sh                # 自动检测（终端=交互，管道=默认）
-sh .claude/skills/hooks/setup.sh --default      # 非交互模式，使用默认值
-sh .claude/skills/hooks/setup.sh --interactive  # 强制交互模式
-sh .claude/skills/hooks/setup.sh --lang=en      # 设置语言
-sh .claude/skills/hooks/setup.sh --nickname=XX  # 设置昵称（默认：吴彦祖）
-sh .claude/skills/hooks/setup.sh --no-git-hook  # 跳过 git hook 安装
+sh install.sh                                  # 推荐：一键安装（自动执行 setup）
+sh ~/.claude/skills/hooks/setup.sh               # 手动执行 setup（自动检测交互模式）
+sh ~/.claude/skills/hooks/setup.sh --default     # 非交互模式，使用默认值
+sh ~/.claude/skills/hooks/setup.sh --interactive # 强制交互模式
+sh ~/.claude/skills/hooks/setup.sh --lang=en     # 设置语言
+sh ~/.claude/skills/hooks/setup.sh --nickname=XX # 设置昵称（默认：吴彦祖）
+sh ~/.claude/skills/hooks/setup.sh --no-git-hook # 跳过 git hook 安装
+sh ~/.claude/skills/hooks/setup.sh --skip-repo-map # 跳过 repo-map 生成
+sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo # 对指定仓库安装commit-msg hook
 ```
 
 ## Design Principles / 设计原则
 
-1. **零安装** — 无需 pip/npm/brew，复制粘贴即用
+1. **零安装** — 无需 pip/npm/brew，一条 `sh install.sh` 即用
 2. **全自动编排** — 输入需求后全流程自动流转，无需手动调用每个技能
 3. **双模式** — 三省六部（质量优先）+ 敏捷（效率优先），按需切换
 4. **中断恢复** — workflow-state.json 记录进度，中断后可从断点恢复
 5. **质量内建** — hooks 强制代码规范 + 门下省/code-reviewer 把关提交
 6. **通用适配** — 不限语言框架，根据项目自动适配
+7. **Harness 化协作** — `AGENTS.md` 作为活文档，约束执行顺序与持续反馈
+
+## Harness Baseline / 驭缰基线
+
+仓库内落地文件：
+
+- `AGENTS.md`：地图式入口（渐进披露）
+- `skills/config/harness-playbook.md`：Harness 执行约束与门禁
+- `skills/config/harness-references.md`：Harness 资料索引
+- `skills/hooks/*.sh`：机械化约束（Backpressure）
+
+推荐执行顺序：Understand → Plan → Implement → Verify → Persist
+
+## Further Reading / 延伸阅读
+
+以下资料可用于持续完善 Harness 体系：
+
+- OpenAI: Harness engineering (agent-first world)
+- Anthropic: Effective harnesses for long-running agents
+- Martin Fowler: Harness Engineering / Context Engineering
+- Mitchell Hashimoto: AI adoption journey
+- [deusyu/harness-engineering](https://github.com/deusyu/harness-engineering)（学习档案与实践索引）
 
 ---
 
 ## License
+
+[ChangeLog](CHANGELOG.md)
 
 [MulanPSL-2.0](skills/LICENSE)

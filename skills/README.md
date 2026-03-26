@@ -1,19 +1,27 @@
 # 敏捷团队技能组
 
-**复制此目录到你的项目，直接使用！**
+**推荐通过仓库根目录一键安装（`sh install.sh`）后使用。**
 
 ## 快速开始
 
-### 1. 复制到你的项目
+### 1. 一键安装（推荐）
 
 ```bash
-# 复制技能目录和hooks配置
-cp -r skills/ your-project/.claude/skills/
-cp .claude/settings.json your-project/.claude/settings.json
-
-# 可选：非交互式配置（CI/自动化场景）
-sh your-project/.claude/skills/hooks/setup.sh --default
+# 在仓库根目录执行
+sh install.sh
+# Windows 可直接双击 install.bat（无需 Git Bash）
 ```
+
+默认安装到 `~/.claude/`。可选参数：
+
+```bash
+sh install.sh --agent=warp
+sh install.sh --target=/path/to/.claude
+sh install.sh --keep-settings
+sh install.sh --lang=en
+```
+
+如果使用 `--target`，后续 `setup.sh` 路径请替换成你的目标目录。
 
 ### 2. 开始使用
 
@@ -31,6 +39,18 @@ sh your-project/.claude/skills/hooks/setup.sh --default
 - 三省六部：太子→中书省→门下省→尚书省→六部→门下省→中书省→皇上
 - 敏捷：PM + Architect 并行→Dev 并行→Code Review→提交
 
+### 3. 手动 setup（可选）
+
+```bash
+sh ~/.claude/skills/hooks/setup.sh --default
+sh ~/.claude/skills/hooks/setup.sh --interactive
+sh ~/.claude/skills/hooks/setup.sh --lang=en
+sh ~/.claude/skills/hooks/setup.sh --nickname=XX
+sh ~/.claude/skills/hooks/setup.sh --no-git-hook
+sh ~/.claude/skills/hooks/setup.sh --skip-repo-map
+sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
+```
+
 ## 文件说明
 
 ```
@@ -39,7 +59,8 @@ skills/
 │   ├── mandatory-rules.md         # 强制执行规范
 │   ├── coding-standards.md        # 编码规范
 │   ├── workflow-guide.md          # 工作流程指南
-│   └── init-guide.md              # 初始化指南
+│   ├── init-guide.md              # 初始化指南
+│   └── harness-playbook.md        # Harness 约束与门禁
 ├── hooks/                         # 代码质量钩子（自动生效）
 ├── .cache/                        # 缓存目录（自动生成，已gitignore）
 │
@@ -118,9 +139,21 @@ skills/
 
 技能产出保存到 `.cache/shared/`，一次产出多次使用，避免重复劳动。
 
+### Harness 基线
+
+- `AGENTS.md`：地图式入口，控制上下文加载与执行顺序
+- `config/harness-playbook.md`：可执行的 Harness 约束与门禁
+- `config/harness-references.md`：Harness 学习与实践资料索引
+- `hooks/*.sh`：机械化约束（Backpressure）
+
+### 延伸资料
+
+- OpenAI / Anthropic / Martin Fowler Harness 系列文章
+- [deusyu/harness-engineering](https://github.com/deusyu/harness-engineering)（学习路径与案例索引）
+
 ## 设计原则
 
-1. **复制粘贴就能用** — skills 目录自包含，无外部依赖
+1. **一键安装即用** — 无需 pip/npm/brew，`sh install.sh` 即可
 2. **开箱即用** — hooks 自动生效，首次使用自动初始化
 3. **全自动编排** — `/0-emperor` 或 `/0-scrum-master` 启动后全流程自动流转，无需手动调用每个技能
 4. **配置驱动** — 统一配置，所有技能共享

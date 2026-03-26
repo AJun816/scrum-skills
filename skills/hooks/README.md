@@ -6,10 +6,10 @@ Claude Code hooks for code quality enforcement.
 ## Auto-Active / 自动生效
 
 Hooks are configured in `.claude/settings.json` (committed to git).
-When you clone this repo and open it in Claude Code, hooks are **automatically active** — no setup needed.
+Run `sh install.sh` once after clone, then hooks become active automatically.
 
 钩子配置在 `.claude/settings.json` 中（已提交到 git）。
-克隆仓库后用 Claude Code 打开，钩子**自动生效**，无需手动配置。
+克隆仓库后先执行一次 `sh install.sh`，随后钩子即可自动生效。
 
 ## What Hooks Do / 钩子功能
 
@@ -19,6 +19,8 @@ When you clone this repo and open it in Claude Code, hooks are **automatically a
 | pre-file-write.sh | PreToolUse:Write/Edit | Block code files >800 lines, warn >600 lines |
 | post-file-write.sh | PostToolUse:Write/Edit | Code quality report (see below) |
 | commit-msg.sh | git commit-msg | Enforce `✅[Reviewed]` prefix (git hook layer) |
+
+`pre-bash` is always active after install. `commit-msg` is optional per repository (install via `setup.sh --project-root=...`).
 
 ## Commit Format / 提交格式
 
@@ -58,7 +60,9 @@ Run setup script to customize nickname and install git commit-msg hook:
 运行配置脚本自定义昵称和安装 git commit-msg hook：
 
 ```bash
-sh .claude/skills/hooks/setup.sh
+sh ~/.claude/skills/hooks/setup.sh
+sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
+# 如果你安装到自定义目录，请把 ~/.claude 替换为你的安装目录
 ```
 
 ## Skip Review / 跳过审查
