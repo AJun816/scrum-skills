@@ -11,8 +11,18 @@
 
 - [Claude Code](https://claude.ai/code)
 - macOS/Linux: `sh`（系统自带）
-- Windows: PowerShell（系统自带，使用 `install.bat`）
+- Windows: PowerShell（系统自带，用于 `install.bat` / `install.ps1`）
+- Windows 如需手动执行 `skills/hooks/setup.sh` 或 `gstack/setup`，请使用 Git Bash、WSL 或其他兼容 `sh` 的 shell
 - `bun >= 1.0`：仅在你需要启用 `gstack` 完整工作流时才需要
+
+## Documentation Map / 文档导航
+
+- `README.md`：安装入口、使用方式、扩展技能概览
+- `skills/README.md`：`skills/` 目录详细说明与安装后使用说明
+- `AGENTS.md`：仓库内 AI Agent 执行约束与上下文导航
+- `CHANGELOG.md`：关键文档与安装流程变更记录
+- `skills/config/harness-playbook.md`：Harness 约束、执行顺序和门禁
+- `skills/config/harness-references.md`：Harness 延伸阅读与参考资料
 
 ## Quick Start / 快速开始
 
@@ -26,6 +36,7 @@ git clone https://github.com/AJun816/scrum-skills.git
 cd scrum-skills
 sh install.sh
 # Windows: double-click install.bat (PowerShell, no Git Bash required)
+# 或手动执行：powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 # 3. (Optional) Enable gstack / 可选：启用 gstack 完整技能组
 cd ~/.claude/skills/gstack && ./setup
@@ -35,7 +46,10 @@ cd ~/.claude/skills/gstack && ./setup
 cd your-project && claude
 ```
 
-默认会安装到 `~/.claude/`。可选参数：
+默认会安装到 `~/.claude/`。
+如果仓库本身已经位于 `~/.claude`、`~/.warp`、`~/.cursor`、`~/.windsurf`、`~/.cline` 或 `~/.continue` 下，`install.sh` 会自动识别当前 Agent 目录并直接安装到那里。
+
+Shell 安装器 `install.sh` 可选参数：
 
 ```bash
 sh install.sh --agent=warp                # 安装到 ~/.warp
@@ -44,7 +58,38 @@ sh install.sh --keep-settings             # 保留已有 settings.json
 sh install.sh --lang=en                   # 英文输出
 ```
 
-若使用 `--target`，后续 `setup.sh` 路径请将 `~/.claude` 替换为你的目标目录。
+Windows PowerShell 安装器可选参数：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Agent warp
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Target C:\path\to\.claude
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
+```
+
+若使用 `--target` 或 `-Target`，后续 `setup.sh` 路径请将 `~/.claude` 替换为你的目标目录。
+
+## What The Installer Does / 安装器做了什么
+
+执行 shell 安装器 `sh install.sh` 后，默认会完成这些动作：
+
+1. 计算安装目标：优先使用 `--target`，其次使用 `--agent`，否则尝试识别当前仓库是否位于已知 Agent 目录下，最后回落到 `~/.claude/`
+2. 将 `skills/` 复制到目标 Agent 目录，例如 `~/.claude/skills/`
+3. 将 `.claude/settings.json` 复制到目标 Agent 目录，并把 hooks 路径改写成目标绝对路径
+4. 自动执行 `skills/hooks/setup.sh --default --skip-repo-map`
+5. 默认启用主技能组；`gstack` 仅做 vendoring，不会自动运行其 `./setup`
+
+如果你走的是 Windows 原生安装器 `install.bat` / `install.ps1`，则只会完成前 2 步，不会自动执行 `setup.sh`。
+
+这意味着：
+
+- 主技能组安装后即可使用
+- `gstack` 安装后仍需你手动执行一次 `~/.claude/skills/gstack/setup`
+- Windows 原生安装后，如需生成 `user-config.json`、安装仓库 `commit-msg` hook、生成 `repo-map` 或启用 `gstack`，请在兼容 `sh` 的 shell 中手动执行对应 `setup.sh`
+- 如需给某个仓库安装 `commit-msg` hook，请单独执行：
+
+```bash
+sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
+```
 
 **然后输入需求，全自动流转：**
 
@@ -121,13 +166,13 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 
 同步来源：`garrytan/gstack` 主分支快照（版本 `0.11.20.0`，下载于 `2026-03-26`）
 
-- 集成方式：以 vendored 形式保留完整运行时于 [skills/gstack](/Users/ajun/projects/github/scrum-skills/skills/gstack)
+- 集成方式：以 vendored 形式保留完整运行时于 `skills/gstack/`
 - 适用场景：设计审查、浏览器 QA、发布、回顾、安全审查、自动计划等完整工程流程
 - 代表命令：`/office-hours`、`/plan-ceo-review`、`/plan-design-review`、`/review`、`/qa`、`/ship`、`/browse`、`/retro`
 - 启用方式：复制本仓库到项目后，进入 `~/.claude/skills/gstack && ./setup`
 - 额外依赖：`bun >= 1.0`，首次 setup 会处理生成技能文档和 Playwright/Chromium
 
-由于 gstack 自带 `setup`、`browse`、遥测与生成流程，这一包采用整仓集成，而不是把 28 个技能直接平铺进当前 `skills/` 根目录。
+由于 gstack 自带 `setup`、`browse`、遥测与生成流程，这一包采用整仓集成，而不是把 28 个技能直接平铺进当前 `skills/` 根目录。默认安装只会把它复制到目标目录，不会自动执行 `gstack/setup`。
 
 ### The Minimalist Entrepreneur
 
@@ -221,7 +266,28 @@ scrum-skills/
 - 每个外部技能目录下都包含 `.source.json`，用于记录来源、版本和更新时间
 - gstack 以 vendored 形式集成在 `skills/gstack/`，保持其原始目录结构和 setup 流程
 
+## Docs Maintenance / 文档维护原则
+
+检查文档完整性时，优先核对以下一致性：
+
+1. `README.md` 的安装步骤必须与 `install.sh`、`install.bat`、`install.ps1` 的真实行为一致
+2. `skills/README.md` 的目录说明必须与 `skills/` 实际结构一致
+3. `AGENTS.md`、`skills/config/*.md` 中提到的路径必须真实存在
+4. 新增外部技能包时，必须同时补充来源说明、启用方式和依赖边界
+
+## Maintainer Workflow / 仓库维护者调试
+
+如果你是在当前仓库里调试技能，而不是安装到用户目录，可直接运行仓库内的 setup：
+
+```bash
+sh skills/hooks/setup.sh --default
+```
+
+这会在当前仓库的 `.claude/skills/` 下为各技能目录创建软链接；如果系统不支持软链接，则回退为复制。该模式适合维护技能文档、hooks 或本地联调，不会替代正式安装流程。
+
 ## Setup Options / 配置选项
+
+以下命令均为 shell 版本；Windows 原生 PowerShell 安装器不会自动运行它们，如需手动执行请使用 Git Bash、WSL 或其他兼容 `sh` 的 shell。
 
 ```bash
 sh install.sh                                    # 推荐：一键安装（自动执行 setup）
@@ -273,4 +339,4 @@ sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo # 对指定仓�
 
 [ChangeLog](CHANGELOG.md)
 
-[MulanPSL-2.0](skills/LICENSE)
+[MulanPSL-2.0](LICENSE)

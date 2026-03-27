@@ -6,6 +6,14 @@
 
 同时也 vendoring 进来了 `garrytan/gstack`，保留其完整运行时目录，适合在需要设计审查、浏览器 QA、发布和复盘流程时启用。
 
+## 文档导航
+
+- `../README.md`：仓库级安装入口、扩展技能概览
+- `README.md`：当前 `skills/` 目录说明
+- `../AGENTS.md`：仓库内 Agent 执行约束
+- `config/harness-playbook.md`：Harness 约束与门禁
+- `config/harness-references.md`：Harness 延伸阅读
+
 ## 快速开始
 
 ### 1. 一键安装（推荐）
@@ -16,7 +24,8 @@ sh install.sh
 # Windows 可直接双击 install.bat（无需 Git Bash）
 ```
 
-默认安装到 `~/.claude/`。可选参数：
+默认安装到 `~/.claude/`。
+如果仓库本身已经位于 `~/.claude`、`~/.warp`、`~/.cursor`、`~/.windsurf`、`~/.cline` 或 `~/.continue` 下，`install.sh` 会自动识别当前 Agent 目录并直接安装到那里。可选参数：
 
 ```bash
 sh install.sh --agent=warp
@@ -25,7 +34,25 @@ sh install.sh --keep-settings
 sh install.sh --lang=en
 ```
 
-如果使用 `--target`，后续 `setup.sh` 路径请替换成你的目标目录。
+Windows PowerShell 原生安装也支持以下参数：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Agent warp
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Target C:\path\to\.claude
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
+```
+
+如果使用 `--target` 或 `-Target`，后续 `setup.sh` 路径请替换成你的目标目录。
+
+### 安装后默认状态
+
+- 主技能组安装后即可使用
+- `.claude/settings.json` 中的 hooks 路径会被安装器改写到目标目录
+- `sh install.sh` 会自动执行 `skills/hooks/setup.sh --default --skip-repo-map`
+- Windows 原生 `install.bat` / `install.ps1` 不会自动执行 `setup.sh`
+- `gstack/` 会被复制过去，但不会自动执行其 `setup`
+- 如需启用 `gstack`，请额外执行 `~/.claude/skills/gstack/setup`
+- 如需生成 `user-config.json`、安装仓库 `commit-msg` hook、生成 `repo-map` 或启用 `gstack`，请在兼容 `sh` 的 shell 中手动执行 `setup.sh`
 
 ### 2. 开始使用
 
@@ -45,6 +72,8 @@ sh install.sh --lang=en
 
 ### 3. 手动 setup（可选）
 
+以下命令需在支持 `sh` 的 shell 中执行；Windows 建议使用 Git Bash、WSL 或等效环境。
+
 ```bash
 sh ~/.claude/skills/hooks/setup.sh --default
 sh ~/.claude/skills/hooks/setup.sh --interactive
@@ -54,6 +83,14 @@ sh ~/.claude/skills/hooks/setup.sh --no-git-hook
 sh ~/.claude/skills/hooks/setup.sh --skip-repo-map
 sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
 ```
+
+如果你是在当前仓库里直接维护技能，而不是安装到用户目录，可运行：
+
+```bash
+sh skills/hooks/setup.sh --default
+```
+
+该命令会在当前仓库的 `.claude/skills/` 下创建软链接；不支持软链接时回退为复制，适合本地调试 `SKILL.md`、hooks 和共享配置。
 
 ### 4. 创业增长扩展技能（独立调用，不接入自动编排）
 
@@ -73,7 +110,11 @@ skills/
 │   ├── coding-standards.md        # 编码规范
 │   ├── workflow-guide.md          # 工作流程指南
 │   ├── init-guide.md              # 初始化指南
-│   └── harness-playbook.md        # Harness 约束与门禁
+│   ├── permission-matrix.md       # 权限矩阵
+│   ├── skill-groups.md            # 技能分组
+│   ├── skill-metadata.md          # 技能元数据
+│   ├── harness-playbook.md        # Harness 约束与门禁
+│   └── harness-references.md      # Harness 延伸阅读
 ├── hooks/                         # 代码质量钩子（自动生效）
 ├── .cache/                        # 缓存目录（自动生成，已gitignore）
 │
