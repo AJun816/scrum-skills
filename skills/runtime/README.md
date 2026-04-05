@@ -10,6 +10,10 @@
   - 主入口，支持 `start / status / resume / approve / reject / abort / reset`
 - `bin/workflow-*.sh`
   - 主入口的快捷包装命令，例如 `workflow-approve.sh`、`workflow-status.sh`
+- `bin/workflow-report.sh`
+  - 聚合 `workflow-state.json`、step 元数据和 `workflow-runs.jsonl`，输出 workflow 报表；若尚未启动 workflow，也会输出 `no_workflow_state` 报告
+- `bin/skills-report.sh`
+  - 汇总 workflow / harness / eval / pack 四类子报表，输出统一总览，并支持 `--recent=N` 查看最近活动窗口
 - `bin/workflow-selfcheck.sh`
   - 自检脚本，验证 imperial / agile / reject / force-pass / reset / abort / 缺失 Harness 时暂停
 - `lib/runtime-common.sh`
@@ -24,6 +28,10 @@
 - `.cache/shared/workflow-state.json`
 - `.cache/shared/workflow-runs.jsonl`
 - `.cache/shared/workflow-runtime/`
+- `.cache/shared/workflow-report.json`
+- `.cache/shared/workflow-report.md`
+- `.cache/shared/skills-report.json`
+- `.cache/shared/skills-report.md`
 
 如果项目已完成 `setup.sh --project-root=...` 初始化，运行时状态还会引用：
 
@@ -51,6 +59,8 @@ sh skills/runtime/bin/workflow.sh abort --message="终止当前流程"
 sh skills/runtime/bin/workflow.sh reset
 sh skills/runtime/bin/workflow-status.sh --json
 sh skills/runtime/bin/workflow-approve.sh --message="执行步骤通过"
+sh skills/runtime/bin/workflow-report.sh --json
+sh skills/runtime/bin/skills-report.sh --project-root=. --target=. --recent=10 --json
 ```
 
 ## 自检

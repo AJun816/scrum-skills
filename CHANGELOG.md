@@ -2,6 +2,40 @@
 
 ## 2026-04-05
 
+### Eval And Observability
+
+- 新增行为级 eval 子系统：`skills/evals/`
+  - `eval-list.sh`
+  - `eval-run.sh`
+  - `eval-compare.sh`
+  - `eval-selfcheck.sh`
+  - 内置 case 与项目级 `.harness/evals/*.case.env` 扩展机制
+- 新增 `skills/runtime/bin/workflow-report.sh`
+  - 聚合 `workflow-state.json`、step 元数据与 `workflow-runs.jsonl`
+  - 输出 `.cache/shared/workflow-report.json` 与 `.cache/shared/workflow-report.md`
+- npm CLI 新增：
+  - `skills eval <list|run|compare|selfcheck>`
+  - `skills workflow report`
+  - `skills eval report`
+  - `skills report`
+- 新增平台侧审计：
+  - `skills/harness/bin/harness-platform-audit.sh`
+  - `skills harness platform-audit`
+  - `skills/config/gitee-ruleset-checklist.md`
+- 新增 Harness 运行报表：
+  - `skills/harness/bin/harness-report.sh`
+  - `skills harness report`
+  - `.harness/state/harness-runs.jsonl`
+- 新增统一总览报表：
+  - `skills/runtime/bin/skills-report.sh`
+  - `.cache/shared/skills-report.json`
+  - `--recent=N` 最近活动窗口
+- 新增 Pack Registry 运行报表：
+  - `skills/registry/bin/pack-report.sh`
+  - `skills pack report`
+  - 目标宿主 `.cache/shared/pack-runs.jsonl`
+- `package.json`、CLI 测试与自检链路同步接入 eval / workflow / pack / top-level report
+
 ### Documentation Sync
 
 - README、`skills/README.md`、`AGENTS.md` 同步到当前实现状态：

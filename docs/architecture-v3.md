@@ -9,6 +9,7 @@
 - 项目级 Harness 初始化
 - 三省六部 / 敏捷流程的真实运行时
 - 结构化磁盘事实源
+- 行为级 eval 与回归对比
 - 外部技能包治理与安装更新
 - 可选的 npm CLI 包装层
 
@@ -47,6 +48,7 @@
 
 - Git 门禁通过 `core.hooksPath = .harness/git-hooks` 生效
 - `harness-check` / `harness-fix` / `harness-gate` 对仓库漂移做机械化约束
+- `harness-platform-audit` 把本地门禁与远端平台核验拆分为可落盘审计报告
 - `harness-worktree` / `harness-checkpoint` 负责任务隔离与阶段性提交
 
 ### 2.4 Optional Enhancements
@@ -80,8 +82,9 @@
 - 初始化项目级 `.harness/`
 - 生成 `PROJECT_CONFIG.md` 与 `.cache/.project-info.json`
 - 生成 `.cache/shared/repo-map.md` 与 `.cache/shared/repo-index.json`
+- 生成 `.cache/shared/platform-audit.json`
 - 接入 `core.hooksPath = .harness/git-hooks`
-- 提供 check / fix / gate / selfcheck / worktree / checkpoint 能力
+- 提供 check / fix / gate / selfcheck / worktree / checkpoint / platform audit 能力
 
 当前目录：
 
@@ -111,6 +114,7 @@
 - 为技能、runtime、Harness 提供共享事实源
 - 同时保留 Markdown 地图和 JSON 索引
 - 让“人读”和“脚本消费”使用同一批磁盘产物
+- 为 eval 与 observability 提供统一落盘目录
 
 当前核心文件：
 
@@ -118,10 +122,27 @@
 - `.cache/.project-info.json`
 - `.cache/shared/repo-map.md`
 - `.cache/shared/repo-index.json`
+- `.cache/shared/platform-audit.json`
 - `.cache/shared/workflow-state.json`
 - `.cache/shared/workflow-runs.jsonl`
+- `.cache/shared/workflow-report.json`
+- `.cache/shared/evals/`
 
-### 3.5 Pack Registry
+### 3.5 Eval System
+
+职责：
+
+- 提供行为级 benchmark / multi-trial / transcript / grader 输出
+- 支持 current vs baseline 回归对比
+- 允许项目在 `.harness/evals/` 中定义自有 case
+
+当前目录：
+
+- `skills/evals/bin/`
+- `skills/evals/lib/`
+- `skills/evals/cases/`
+
+### 3.6 Pack Registry
 
 职责：
 
@@ -173,6 +194,7 @@
 - `workflow.sh reject`
 - `workflow.sh abort`
 - `workflow.sh reset`
+- `workflow-report.sh`
 - `workflow-selfcheck.sh`
 - `workflow-approve.sh` / `workflow-status.sh` / `workflow-resume.sh` 等快捷包装脚本
 
@@ -183,6 +205,8 @@
 - `.cache/shared/workflow-state.json`
 - `.cache/shared/workflow-runs.jsonl`
 - `.cache/shared/workflow-runtime/`
+- `.cache/shared/workflow-report.json`
+- `.cache/shared/workflow-report.md`
 
 如果项目已经完成 Harness 初始化，`workflow-state.json` 还会引用：
 
@@ -208,6 +232,8 @@
 3. 再检查，最多重试数轮
 4. 无法修复时将 workflow 置为 `paused`
 
+此外，`workflow-report.sh` 会把 raw event log 聚合成 step/harness/review 维度的报表，`skills-report.sh` 再把 workflow / harness / eval / pack 四类信号汇总成统一总览，并支持 `--recent=N` 查看最近窗口，作为当前 observability 的顶层入口。
+
 ## 5. Harness 现状
 
 当前 `setup.sh --project-root=...` 或 `harness-init.sh` 会生成：
@@ -226,17 +252,50 @@
 - `.harness/bin/harness-gate.sh`
 - `.harness/bin/harness-worktree.sh`
 - `.harness/bin/harness-checkpoint.sh`
+- `.harness/bin/harness-report.sh`
 - `.harness/bin/harness-repo-map.sh`
 - `.harness/bin/harness-repo-index.sh`
 - `.harness/bin/harness-selfcheck.sh`
 - `.harness/state/drift-baseline.json`
 - `.harness/state/last-report.json`
+- `.harness/state/harness-runs.jsonl`
+- `.cache/shared/harness-report.json`
 - `.cache/shared/repo-map.md`
 - `.cache/shared/repo-index.json`
 
-这意味着 Harness 已经不是“文档建议”，而是实际脚本与 Git 门禁。
+其中 `harness-report.sh` 已把当前 observability 补到 Harness 层，能够直接看到：
 
-## 6. Pack Registry 现状
+- `harness-check` 通过 / fixable / blocked / hard-failure 分布
+- `harness-fix` 成功率
+- drift rule 分布与 fixable / non-fixable 拆分
+
+这意味着 Harness 已经不是“文档建议”，而是实际脚本、Git 门禁和可读报表。
+
+## 6. Eval System 现状
+
+当前 eval 子系统已经实现：
+
+- `eval-list.sh`
+- `eval-run.sh`
+- `eval-compare.sh`
+- `eval-report.sh`
+- `eval-selfcheck.sh`
+
+当前能力边界：
+
+- 支持多 trial
+- 支持 stdout / stderr transcript 存档
+- 支持 grader 输出
+- 支持 baseline / current 对比
+- 项目可通过 `.harness/evals/*.case.env` 扩展业务级 eval
+
+仍未覆盖的高级能力：
+
+- LLM 输出质量专用 grader DSL
+- 远端共享 benchmark 仓库
+- token 成本归集
+
+## 7. Pack Registry 现状
 
 当前 registry 已经实现：
 
@@ -244,6 +303,7 @@
 - `pack-doctor.sh`
 - `pack-install.sh`
 - `pack-update.sh`
+- `pack-report.sh`
 - `pack-selfcheck.sh`
 
 `pack-doctor` 会校验：
@@ -253,6 +313,19 @@
 - `pack.json` 中的最小字段集合
 - `docs.zh_cn` 指向的中文入口说明
 - `hosts` 不为空
+
+`pack-report` 会聚合目标宿主目录中的：
+
+- `.cache/shared/pack-runs.jsonl`
+- `.cache/shared/pack-report.json`
+- `.cache/shared/pack-report.md`
+
+当前已覆盖的观测维度：
+
+- install / update 成功次数
+- install / update 失败次数
+- 失败原因分布
+- pack 维度成功/失败统计
 
 Pack Registry 当前已经纳管：
 
@@ -268,7 +341,7 @@ Pack Registry 当前已经纳管：
 - `company-values`
 - `minimalist-review`
 
-## 7. 关于 Studio
+## 8. 关于 Studio
 
 V3 不把 `Studio` 作为主线模块。
 
@@ -286,7 +359,7 @@ V3 不把 `Studio` 作为主线模块。
 
 它不能替代主安装路径，也不能变成默认依赖。
 
-## 8. 外部项目借鉴边界
+## 9. 外部项目借鉴边界
 
 ### 借鉴 `claude-code-templates`
 
@@ -314,7 +387,7 @@ V3 不把 `Studio` 作为主线模块。
 - 把本项目演化成新的终端产品
 - 直接依赖上游内部运行时实现
 
-## 9. 当前完成标准
+## 10. 当前完成标准
 
 当前版本至少满足：
 
@@ -322,6 +395,8 @@ V3 不把 `Studio` 作为主线模块。
 2. `workflow-state.json`、`workflow-runs.jsonl`、`repo-map.md`、`repo-index.json` 都是实际落盘结果
 3. 用户可以用 shell 命令驱动 workflow 的开始、查看、恢复、准奏、封驳、终止
 4. 执行类步骤会自动接入 Harness 校验闭环
-5. `pack list / doctor / install / update / selfcheck` 已可执行
-6. README、`skills/README.md`、`AGENTS.md` 与脚本行为保持一致
-7. 不引入新的强制依赖，也不改变 `sh install.sh` 主路径
+5. `eval list / run / compare / selfcheck` 已可执行
+6. `pack list / doctor / install / update / report / selfcheck` 已可执行
+7. `report` 顶层汇总入口已可执行
+8. README、`skills/README.md`、`AGENTS.md` 与脚本行为保持一致
+9. 不引入新的强制依赖，也不改变 `sh install.sh` 主路径

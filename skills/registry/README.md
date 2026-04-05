@@ -21,8 +21,10 @@
   - 将指定扩展包装到目标宿主目录
 - `pack-update.sh`
   - 更新单个扩展包或全部扩展包
+- `pack-report.sh`
+  - 聚合目标宿主目录中的 `pack-runs.jsonl`，输出安装/更新成功率、失败原因和 pack 维度统计
 - `pack-selfcheck.sh`
-  - 自检脚本，验证 `doctor / list / install / update`
+  - 自检脚本，验证 `doctor / list / install / update / report`
 
 ## 示例
 
@@ -31,10 +33,12 @@ sh skills/registry/bin/pack-list.sh
 sh skills/registry/bin/pack-doctor.sh
 sh skills/registry/bin/pack-install.sh gstack --agent=codex
 sh skills/registry/bin/pack-update.sh --all --target=/path/to/.claude
+sh skills/registry/bin/pack-report.sh --target=/path/to/.claude --json
 sh skills/registry/bin/pack-selfcheck.sh
 
 # 可选 npm CLI 包装层
 skills pack list
+skills pack report --json
 skills pack doctor
 skills pack selfcheck
 ```

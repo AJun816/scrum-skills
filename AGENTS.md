@@ -8,6 +8,7 @@ Scrum Skills 仓库的 Harness 入口文件。这里是地图，不是大而全�
 - 技能目录说明：`skills/README.md`
 - Harness 基线：`skills/config/harness-playbook.md`
 - GitHub 门禁清单：`skills/config/github-ruleset-checklist.md`
+- Gitee 门禁清单：`skills/config/gitee-ruleset-checklist.md`
 - 最终需求与自审：`docs/harness-v2-final-requirements.md`
 - V3 架构设计：`docs/architecture-v3.md`
 - 强制规则：`skills/config/mandatory-rules.md`
@@ -17,6 +18,7 @@ Scrum Skills 仓库的 Harness 入口文件。这里是地图，不是大而全�
 - 安装与初始化脚本：`install.sh`、`install.ps1`、`skills/hooks/setup.sh`
 - 可选 npm CLI 包装层：`package.json`、`bin/skills.mjs`
 - 项目级 Harness 内核：`skills/harness/bin/`
+- Eval 子系统：`skills/evals/`
 - Pack Registry：`skills/registry/`
 - Workflow Runtime：`skills/runtime/`
 

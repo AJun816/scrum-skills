@@ -11,6 +11,8 @@ PACK_NAME=""
 TARGET=""
 AGENT="claude"
 FORCE="no"
+ERROR_FILE="$(mktemp "${TMPDIR:-/tmp}/pack-install.XXXXXX")"
+trap 'rm -f "$ERROR_FILE"' EXIT HUP INT TERM
 
 for arg in "$@"; do
   case "$arg" in
@@ -37,16 +39,33 @@ for arg in "$@"; do
   esac
 done
 
-[ -n "$PACK_NAME" ] || {
-  echo "Missing PACK_NAME" >&2
-  exit 1
-}
-
-registry_pack_exists "$PACK_NAME" || {
-  echo "Unknown pack: $PACK_NAME" >&2
-  exit 1
-}
-
+TARGET_ROOT="$(registry_target_root "$TARGET" "$AGENT")"
 TARGET_SKILLS="$(registry_target_skills_dir "$TARGET" "$AGENT")"
-DEST="$(registry_copy_pack "$PACK_NAME" "$TARGET_SKILLS" "$FORCE")"
+
+log_failure() {
+  REASON="$1"
+  MESSAGE="$2"
+  registry_append_event "$TARGET_ROOT" "install" "${PACK_NAME:-unknown}" "failure" "$REASON" "$AGENT" "$TARGET_SKILLS" "$MESSAGE" "single"
+  echo "$MESSAGE" >&2
+  exit 1
+}
+
+[ -n "$PACK_NAME" ] || log_failure "missing_pack_name" "Missing PACK_NAME"
+registry_pack_exists "$PACK_NAME" || log_failure "unknown_pack" "Unknown pack: $PACK_NAME"
+
+if DEST="$(registry_copy_pack "$PACK_NAME" "$TARGET_SKILLS" "$FORCE" 2>"$ERROR_FILE")"; then
+  SUCCESS_REASON="installed"
+  [ "$FORCE" = "yes" ] && SUCCESS_REASON="installed_force"
+  registry_append_event "$TARGET_ROOT" "install" "$PACK_NAME" "success" "$SUCCESS_REASON" "$AGENT" "$TARGET_SKILLS" "Installed pack: $PACK_NAME -> $DEST" "single"
+else
+  MESSAGE="$(tr '\n' ' ' < "$ERROR_FILE" | sed 's/[[:space:]][[:space:]]*/ /g; s/^ //; s/ $//')"
+  [ -n "$MESSAGE" ] || MESSAGE="pack install failed"
+  FAILURE_REASON="copy_failed"
+  case "$MESSAGE" in
+    Pack\ already\ exists\ at\ target:*) FAILURE_REASON="pack_already_exists" ;;
+    Pack\ source\ not\ found:*) FAILURE_REASON="pack_source_missing" ;;
+  esac
+  log_failure "$FAILURE_REASON" "$MESSAGE"
+fi
+
 echo "Installed pack: $PACK_NAME -> $DEST"

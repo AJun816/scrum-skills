@@ -85,6 +85,7 @@ REQUIRED_FILES="
 .harness/bin/harness-check.sh
 .harness/bin/harness-fix.sh
 .harness/bin/harness-gate.sh
+.harness/bin/harness-report.sh
 .harness/bin/harness-repo-map.sh
 .harness/bin/harness-repo-index.sh
 .harness/architecture/contract.yaml
@@ -221,6 +222,13 @@ done
 
 printf '\n  ]\n' >> "$REPORT_FILE"
 printf '}\n' >> "$REPORT_FILE"
+
+printf '%s\n' "$VIOLATIONS" | while IFS='|' read -r severity rule_id path message auto_fixable; do
+  [ -z "$rule_id" ] && continue
+  harness_append_event "$PROJECT_ROOT" "check.violation" "violation" "$MODE" "$EXIT_CODE" "$rule_id" "$auto_fixable" "$message" "$path"
+done
+
+harness_append_event "$PROJECT_ROOT" "check.summary" "$EXIT_CODE" "$MODE" "$EXIT_CODE" "" "" "violations=$VIOLATION_COUNT" ""
 
 if [ "$JSON_OUTPUT" = "yes" ]; then
   cat "$REPORT_FILE"

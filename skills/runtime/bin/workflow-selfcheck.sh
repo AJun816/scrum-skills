@@ -4,6 +4,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WORKFLOW_BIN="$SCRIPT_DIR/workflow.sh"
+WORKFLOW_REPORT_BIN="$SCRIPT_DIR/workflow-report.sh"
 HARNESS_INIT_BIN="$(cd "$SCRIPT_DIR/../../harness/bin" && pwd)/harness-init.sh"
 
 fail() {
@@ -72,6 +73,9 @@ run_imperial_check() {
   sh "$SCRIPT_DIR/workflow-approve.sh" --project-root="$ROOT" --message="emperor approved" >/dev/null
   assert_contains "$ROOT/.cache/shared/workflow-state.json" '"status": "completed"'
   assert_contains "$ROOT/.cache/shared/workflow-runs.jsonl" '"event":"review.force_pass"'
+  sh "$WORKFLOW_REPORT_BIN" --project-root="$ROOT" --json > "$ROOT/.cache/shared/workflow-report-check.json"
+  assert_contains "$ROOT/.cache/shared/workflow-report-check.json" '"force_passed_steps": 1'
+  assert_contains "$ROOT/.cache/shared/workflow-report-check.json" '"event_count":'
 }
 
 run_agile_check() {

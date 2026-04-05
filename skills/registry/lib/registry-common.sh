@@ -5,6 +5,24 @@ REGISTRY_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 SKILLS_DIR="$(cd "$REGISTRY_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$SKILLS_DIR/.." && pwd)"
 
+registry_now_iso() {
+  date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date +"%Y-%m-%dT%H:%M:%S"
+}
+
+registry_json_escape() {
+  printf '%s' "$1" | awk '
+    BEGIN { RS = "\0"; ORS = "" }
+    {
+      gsub(/\\/,"\\\\");
+      gsub(/"/,"\\\"");
+      gsub(/\r/,"\\r");
+      gsub(/\n/,"\\n");
+      gsub(/\t/,"\\t");
+      print;
+    }
+  '
+}
+
 registry_json_string() {
   FILE="$1"
   KEY="$2"
@@ -46,18 +64,18 @@ registry_pack_exists() {
   [ -d "$(registry_pack_dir "$1")" ] && [ -f "$(registry_pack_manifest "$1")" ]
 }
 
-registry_target_skills_dir() {
+registry_target_root() {
   TARGET="$1"
   AGENT="$2"
 
   if [ -n "$TARGET" ]; then
     case "$TARGET" in
       */skills)
-        printf '%s\n' "$TARGET"
+        printf '%s\n' "${TARGET%/skills}"
         return
         ;;
       *)
-        printf '%s/skills\n' "$TARGET"
+        printf '%s\n' "$TARGET"
         return
         ;;
     esac
@@ -67,7 +85,61 @@ registry_target_skills_dir() {
     AGENT="claude"
   fi
   AGENT="${AGENT#.}"
-  printf '%s/.%s/skills\n' "${HOME:-$USERPROFILE}" "$AGENT"
+  printf '%s/.%s\n' "${HOME:-$USERPROFILE}" "$AGENT"
+}
+
+registry_target_skills_dir() {
+  TARGET="$1"
+  AGENT="$2"
+  printf '%s/skills\n' "$(registry_target_root "$TARGET" "$AGENT")"
+}
+
+registry_shared_dir() {
+  printf '%s/.cache/shared\n' "$1"
+}
+
+registry_runs_file() {
+  printf '%s/pack-runs.jsonl\n' "$(registry_shared_dir "$1")"
+}
+
+registry_report_json() {
+  printf '%s/pack-report.json\n' "$(registry_shared_dir "$1")"
+}
+
+registry_report_md() {
+  printf '%s/pack-report.md\n' "$(registry_shared_dir "$1")"
+}
+
+registry_append_event() {
+  TARGET_ROOT="$1"
+  ACTION="$2"
+  PACK_NAME="$3"
+  STATUS="$4"
+  REASON="$5"
+  AGENT="$6"
+  TARGET_SKILLS="$7"
+  MESSAGE="$8"
+  SCOPE="$9"
+  RUNS_FILE="$(registry_runs_file "$TARGET_ROOT")"
+
+  mkdir -p "$(registry_shared_dir "$TARGET_ROOT")"
+  printf '{"generated_at":"%s","action":"%s","pack":"%s","status":"%s","reason":"%s","agent":"%s","target_root":"%s","target_skills":"%s","scope":"%s","message":"%s"}\n' \
+    "$(registry_json_escape "$(registry_now_iso)")" \
+    "$(registry_json_escape "$ACTION")" \
+    "$(registry_json_escape "$PACK_NAME")" \
+    "$(registry_json_escape "$STATUS")" \
+    "$(registry_json_escape "$REASON")" \
+    "$(registry_json_escape "$AGENT")" \
+    "$(registry_json_escape "$TARGET_ROOT")" \
+    "$(registry_json_escape "$TARGET_SKILLS")" \
+    "$(registry_json_escape "$SCOPE")" \
+    "$(registry_json_escape "$MESSAGE")" >> "$RUNS_FILE"
+}
+
+registry_json_field_from_line() {
+  LINE="$1"
+  KEY="$2"
+  printf '%s\n' "$LINE" | sed -n "s/.*\"$KEY\":\"\\([^\"]*\\)\".*/\\1/p"
 }
 
 registry_copy_pack() {

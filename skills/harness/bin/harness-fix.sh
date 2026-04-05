@@ -7,11 +7,24 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 PROJECT_ROOT="$(pwd)"
 FORWARD_ARGS=""
+FIX_MODE="all"
 
 for arg in "$@"; do
   case "$arg" in
     --project-root=*)
       PROJECT_ROOT="${arg#--project-root=}"
+      ;;
+    --staged)
+      FIX_MODE="staged"
+      FORWARD_ARGS="$FORWARD_ARGS $arg"
+      ;;
+    --changed-files)
+      FIX_MODE="changed"
+      FORWARD_ARGS="$FORWARD_ARGS $arg"
+      ;;
+    --all)
+      FIX_MODE="all"
+      FORWARD_ARGS="$FORWARD_ARGS $arg"
       ;;
     *)
       FORWARD_ARGS="$FORWARD_ARGS $arg"
@@ -36,7 +49,21 @@ chmod +x "$PROJECT_ROOT/.harness/bin/"*.sh "$PROJECT_ROOT/.harness/git-hooks/"* 
 
 if [ -n "$FORWARD_ARGS" ]; then
   # shellcheck disable=SC2086
-  sh "$PROJECT_ROOT/.harness/bin/harness-check.sh" --project-root="$PROJECT_ROOT" $FORWARD_ARGS
+  if sh "$PROJECT_ROOT/.harness/bin/harness-check.sh" --project-root="$PROJECT_ROOT" $FORWARD_ARGS; then
+    CHECK_STATUS=0
+  else
+    CHECK_STATUS="$?"
+  fi
 else
-  sh "$PROJECT_ROOT/.harness/bin/harness-check.sh" --project-root="$PROJECT_ROOT"
+  if sh "$PROJECT_ROOT/.harness/bin/harness-check.sh" --project-root="$PROJECT_ROOT"; then
+    CHECK_STATUS=0
+  else
+    CHECK_STATUS="$?"
+  fi
 fi
+
+FIX_STATUS="failure"
+[ "$CHECK_STATUS" -eq 0 ] && FIX_STATUS="success"
+harness_append_event "$PROJECT_ROOT" "fix.summary" "$FIX_STATUS" "$FIX_MODE" "$CHECK_STATUS" "" "" "post_fix_exit=$CHECK_STATUS" ""
+
+exit "$CHECK_STATUS"

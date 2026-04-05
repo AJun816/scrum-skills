@@ -18,6 +18,45 @@ workflow_now_iso() {
   fi
 }
 
+workflow_iso_to_epoch() {
+  ISO="$1"
+  [ -n "$ISO" ] || {
+    echo ""
+    return
+  }
+
+  if date -u -d "$ISO" +%s >/dev/null 2>&1; then
+    date -u -d "$ISO" +%s
+    return
+  fi
+
+  if date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$ISO" +%s >/dev/null 2>&1; then
+    date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$ISO" +%s
+    return
+  fi
+
+  if date -j -u -f "%Y-%m-%dT%H:%M:%S" "$ISO" +%s >/dev/null 2>&1; then
+    date -j -u -f "%Y-%m-%dT%H:%M:%S" "$ISO" +%s
+    return
+  fi
+
+  echo ""
+}
+
+workflow_duration_seconds() {
+  START="$(workflow_iso_to_epoch "$1")"
+  END="$(workflow_iso_to_epoch "$2")"
+
+  case "$START:$END" in
+    ''|*:*[!0-9]*)
+      echo ""
+      return
+      ;;
+  esac
+
+  echo $((END - START))
+}
+
 workflow_json_escape() {
   printf '%s' "$1" | awk '
     BEGIN { RS = "\0"; ORS = "" }

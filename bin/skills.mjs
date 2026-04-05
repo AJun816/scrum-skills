@@ -46,17 +46,24 @@ function printHelp() {
   console.log(`Usage:
   skills install [install.sh args...]
   skills setup [setup.sh args...]
-  skills harness <init|check|fix|gate|worktree|checkpoint|repo-map|repo-index|selfcheck> [args...]
-  skills workflow <start|status|resume|approve|reject|abort|reset|selfcheck> [args...]
-  skills pack <list|doctor|install|update|selfcheck> [args...]
+  skills harness <init|check|fix|gate|worktree|checkpoint|report|repo-map|repo-index|platform-audit|selfcheck> [args...]
+  skills workflow <start|status|resume|approve|reject|abort|reset|report|selfcheck> [args...]
+  skills pack <list|doctor|install|update|report|selfcheck> [args...]
+  skills eval <list|run|compare|report|selfcheck> [args...]
+  skills report [args...]
   skills doctor
 
 Examples:
   skills install --agent=codex
   skills setup --project-root=/path/to/repo
   skills harness init --project-root=/path/to/repo
+  skills harness report --json
   skills workflow selfcheck
   skills pack list
+  skills pack report --json
+  skills eval report --json
+  skills report --json
+  skills eval run skills-help --trials=3
   skills doctor`);
 }
 
@@ -83,8 +90,10 @@ switch (group) {
       gate: "skills/harness/bin/harness-gate.sh",
       worktree: "skills/harness/bin/harness-worktree.sh",
       checkpoint: "skills/harness/bin/harness-checkpoint.sh",
+      report: "skills/harness/bin/harness-report.sh",
       "repo-map": "skills/harness/bin/harness-repo-map.sh",
       "repo-index": "skills/harness/bin/harness-repo-index.sh",
+      "platform-audit": "skills/harness/bin/harness-platform-audit.sh",
       selfcheck: "skills/harness/bin/harness-selfcheck.sh",
     };
     if (!subcommand || !scriptMap[subcommand]) {
@@ -104,6 +113,10 @@ switch (group) {
       runShellScript("skills/runtime/bin/workflow-selfcheck.sh", subArgs);
       break;
     }
+    if (subcommand === "report") {
+      runShellScript("skills/runtime/bin/workflow-report.sh", subArgs);
+      break;
+    }
     runShellScript("skills/runtime/bin/workflow.sh", [subcommand, ...subArgs]);
     break;
   }
@@ -115,6 +128,7 @@ switch (group) {
       doctor: "skills/registry/bin/pack-doctor.sh",
       install: "skills/registry/bin/pack-install.sh",
       update: "skills/registry/bin/pack-update.sh",
+      report: "skills/registry/bin/pack-report.sh",
       selfcheck: "skills/registry/bin/pack-selfcheck.sh",
     };
     if (!subcommand || !scriptMap[subcommand]) {
@@ -124,11 +138,32 @@ switch (group) {
     runShellScript(scriptMap[subcommand], subArgs);
     break;
   }
+  case "eval":
+  case "evals": {
+    const [subcommand, ...subArgs] = rest;
+    const scriptMap = {
+      list: "skills/evals/bin/eval-list.sh",
+      run: "skills/evals/bin/eval-run.sh",
+      compare: "skills/evals/bin/eval-compare.sh",
+      report: "skills/evals/bin/eval-report.sh",
+      selfcheck: "skills/evals/bin/eval-selfcheck.sh",
+    };
+    if (!subcommand || !scriptMap[subcommand]) {
+      printHelp();
+      process.exit(subcommand ? 1 : 0);
+    }
+    runShellScript(scriptMap[subcommand], subArgs);
+    break;
+  }
+  case "report":
+    runShellScript("skills/runtime/bin/skills-report.sh", rest);
+    break;
   case "doctor":
     for (const script of [
       "skills/harness/bin/harness-selfcheck.sh",
       "skills/runtime/bin/workflow-selfcheck.sh",
       "skills/registry/bin/pack-selfcheck.sh",
+      "skills/evals/bin/eval-selfcheck.sh",
     ]) {
       const result = runResult("sh", [path.join(packageRoot, script)]);
       if (result.status !== 0) {

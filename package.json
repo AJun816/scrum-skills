@@ -21,6 +21,6 @@
     "skills"
   ],
   "scripts": {
-    "test": "sh skills/harness/bin/harness-selfcheck.sh && sh skills/runtime/bin/workflow-selfcheck.sh && sh skills/registry/bin/pack-selfcheck.sh && node --test test/skills-cli.test.mjs"
+    "test": "sh skills/harness/bin/harness-selfcheck.sh && sh skills/runtime/bin/workflow-selfcheck.sh && sh skills/registry/bin/pack-selfcheck.sh && sh skills/evals/bin/eval-selfcheck.sh && node --test test/skills-cli.test.mjs"
   }
 }

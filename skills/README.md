@@ -15,6 +15,8 @@
 - `../AGENTS.md`：仓库内 Agent 执行约束
 - `config/harness-playbook.md`：Harness 约束与门禁
 - `../docs/architecture-v3.md`：V3 Host-Native Skills Harness 架构设计
+- `evals/README.md`：行为级 eval 与回归对比
+- `config/gitee-ruleset-checklist.md`：Gitee 平台侧保护检查清单
 - `config/extension-pack-guidelines.md`：外部技能包迁移规范
 - `registry/README.md`：Pack Registry 命令与扩展包元数据规则
 - `config/harness-references.md`：Harness 延伸阅读
@@ -57,10 +59,18 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
 # 全局安装并暴露 skills 命令
 npm install -g github:AJun816/scrum-skills
 skills install --agent=codex
+skills report --recent=10 --json
 skills harness selfcheck
+skills harness report --json
+skills harness platform-audit --json
 skills workflow selfcheck
+skills workflow report --json
 skills pack list
+skills pack report --json
 skills pack selfcheck
+skills eval list
+skills eval report --json
+skills eval run skills-help --trials=3
 
 # 零安装临时执行
 npx --yes --package github:AJun816/scrum-skills skills doctor
@@ -77,8 +87,13 @@ npx --yes --package github:AJun816/scrum-skills skills doctor
 - Windows 原生 `install.bat` / `install.ps1` 不会自动执行 `setup.sh`
 - `gstack/` 会被复制过去，但不会自动执行其 `setup`
 - `runtime/` 会随技能组一起安装，作为 workflow-runner 的真实运行时，并提供 `workflow-selfcheck.sh` 与 `workflow-approve.sh` / `workflow-status.sh` 等快捷入口
-- `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` / `pack-selfcheck`
-- 仓库根目录的 npm CLI 可暴露 `skills install/setup/harness/workflow/pack/doctor`
+- `runtime/` 还提供 `workflow-report.sh`，把 `workflow-runs.jsonl` 聚合成可读报表；尚未启动 workflow 时会输出 `no_workflow_state`
+- `harness/` 还提供 `harness-report.sh`，把 `.harness/state/harness-runs.jsonl` 聚合成 drift 分布与 fix 成功率报表；尚未产生检查记录时会输出 `no_harness_activity`
+- `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` / `pack-report` / `pack-selfcheck`
+- `evals/` 会随技能组一起安装，提供 `eval-list` / `eval-run` / `eval-compare` / `eval-report` / `eval-selfcheck`
+- npm CLI 还提供顶层 `skills report`，用于统一汇总 workflow / harness / eval / pack 四类报表，并支持 `--recent=N` 查看最近窗口
+- `harness-platform-audit.sh` 会输出 `.cache/shared/platform-audit.json` / `.md`，用于区分本地 Harness 就绪与远端平台待核验项
+- 仓库根目录的 npm CLI 可暴露 `skills install/setup/harness/workflow/pack/eval/doctor`
 - 如需启用 `gstack`，请额外执行 `<target>/skills/gstack/setup`
 - 如需为任意项目生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`、`.cache/shared/repo-map.md`、`.cache/shared/repo-index.json` 与版本化 git hooks，请在兼容 `sh` 的 shell 中手动执行 `setup.sh --project-root=/path/to/repo`
 
@@ -146,12 +161,14 @@ skills/
 │   ├── skill-groups.md            # 技能分组
 │   ├── skill-metadata.md          # 技能元数据
 │   ├── harness-playbook.md        # Harness 约束与门禁
+│   ├── gitee-ruleset-checklist.md # Gitee 平台侧保护检查清单
 │   ├── extension-pack-guidelines.md # 外部技能包迁移规范
 │   └── harness-references.md      # Harness 延伸阅读
 ├── hooks/                         # 代码质量钩子（自动生效）
+├── evals/                         # 行为级 eval（case / run / compare / selfcheck）
 ├── registry/                      # Pack Registry（扩展包清单 / 安装 / 更新 / 诊断）
-├── runtime/                       # Workflow Runtime（状态机 / 恢复 / 审批 / 自检）
-├── harness/                       # Harness 内核（init / check / fix / repo-map / repo-index）
+├── runtime/                       # Workflow Runtime（状态机 / 恢复 / 审批 / 报表 / 自检）
+├── harness/                       # Harness 内核（init / check / fix / repo-map / repo-index / platform-audit）
 ├── .cache/                        # 缓存目录（自动生成，已gitignore）
 │
 ├── 0-emperor/                     # 👑 皇上（三省六部入口）
@@ -269,6 +286,15 @@ skills/
 ### 智能缓存
 
 技能自动缓存项目信息到 `.cache/` 目录，项目级 Harness 会额外落盘 `.cache/shared/repo-map.md` 与 `.cache/shared/repo-index.json` 作为共享事实源。
+
+### 行为级 Eval
+
+`evals/` 负责补齐“结构门禁通过后，任务是否真的完成目标”的验证层：
+
+- `.harness/evals/*.case.env` 定义项目级 eval case
+- `eval-run` 支持 multi-trial、transcript 存档、grader 输出
+- `eval-compare` 支持 baseline / current 回归对比
+- 产物落盘到 `.cache/shared/evals/`
 
 ### 团队共享文档
 

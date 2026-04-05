@@ -46,8 +46,10 @@ sh "$HARNESS_INIT" --project-root="$TMP_DIR" >/dev/null
 
 assert_file "$TMP_DIR/.harness/bin/harness-worktree.sh"
 assert_file "$TMP_DIR/.harness/bin/harness-checkpoint.sh"
+assert_file "$TMP_DIR/.harness/bin/harness-report.sh"
 assert_file "$TMP_DIR/.harness/bin/harness-repo-map.sh"
 assert_file "$TMP_DIR/.harness/bin/harness-repo-index.sh"
+assert_file "$TMP_DIR/.harness/bin/harness-platform-audit.sh"
 assert_file "$TMP_DIR/.cache/shared/repo-map.md"
 assert_file "$TMP_DIR/.cache/shared/repo-index.json"
 
@@ -75,6 +77,15 @@ assert_file "$TMP_DIR/.worktrees/TASK-1/README.md"
   sh .harness/bin/harness-worktree.sh remove TASK-1 >/dev/null
 )
 [ ! -d "$TMP_DIR/.worktrees/TASK-1" ] || fail "worktree should be removed"
+
+sh "$TMP_DIR/.harness/bin/harness-platform-audit.sh" --project-root="$TMP_DIR" --json > "$TMP_DIR/.cache/shared/platform-audit-check.json"
+assert_file "$TMP_DIR/.cache/shared/platform-audit-check.json"
+grep -F '"overall_status": "local_ready"' "$TMP_DIR/.cache/shared/platform-audit-check.json" >/dev/null 2>&1 || fail "platform audit should report local_ready"
+
+sh "$TMP_DIR/.harness/bin/harness-report.sh" --project-root="$TMP_DIR" --json > "$TMP_DIR/.cache/shared/harness-report-check.json"
+assert_file "$TMP_DIR/.cache/shared/harness-report-check.json"
+grep -F '"status": "ok"' "$TMP_DIR/.cache/shared/harness-report-check.json" >/dev/null 2>&1 || fail "harness report should report ok"
+grep -F '"check_runs":' "$TMP_DIR/.cache/shared/harness-report-check.json" >/dev/null 2>&1 || fail "harness report should include check_runs"
 
 echo "checkpoint smoke" >> "$TMP_DIR/README.md"
 (

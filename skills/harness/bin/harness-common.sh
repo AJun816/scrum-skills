@@ -12,6 +12,51 @@ harness_project_name() {
   basename "$1"
 }
 
+harness_state_dir() {
+  printf '%s/.harness/state\n' "$1"
+}
+
+harness_shared_dir() {
+  printf '%s/.cache/shared\n' "$1"
+}
+
+harness_runs_file() {
+  printf '%s/harness-runs.jsonl\n' "$(harness_state_dir "$1")"
+}
+
+harness_report_json() {
+  printf '%s/harness-report.json\n' "$(harness_shared_dir "$1")"
+}
+
+harness_report_md() {
+  printf '%s/harness-report.md\n' "$(harness_shared_dir "$1")"
+}
+
+harness_append_event() {
+  PROJECT_ROOT="$1"
+  EVENT_NAME="$2"
+  STATUS="$3"
+  MODE="$4"
+  EXIT_CODE="$5"
+  RULE_ID="$6"
+  AUTO_FIXABLE="$7"
+  MESSAGE="$8"
+  PATH_VALUE="$9"
+  RUNS_FILE="$(harness_runs_file "$PROJECT_ROOT")"
+
+  mkdir -p "$(harness_state_dir "$PROJECT_ROOT")"
+  printf '{"generated_at":"%s","event":"%s","status":"%s","mode":"%s","exit_code":"%s","rule_id":"%s","auto_fixable":"%s","message":"%s","path":"%s"}\n' \
+    "$(harness_json_escape "$(harness_now_iso)")" \
+    "$(harness_json_escape "$EVENT_NAME")" \
+    "$(harness_json_escape "$STATUS")" \
+    "$(harness_json_escape "$MODE")" \
+    "$(harness_json_escape "$EXIT_CODE")" \
+    "$(harness_json_escape "$RULE_ID")" \
+    "$(harness_json_escape "$AUTO_FIXABLE")" \
+    "$(harness_json_escape "$MESSAGE")" \
+    "$(harness_json_escape "$PATH_VALUE")" >> "$RUNS_FILE"
+}
+
 harness_git_commit() {
   if [ -d "$1/.git" ]; then
     (cd "$1" && git rev-parse --short HEAD 2>/dev/null) || echo "unknown"

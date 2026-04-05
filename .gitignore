@@ -28,6 +28,7 @@ node_modules/
 
 # Harness runtime state
 .harness/state/last-report.json
+.harness/state/harness-runs.jsonl
 
 # Git-first harness worktrees
 .worktrees/

@@ -75,8 +75,10 @@ copy_if_needed "$SCRIPT_DIR/harness-fix.sh" "$BIN_DIR/harness-fix.sh"
 copy_if_needed "$SCRIPT_DIR/harness-gate.sh" "$BIN_DIR/harness-gate.sh"
 copy_if_needed "$SCRIPT_DIR/harness-worktree.sh" "$BIN_DIR/harness-worktree.sh"
 copy_if_needed "$SCRIPT_DIR/harness-checkpoint.sh" "$BIN_DIR/harness-checkpoint.sh"
+copy_if_needed "$SCRIPT_DIR/harness-report.sh" "$BIN_DIR/harness-report.sh"
 copy_if_needed "$SCRIPT_DIR/harness-repo-map.sh" "$BIN_DIR/harness-repo-map.sh"
 copy_if_needed "$SCRIPT_DIR/harness-repo-index.sh" "$BIN_DIR/harness-repo-index.sh"
+copy_if_needed "$SCRIPT_DIR/harness-platform-audit.sh" "$BIN_DIR/harness-platform-audit.sh"
 copy_if_needed "$SCRIPT_DIR/harness-selfcheck.sh" "$BIN_DIR/harness-selfcheck.sh"
 
 copy_if_needed "$(cd "$SCRIPT_DIR/../git-hooks" && pwd)/pre-commit" "$HOOK_DIR/pre-commit"
@@ -151,6 +153,9 @@ cat > "$HARNESS_DIR/README.md" <<EOF
 - \`.worktrees/\`：按任务隔离的 Git worktree 工作区（运行时目录，不提交）
 - \`.cache/shared/repo-map.md\`：人类可读仓库地图
 - \`.cache/shared/repo-index.json\`：结构化仓库索引
+- \`.harness/state/harness-runs.jsonl\`：Harness 检查/修复事件日志
+- \`.cache/shared/harness-report.json\`：Harness 可观测性报表
+- \`.cache/shared/platform-audit.json\`：平台侧门禁审计报告
 
 ## 使用方式
 
@@ -158,8 +163,10 @@ cat > "$HARNESS_DIR/README.md" <<EOF
 - 增量检查：\`sh .harness/bin/harness-check.sh --changed-files\`
 - 新任务隔离：\`sh .harness/bin/harness-worktree.sh create TASK-ID\`
 - 检查点提交：\`sh .harness/bin/harness-checkpoint.sh "checkpoint note"\`
+- Harness 报表：\`sh .harness/bin/harness-report.sh --project-root=.\`
 - 刷新 repo-map：\`sh .harness/bin/harness-repo-map.sh --project-root=.\`
 - 刷新 repo-index：\`sh .harness/bin/harness-repo-index.sh --project-root=.\`
+- 平台侧审计：\`sh .harness/bin/harness-platform-audit.sh --project-root=.\`
 - 提交前检查：由 \`.harness/git-hooks/pre-commit\` 自动触发
 - 推送前检查：由 \`.harness/git-hooks/pre-push\` 自动触发
 EOF

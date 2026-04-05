@@ -40,6 +40,89 @@ test("skills pack list works via node entry", () => {
   assert.match(output, /find-community/);
 });
 
+test("skills eval list works via node entry", () => {
+  const output = run("node", [cliPath, "eval", "list"]);
+  assert.match(output, /skills-help/);
+  assert.match(output, /skills-doctor/);
+});
+
+test("skills eval report returns machine-readable no-activity output", () => {
+  const emptyProjectDir = fs.mkdtempSync(path.join(os.tmpdir(), "skills-eval-empty-"));
+  const output = run("node", [
+    cliPath,
+    "eval",
+    "report",
+    `--project-root=${emptyProjectDir}`,
+    "--json",
+  ]);
+  assert.match(output, /"status": "no_eval_activity"/);
+  assert.match(output, /"project_root":/);
+});
+
+test("skills pack report returns machine-readable no-activity output", () => {
+  const emptyTarget = fs.mkdtempSync(path.join(os.tmpdir(), "skills-pack-empty-"));
+  const output = run("node", [
+    cliPath,
+    "pack",
+    "report",
+    `--target=${emptyTarget}`,
+    "--json",
+  ]);
+  assert.match(output, /"status": "no_pack_activity"/);
+  assert.match(output, /"target_root":/);
+});
+
+test("skills harness platform-audit works via node entry", () => {
+  const output = run("node", [cliPath, "harness", "platform-audit", "--json"]);
+  assert.match(output, /"overall_status":/);
+  assert.match(output, /"local_checks":/);
+});
+
+test("skills harness report returns machine-readable no-activity output", () => {
+  const emptyProjectDir = fs.mkdtempSync(path.join(os.tmpdir(), "skills-harness-empty-"));
+  const output = run("node", [
+    cliPath,
+    "harness",
+    "report",
+    `--project-root=${emptyProjectDir}`,
+    "--json",
+  ]);
+  assert.match(output, /"status": "no_harness_activity"/);
+  assert.match(output, /"project_root":/);
+});
+
+test("skills workflow report returns machine-readable no-state output", () => {
+  const emptyProjectDir = fs.mkdtempSync(path.join(os.tmpdir(), "skills-workflow-empty-"));
+  const output = run("node", [
+    cliPath,
+    "workflow",
+    "report",
+    `--project-root=${emptyProjectDir}`,
+    "--json",
+  ]);
+  assert.match(output, /"status": "no_workflow_state"/);
+  assert.match(output, /"project_root":/);
+});
+
+test("skills report returns machine-readable empty overview", () => {
+  const emptyProjectDir = fs.mkdtempSync(path.join(os.tmpdir(), "skills-report-empty-"));
+  const output = run("node", [
+    cliPath,
+    "report",
+    "--recent=3",
+    `--project-root=${emptyProjectDir}`,
+    `--target=${emptyProjectDir}`,
+    "--json",
+  ]);
+  assert.match(output, /"overall_status": "empty"/);
+  assert.match(output, /"recent_window": 3/);
+  assert.match(output, /"recent_attention":/);
+  assert.match(output, /"workflow":/);
+  assert.match(output, /"harness":/);
+  assert.match(output, /"eval":/);
+  assert.match(output, /"pack":/);
+});
+
 test("npm global install exposes skills binary", () => {
   const prefixDir = fs.mkdtempSync(path.join(os.tmpdir(), "skills-prefix-"));
   npmRun(["install", "--global", "--prefix", prefixDir, repoRoot]);

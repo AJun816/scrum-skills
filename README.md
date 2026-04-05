@@ -28,8 +28,10 @@
 - `docs/harness-v2-final-requirements.md`：本轮最终需求整理与 5 轮自审记录
 - `docs/architecture-v3.md`：V3 Host-Native Skills Harness 架构设计
 - `skills/config/github-ruleset-checklist.md`：GitHub 平台侧强制门禁清单
+- `skills/config/gitee-ruleset-checklist.md`：Gitee 平台侧保护检查清单
 - `skills/config/extension-pack-guidelines.md`：外部技能包迁移规范
 - `skills/registry/README.md`：Pack Registry 命令与元数据治理说明
+- `skills/evals/README.md`：行为级 eval、multi-trial、transcript 与回归对比说明
 - `skills/config/harness-references.md`：Harness 延伸阅读与参考资料
 - `skills/gstack/COMMANDS.zh-CN.md`：gstack 中文命令目录
 
@@ -64,7 +66,14 @@ cd your-project
 # 全局安装后得到 skills 命令
 npm install -g github:AJun816/scrum-skills
 skills install --agent=codex
+skills report --recent=10 --json
+skills harness report --json
+skills harness platform-audit --json
 skills pack list
+skills pack report --json
+skills eval list
+skills eval report --json
+skills eval run skills-help --trials=3
 skills workflow selfcheck
 skills pack selfcheck
 skills doctor
@@ -120,8 +129,12 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
 - `.claude` 目标会自动接入 hooks；`.codex` 和其他目标不会伪装成 Claude 配置目录
 - 对任意项目执行 `sh <target>/skills/hooks/setup.sh --project-root=/path/to/repo` 后，会生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`、`.cache/shared/repo-map.md`、`.cache/shared/repo-index.json`，并把 `core.hooksPath` 指向 `.harness/git-hooks`
 - `gstack` 安装后仍需你手动执行一次 `<target>/skills/gstack/setup`
-- `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` / `pack-selfcheck` 入口
-- 如果你选择 npm 包装层，安装后可直接使用 `skills install/setup/harness/workflow/pack/doctor`
+- `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` / `pack-report` / `pack-selfcheck` 入口，并把安装/更新事件落盘到目标宿主的 `.cache/shared/pack-runs.jsonl`
+- `evals/` 会随技能组一起安装，提供 `eval-list` / `eval-run` / `eval-compare` / `eval-report` / `eval-selfcheck`，并把 transcripts、grader 输出和最新 eval 报表落盘到 `.cache/shared/evals/`
+- `harness-report.sh` 会输出 `.harness/state/harness-runs.jsonl` 与 `.cache/shared/harness-report.json` / `.md`，用于查看 drift 类型分布与 `harness-fix` 成功率
+- `harness-platform-audit.sh` 会随 Harness 一起安装，输出 `.cache/shared/platform-audit.json` / `.md`，把“本地门禁已接入”和“远端平台仍需人工核验”拆开报告
+- `skills report` 会把 workflow / harness / eval / pack 四类报表汇总成一个统一总览，支持 `--recent=N` 查看最近窗口，输出 `.cache/shared/skills-report.json` / `.md`
+- 如果你选择 npm 包装层，安装后可直接使用 `skills install/setup/harness/workflow/pack/eval/report/doctor`
 - Windows 原生安装后，如需生成 `user-config.json`、安装仓库 `commit-msg` hook、生成 `repo-map` / `repo-index` 或启用 `gstack`，请在兼容 `sh` 的 shell 中手动执行对应 `setup.sh`
 - 如需给某个仓库初始化 Harness，请单独执行：
 
@@ -142,7 +155,7 @@ Claude Code 可直接使用 `/0-emperor`、`/0-scrum-master`。
 /0-scrum-master 修复登录按钮样式问题
 ```
 
-无需手动调用每个技能，`workflow-runner` 自动按链条调度到底。当前仓库已经把这套流程下沉到 `skills/runtime/` 的 shell 运行时，并提供 `workflow-selfcheck.sh`；执行类步骤在 `approve` 时会自动接入 `.harness/bin/harness-check.sh` → `harness-fix.sh` → 再检查的闭环。
+无需手动调用每个技能，`workflow-runner` 自动按链条调度到底。当前仓库已经把这套流程下沉到 `skills/runtime/` 的 shell 运行时，并提供 `workflow-selfcheck.sh` 与 `workflow-report.sh`；即使项目尚未启动 workflow，`workflow-report.sh` 也会输出机器可读的 `no_workflow_state` 报告。执行类步骤在 `approve` 时会自动接入 `.harness/bin/harness-check.sh` → `harness-fix.sh` → 再检查的闭环。
 
 ## How It Works / 工作原理
 
@@ -277,6 +290,7 @@ scrum-skills/
 ├── .harness/               ← 当前仓库自举的项目级 Harness 合同
 ├── .cache/
 │   └── shared/
+│       ├── evals/           ← eval transcripts / grader / compare artifacts
 │       ├── repo-map.md     ← 人类可读仓库地图
 │       └── repo-index.json ← 结构化仓库索引
 ├── .claude/
@@ -291,6 +305,7 @@ scrum-skills/
 │   └── skills-cli.test.mjs ← npm / npx CLI 测试
 └── skills/                 ← 安装脚本部署的技能目录
     ├── harness/             # Harness 内核（init / check / fix / gate / worktree / checkpoint / repo-map / repo-index）
+    ├── evals/               # 行为级 eval（list / run / compare / selfcheck）
     ├── registry/            # Pack Registry（外部包清单 / 安装 / 诊断 / 更新 / 自检）
     ├── 0-emperor/           # 👑 皇上
     ├── 0-taizi/             # 🤴 太子
@@ -313,7 +328,7 @@ scrum-skills/
     ├── minimalist-review/   # 外部扩展：极简创业评审
     ├── config/              # 共享配置（含 harness-playbook.md）
     ├── hooks/               # 代码质量钩子
-    └── runtime/             # workflow runtime（状态机 / 恢复 / 审批 / Harness 回环 / 自检）
+    └── runtime/             # workflow runtime（状态机 / 恢复 / 审批 / Harness 回环 / 报表 / 自检）
 ```
 
 ## Upstream Sync / 外部来源
@@ -378,6 +393,7 @@ sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo # 对指定仓�
 - `skills/config/harness-playbook.md`：Harness 执行约束与门禁
 - `docs/harness-v2-final-requirements.md`：最终需求与自审结果
 - `skills/config/github-ruleset-checklist.md`：GitHub Rulesets / Branch Protection 清单
+- `skills/config/gitee-ruleset-checklist.md`：Gitee 保护分支 / 审核流检查清单
 - `skills/config/extension-pack-guidelines.md`：外部技能包迁移规范
 - `skills/config/harness-references.md`：Harness 资料索引
 - `skills/gstack/COMMANDS.zh-CN.md`：迁移技能的中文命令目录
