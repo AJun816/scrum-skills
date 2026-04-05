@@ -208,4 +208,23 @@ if [ "$LINT_HAS_ERROR" = "yes" ]; then
   exit 2
 fi
 
+# ---- 6. Harness drift check ----
+if [ -x ".harness/bin/harness-check.sh" ]; then
+  HARNESS_STATUS=0
+  sh ./.harness/bin/harness-check.sh --files="$FILE_PATH" >/dev/null 2>&1 || HARNESS_STATUS=$?
+
+  if [ "$HARNESS_STATUS" -eq 2 ] && [ -x ".harness/bin/harness-fix.sh" ]; then
+    sh ./.harness/bin/harness-fix.sh --files="$FILE_PATH" >/dev/null 2>&1 || HARNESS_STATUS=$?
+    sh ./.harness/bin/harness-check.sh --files="$FILE_PATH" >/dev/null 2>&1 || HARNESS_STATUS=$?
+  fi
+
+  if [ "$HARNESS_STATUS" -ne 0 ]; then
+    echo "" >&2
+    echo "🚫 Harness drift detected. Repository contract rejected this edit." >&2
+    echo "   检测到 Harness 漂移，仓库合同拒绝这次修改。" >&2
+    sh ./.harness/bin/harness-check.sh --files="$FILE_PATH" || true
+    exit 2
+  fi
+fi
+
 exit 0

@@ -1,0 +1,9 @@
+version: 2
+rules:
+  - id: application-no-infrastructure-import
+    severity: error
+  - id: file-size-limit
+    severity: error
+    max_lines: 800
+  - id: no-refactored-suffix
+    severity: error

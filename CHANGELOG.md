@@ -2,12 +2,30 @@
 
 ## 2026-03-27
 
+### Cross-Agent Harness Hardening
+
+- 修复 `skills/hooks/setup.sh` 的目录识别逻辑：
+  - 不再只把 `~/.claude/skills` 视为 embedded 模式
+  - 现可正确识别 repo / `~/.claude` / `~/.codex` / 自定义 target 等安装布局
+- `sh skills/hooks/setup.sh --default` 在仓库调试模式下，会同时为 `.claude/skills/` 与 `.codex/skills/` 准备本地联调链接。
+- `install.sh` / `install.ps1` 增加跨 Agent 说明：
+  - 自动识别 `.codex`
+  - 仅对 `~/.claude` 部署 `settings.json`
+  - 对 Codex 与其他 target 保持 skill-only 安装，不伪装成 Claude 配置目录
+- 安装器不再把工作区里的 `skills/.cache/` 和 `.DS_Store` 一起打包到目标目录。
+- 新增外部技能包迁移规范：`skills/config/extension-pack-guidelines.md`
+- 新增 gstack 中文命令目录：`skills/gstack/COMMANDS.zh-CN.md`
+- README、`skills/README.md`、`AGENTS.md`、`harness-playbook.md` 同步补齐：
+  - 核心技能组零额外环境说明
+  - Claude / Codex 安装差异
+  - 迁移技能中文入口与依赖边界
+
 ### Documentation Clarification
 
 - README 文档补充文档导航，明确 `README.md`、`skills/README.md`、`AGENTS.md` 与 Harness 配置文档的分工。
 - 安装说明补充 shell 安装器与 Windows PowerShell 原生安装器的差异：
   - `sh install.sh` 会自动执行 `skills/hooks/setup.sh --default --skip-repo-map`
-  - `install.bat` / `install.ps1` 仅复制 `skills/` 与 `settings.json`，不会自动执行 `setup.sh`
+  - `install.bat` / `install.ps1` 会复制 `skills/`，并在目标为 `~/.claude` 时同步 `settings.json`，但不会自动执行 `setup.sh`
 - README / `skills/README.md` 进一步补充 `install.sh` 的安装目标自动识别规则，以及仓库维护者直接运行 `sh skills/hooks/setup.sh --default` 的本地调试路径。
 - 文档明确 `gstack` 以 vendored 形式集成，默认复制但不会自动运行 `gstack/setup`。
 - `skills/README.md` 补齐安装后默认状态、Windows 手动 setup 前提，以及 `skills/config/` 目录下的 Harness 相关文件。

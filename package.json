@@ -1,0 +1,26 @@
+{
+  "name": "skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Host-native skills harness CLI for installing and managing Scrum Skills.",
+  "bin": {
+    "skills": "./bin/skills.mjs"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "install.sh",
+    "install.ps1",
+    ".claude",
+    "README.md",
+    "AGENTS.md",
+    "docs",
+    "skills"
+  ],
+  "scripts": {
+    "test": "sh skills/harness/bin/harness-selfcheck.sh && sh skills/runtime/bin/workflow-selfcheck.sh && sh skills/registry/bin/pack-selfcheck.sh && node --test test/skills-cli.test.mjs"
+  }
+}

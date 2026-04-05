@@ -7,13 +7,16 @@
 - **The Minimalist Entrepreneur** 创业增长扩展包：`/find-community`、`/validate-idea`、`/processize`、`/minimalist-review` 等
 - **gstack** 完整工程工作流扩展包：`/office-hours`、`/plan-design-review`、`/review`、`/qa`、`/ship`、`/browse` 等
 
+同时提供一个可选的 Node CLI 包装层：安装后可直接使用 `skills` 命令管理安装、Harness、Workflow 和扩展包；但主安装路径仍然是 `sh install.sh`。
+
 ## Prerequisites / 前置条件
 
-- [Claude Code](https://claude.ai/code)
+- Claude Code 或 Codex CLI（二选一即可；核心技能组不限定单一 Agent）
 - macOS/Linux: `sh`（系统自带）
 - Windows: PowerShell（系统自带，用于 `install.bat` / `install.ps1`）
 - Windows 如需手动执行 `skills/hooks/setup.sh` 或 `gstack/setup`，请使用 Git Bash、WSL 或其他兼容 `sh` 的 shell
-- `bun >= 1.0`：仅在你需要启用 `gstack` 完整工作流时才需要
+- **核心技能组零额外环境**：不要求 Python / Node.js / bun
+- `bun >= 1.0`：仅在你需要启用 `gstack` 完整工作流时才需要，不影响主技能组安装
 
 ## Documentation Map / 文档导航
 
@@ -22,7 +25,13 @@
 - `AGENTS.md`：仓库内 AI Agent 执行约束与上下文导航
 - `CHANGELOG.md`：关键文档与安装流程变更记录
 - `skills/config/harness-playbook.md`：Harness 约束、执行顺序和门禁
+- `docs/harness-v2-final-requirements.md`：本轮最终需求整理与 5 轮自审记录
+- `docs/architecture-v3.md`：V3 Host-Native Skills Harness 架构设计
+- `skills/config/github-ruleset-checklist.md`：GitHub 平台侧强制门禁清单
+- `skills/config/extension-pack-guidelines.md`：外部技能包迁移规范
+- `skills/registry/README.md`：Pack Registry 命令与元数据治理说明
 - `skills/config/harness-references.md`：Harness 延伸阅读与参考资料
+- `skills/gstack/COMMANDS.zh-CN.md`：gstack 中文命令目录
 
 ## Quick Start / 快速开始
 
@@ -34,25 +43,47 @@ git clone https://github.com/AJun816/scrum-skills.git
 
 # 2. Install (one command) / 一键安装
 cd scrum-skills
-sh install.sh
+sh install.sh                    # 默认安装到 ~/.claude
+sh install.sh --agent=codex      # 如果你使用 Codex
 # Windows: double-click install.bat (PowerShell, no Git Bash required)
 # 或手动执行：powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 # 3. (Optional) Enable gstack / 可选：启用 gstack 完整技能组
 cd ~/.claude/skills/gstack && ./setup
-# 如果你使用 --target，请把 ~/.claude 替换为你的目标目录
+# 如果你安装到 ~/.codex 或使用 --target，请把 ~/.claude 替换为实际目标目录
 
-# 4. Start Claude Code in your project / 在你的项目里启动
-cd your-project && claude
+# 4. Start your agent in your project / 在你的项目里启动你的 Agent
+cd your-project
+# Claude Code: claude
+# Codex CLI : codex
 ```
 
+可选的 npm / npx 入口：
+
+```bash
+# 全局安装后得到 skills 命令
+npm install -g github:AJun816/scrum-skills
+skills install --agent=codex
+skills pack list
+skills doctor
+
+# 零安装临时执行（npx / npm exec 风格）
+npx --yes --package github:AJun816/scrum-skills skills install --agent=claude
+```
+
+说明：公开 npm 上已经存在一个无关的 `skills` 包，因此如果你要“公网直接 `npx skills`”，需要自有 registry 映射或发布权。当前仓库保证的是：
+
+- `npm install -g github:AJun816/scrum-skills` 后直接使用 `skills`
+- `npx --package github:AJun816/scrum-skills skills ...` 可零安装执行
+
 默认会安装到 `~/.claude/`。
-如果仓库本身已经位于 `~/.claude`、`~/.warp`、`~/.cursor`、`~/.windsurf`、`~/.cline` 或 `~/.continue` 下，`install.sh` 会自动识别当前 Agent 目录并直接安装到那里。
+如果仓库本身已经位于 `~/.claude`、`~/.codex`、`~/.warp`、`~/.cursor`、`~/.windsurf`、`~/.cline` 或 `~/.continue` 下，`install.sh` 会自动识别当前 Agent 目录并直接安装到那里。
+其中只有 `~/.claude` 会自动部署 `settings.json` hooks；其他目录默认仅部署技能组与 setup 脚本。
 
 Shell 安装器 `install.sh` 可选参数：
 
 ```bash
-sh install.sh --agent=warp                # 安装到 ~/.warp
+sh install.sh --agent=codex               # 安装到 ~/.codex
 sh install.sh --target=/path/to/.claude   # 指定安装目录
 sh install.sh --keep-settings             # 保留已有 settings.json
 sh install.sh --lang=en                   # 英文输出
@@ -61,7 +92,7 @@ sh install.sh --lang=en                   # 英文输出
 Windows PowerShell 安装器可选参数：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -Agent warp
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Agent codex
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Target C:\path\to\.claude
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
 ```
@@ -74,24 +105,32 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
 
 1. 计算安装目标：优先使用 `--target`，其次使用 `--agent`，否则尝试识别当前仓库是否位于已知 Agent 目录下，最后回落到 `~/.claude/`
 2. 将 `skills/` 复制到目标 Agent 目录，例如 `~/.claude/skills/`
-3. 将 `.claude/settings.json` 复制到目标 Agent 目录，并把 hooks 路径改写成目标绝对路径
-4. 自动执行 `skills/hooks/setup.sh --default --skip-repo-map`
+3. 如果目标是 `~/.claude`，则复制 `.claude/settings.json` 到目标目录，并把 hooks 路径改写成目标绝对路径
+4. 自动执行 `skills/hooks/setup.sh --default --skip-repo-map`，仅完成用户级配置，不会直接把 `.harness` 写进你的业务仓库
 5. 默认启用主技能组；`gstack` 仅做 vendoring，不会自动运行其 `./setup`
+6. 可选地通过 `npm install -g github:AJun816/scrum-skills` 暴露 `skills` 命令行包装层
 
-如果你走的是 Windows 原生安装器 `install.bat` / `install.ps1`，则只会完成前 2 步，不会自动执行 `setup.sh`。
+如果你走的是 Windows 原生安装器 `install.bat` / `install.ps1`，则会完成技能复制，并在目标为 `~/.claude` 时同步 `settings.json`；但不会自动执行 `setup.sh`。
 
 这意味着：
 
 - 主技能组安装后即可使用
-- `gstack` 安装后仍需你手动执行一次 `~/.claude/skills/gstack/setup`
+- `.claude` 目标会自动接入 hooks；`.codex` 和其他目标不会伪装成 Claude 配置目录
+- 对任意项目执行 `sh <target>/skills/hooks/setup.sh --project-root=/path/to/repo` 后，会生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`，并把 `core.hooksPath` 指向 `.harness/git-hooks`
+- `gstack` 安装后仍需你手动执行一次 `<target>/skills/gstack/setup`
+- `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` 入口
+- 如果你选择 npm 包装层，安装后可直接使用 `skills install/setup/harness/workflow/pack/doctor`
 - Windows 原生安装后，如需生成 `user-config.json`、安装仓库 `commit-msg` hook、生成 `repo-map` 或启用 `gstack`，请在兼容 `sh` 的 shell 中手动执行对应 `setup.sh`
-- 如需给某个仓库安装 `commit-msg` hook，请单独执行：
+- 如需给某个仓库初始化 Harness，请单独执行：
 
 ```bash
 sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
 ```
 
 **然后输入需求，全自动流转：**
+
+Claude Code 可直接使用 `/0-emperor`、`/0-scrum-master`。
+如果你用的是 Codex 或其他 Agent，请按该 Agent 的技能调用方式触发同名技能。
 
 ```
 # 三省六部模式（复杂任务，全流程质量审核）
@@ -101,7 +140,7 @@ sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
 /0-scrum-master 修复登录按钮样式问题
 ```
 
-无需手动调用每个技能，`workflow-runner` 自动按链条调度到底。
+无需手动调用每个技能，`workflow-runner` 自动按链条调度到底。V3 第一阶段已开始把这套设计下沉到 `skills/runtime/` 的真实运行时骨架中，并提供 `workflow-selfcheck.sh` 自检脚本。
 
 ## How It Works / 工作原理
 
@@ -169,7 +208,8 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 - 集成方式：以 vendored 形式保留完整运行时于 `skills/gstack/`
 - 适用场景：设计审查、浏览器 QA、发布、回顾、安全审查、自动计划等完整工程流程
 - 代表命令：`/office-hours`、`/plan-ceo-review`、`/plan-design-review`、`/review`、`/qa`、`/ship`、`/browse`、`/retro`
-- 启用方式：复制本仓库到项目后，进入 `~/.claude/skills/gstack && ./setup`
+- 中文目录：见 `skills/gstack/COMMANDS.zh-CN.md`
+- 启用方式：复制本仓库到项目后，进入 `<target>/skills/gstack && ./setup`
 - 额外依赖：`bun >= 1.0`，首次 setup 会处理生成技能文档和 Playwright/Chromium
 
 由于 gstack 自带 `setup`、`browse`、遥测与生成流程，这一包采用整仓集成，而不是把 28 个技能直接平铺进当前 `skills/` 根目录。默认安装只会把它复制到目标目录，不会自动执行 `gstack/setup`。
@@ -212,7 +252,7 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 /processize 把“AI 敏捷开发陪跑服务”先设计成手工可交付流程
 /minimalist-review 评估是否要把当前项目做成付费产品
 
-# gstack 扩展技能（需先执行 ~/.claude/skills/gstack/setup）
+# gstack 扩展技能（需先执行 <target>/skills/gstack/setup）
 /office-hours 帮我重新定义这个功能真正要解决的问题
 /plan-design-review 审一下当前设计方案是否有 AI slop
 /qa https://staging.example.com
@@ -220,12 +260,12 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 
 ## Hooks / 代码质量钩子
 
-通过 `.claude/settings.json` 自动生效，无需手动配置：
+如果目标安装到 `~/.claude`，这些钩子会通过 `.claude/settings.json` 自动生效；任意项目在执行 `setup.sh --project-root=...` 后，还会获得版本化的 `.harness/git-hooks`：
 
 - **pre-bash** — git commit 强制要求 `✅[Reviewed]` 前缀
 - **pre-file-write** — 代码文件 >800 行阻止写入，>600 行警告
 - **post-file-write** — 代码质量报告（方法行数、嵌套深度、代码异味、auto-linter）
-- **commit-msg** — git hook 层强制 `✅[Reviewed]` 前缀（可选，需在目标仓库执行 setup）
+- **.harness/git-hooks/** — pre-commit / commit-msg / pre-push 三层 Git 门禁，禁止 `[skip-review]` 旁路
 
 ## Project Structure / 项目结构
 
@@ -233,9 +273,17 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 scrum-skills/
 ├── AGENTS.md               ← Harness 地图式入口
 ├── .claude/
-│   └── settings.json       ← 安装脚本会部署到目标 Agent 目录
+│   └── settings.json       ← 仅在 Claude 目标安装时部署
+├── bin/
+│   └── skills.mjs          ← npm CLI 入口（skills 命令）
 ├── README.md               ← 本文件
+├── package.json            ← npm 包装层定义
+├── docs/
+│   └── architecture-v3.md  ← V3 Host-Native Skills Harness 设计
+├── test/
+│   └── skills-cli.test.mjs ← npm / npx CLI 测试
 └── skills/                 ← 安装脚本部署的技能目录
+    ├── registry/            # Pack Registry（外部包清单 / 安装 / 诊断 / 更新）
     ├── 0-emperor/           # 👑 皇上
     ├── 0-taizi/             # 🤴 太子
     ├── 0-zhongshu-province/ # 📜 中书省
@@ -256,7 +304,8 @@ scrum-skills/
     ├── company-values/      # 外部扩展：公司价值观
     ├── minimalist-review/   # 外部扩展：极简创业评审
     ├── config/              # 共享配置（含 harness-playbook.md）
-    └── hooks/               # 代码质量钩子
+    ├── hooks/               # 代码质量钩子
+    └── runtime/             # workflow runtime 骨架（状态机 / 恢复 / 审批 / 自检）
 ```
 
 ## Upstream Sync / 外部来源
@@ -273,7 +322,7 @@ scrum-skills/
 1. `README.md` 的安装步骤必须与 `install.sh`、`install.bat`、`install.ps1` 的真实行为一致
 2. `skills/README.md` 的目录说明必须与 `skills/` 实际结构一致
 3. `AGENTS.md`、`skills/config/*.md` 中提到的路径必须真实存在
-4. 新增外部技能包时，必须同时补充来源说明、启用方式和依赖边界
+4. 新增外部技能包时，必须同时补充来源说明、启用方式、依赖边界和中文入口说明
 
 ## Maintainer Workflow / 仓库维护者调试
 
@@ -283,7 +332,7 @@ scrum-skills/
 sh skills/hooks/setup.sh --default
 ```
 
-这会在当前仓库的 `.claude/skills/` 下为各技能目录创建软链接；如果系统不支持软链接，则回退为复制。该模式适合维护技能文档、hooks 或本地联调，不会替代正式安装流程。
+这会在当前仓库的 `.claude/skills/` 与 `.codex/skills/` 下为各技能目录创建软链接；如果系统不支持软链接，则回退为复制。该模式适合维护技能文档、hooks 或本地联调，不会替代正式安装流程。
 
 ## Setup Options / 配置选项
 
@@ -292,25 +341,26 @@ sh skills/hooks/setup.sh --default
 ```bash
 sh install.sh                                    # 推荐：一键安装（自动执行 setup）
 sh ~/.claude/skills/hooks/setup.sh               # 手动执行 setup（自动检测交互模式）
+sh ~/.codex/skills/hooks/setup.sh --default      # Codex 目标的非交互 setup
 sh ~/.claude/skills/hooks/setup.sh --default     # 非交互模式，使用默认值
 sh ~/.claude/skills/hooks/setup.sh --interactive # 强制交互模式
 sh ~/.claude/skills/hooks/setup.sh --lang=en     # 设置语言
 sh ~/.claude/skills/hooks/setup.sh --nickname=XX # 设置昵称（默认：吴彦祖）
 sh ~/.claude/skills/hooks/setup.sh --no-git-hook # 跳过 git hook 安装
 sh ~/.claude/skills/hooks/setup.sh --skip-repo-map # 跳过 repo-map 生成
-sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo # 对指定仓库安装 commit-msg hook
+sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo # 对指定仓库初始化 Harness
 ```
 
 ## Design Principles / 设计原则
 
-1. **核心一键安装** — 主技能组通过 `sh install.sh` 即可启用；`gstack` 属于可选扩展，启用时需 `bun`
+1. **核心一键安装** — 主技能组通过 `sh install.sh` 即可启用；核心安装不要求 Python / bun
 2. **全自动编排** — 输入需求后全流程自动流转，无需手动调用每个技能
 3. **双模式** — 三省六部（质量优先）+ 敏捷（效率优先），按需切换
 4. **中断恢复** — workflow-state.json 记录进度，中断后可从断点恢复
 5. **质量内建** — hooks 强制代码规范 + 门下省/code-reviewer 把关提交
-6. **通用适配** — 不限语言框架，根据项目自动适配
+6. **跨 Agent 兼容** — `.claude` 自动接 hooks，`.codex` 和自定义目标保持 skill-only 安装
 7. **Harness 化协作** — `AGENTS.md` 作为活文档，约束执行顺序与持续反馈
-8. **外部技能可整合** — `setup.sh` 会自动发现并链接所有含 `SKILL.md` 的技能目录，便于引入第三方技能包
+8. **外部技能可整合** — 扩展包保留上游结构，并补中文入口与依赖边界
 
 ## Harness Baseline / 驭缰基线
 
@@ -318,7 +368,11 @@ sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo # 对指定仓�
 
 - `AGENTS.md`：地图式入口（渐进披露）
 - `skills/config/harness-playbook.md`：Harness 执行约束与门禁
+- `docs/harness-v2-final-requirements.md`：最终需求与自审结果
+- `skills/config/github-ruleset-checklist.md`：GitHub Rulesets / Branch Protection 清单
+- `skills/config/extension-pack-guidelines.md`：外部技能包迁移规范
 - `skills/config/harness-references.md`：Harness 资料索引
+- `skills/gstack/COMMANDS.zh-CN.md`：迁移技能的中文命令目录
 - `skills/hooks/*.sh`：机械化约束（Backpressure）
 
 推荐执行顺序：Understand → Plan → Implement → Verify → Persist

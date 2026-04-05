@@ -1,0 +1,24 @@
+{
+  "name": "gstack",
+  "kind": "extension-pack",
+  "source": {
+    "manifest": "skills/gstack/.source.json"
+  },
+  "hosts": ["claude", "codex"],
+  "runtime": {
+    "required": false,
+    "dependencies": ["bun>=1.0"]
+  },
+  "capabilities": ["planning", "qa", "review", "deploy", "security"],
+  "workflow_integration": {
+    "default_mode": "standalone",
+    "can_attach_to_runner": false
+  },
+  "docs": {
+    "zh_cn": "skills/gstack/COMMANDS.zh-CN.md"
+  },
+  "security": {
+    "network_required": true,
+    "writes_outside_repo": true
+  }
+}

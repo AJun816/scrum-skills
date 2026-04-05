@@ -16,6 +16,8 @@ Thumbs.db
 # Cache (auto-generated)
 .cache/
 skills/.cache/
+node_modules/
+*.tgz
 
 # Environment
 .env
@@ -23,3 +25,9 @@ skills/.cache/
 
 # Aider artifacts (if any remain)
 .aider*
+
+# Harness runtime state
+.harness/state/last-report.json
+
+# Git-first harness worktrees
+.worktrees/

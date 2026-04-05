@@ -6,13 +6,19 @@
 
 同时也 vendoring 进来了 `garrytan/gstack`，保留其完整运行时目录，适合在需要设计审查、浏览器 QA、发布和复盘流程时启用。
 
+仓库根目录现在还提供一个可选的 npm CLI 包装层。安装后可通过 `skills` 命令管理安装、Harness、自检、Workflow 和扩展包；但主路径仍然是 `sh install.sh`。
+
 ## 文档导航
 
 - `../README.md`：仓库级安装入口、扩展技能概览
 - `README.md`：当前 `skills/` 目录说明
 - `../AGENTS.md`：仓库内 Agent 执行约束
 - `config/harness-playbook.md`：Harness 约束与门禁
+- `../docs/architecture-v3.md`：V3 Host-Native Skills Harness 架构设计
+- `config/extension-pack-guidelines.md`：外部技能包迁移规范
+- `registry/README.md`：Pack Registry 命令与扩展包元数据规则
 - `config/harness-references.md`：Harness 延伸阅读
+- `gstack/COMMANDS.zh-CN.md`：gstack 中文命令目录
 
 ## 快速开始
 
@@ -20,15 +26,16 @@
 
 ```bash
 # 在仓库根目录执行
-sh install.sh
+sh install.sh               # 默认安装到 ~/.claude
+sh install.sh --agent=codex # 如果你使用 Codex
 # Windows 可直接双击 install.bat（无需 Git Bash）
 ```
 
 默认安装到 `~/.claude/`。
-如果仓库本身已经位于 `~/.claude`、`~/.warp`、`~/.cursor`、`~/.windsurf`、`~/.cline` 或 `~/.continue` 下，`install.sh` 会自动识别当前 Agent 目录并直接安装到那里。可选参数：
+如果仓库本身已经位于 `~/.claude`、`~/.codex`、`~/.warp`、`~/.cursor`、`~/.windsurf`、`~/.cline` 或 `~/.continue` 下，`install.sh` 会自动识别当前 Agent 目录并直接安装到那里。只有 `~/.claude` 会自动部署 `settings.json` hooks；其他目标默认只部署技能组与 setup 脚本。可选参数：
 
 ```bash
-sh install.sh --agent=warp
+sh install.sh --agent=codex
 sh install.sh --target=/path/to/.claude
 sh install.sh --keep-settings
 sh install.sh --lang=en
@@ -37,26 +44,48 @@ sh install.sh --lang=en
 Windows PowerShell 原生安装也支持以下参数：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -Agent warp
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Agent codex
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Target C:\path\to\.claude
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
 ```
 
 如果使用 `--target` 或 `-Target`，后续 `setup.sh` 路径请替换成你的目标目录。
 
+### 可选：npm CLI
+
+```bash
+# 全局安装并暴露 skills 命令
+npm install -g github:AJun816/scrum-skills
+skills install --agent=codex
+skills harness selfcheck
+skills pack list
+
+# 零安装临时执行
+npx --yes --package github:AJun816/scrum-skills skills doctor
+```
+
+注意：公开 npm 上已有一个无关的 `skills` 包，因此“公网直接 `npx skills`”不由本仓库控制。当前仓库保证的是 `skills` 二进制和 `npx --package ... skills ...` 这种零安装调用方式。
+
 ### 安装后默认状态
 
 - 主技能组安装后即可使用
-- `.claude/settings.json` 中的 hooks 路径会被安装器改写到目标目录
-- `sh install.sh` 会自动执行 `skills/hooks/setup.sh --default --skip-repo-map`
+- 如果目标是 `~/.claude`，`.claude/settings.json` 中的 hooks 路径会被安装器改写到目标目录
+- 如果目标是 `~/.codex` 或其他目录，则不会伪装成 Claude 配置目录
+- `sh install.sh` 会自动执行 `skills/hooks/setup.sh --default --skip-repo-map`，只完成用户级配置
 - Windows 原生 `install.bat` / `install.ps1` 不会自动执行 `setup.sh`
 - `gstack/` 会被复制过去，但不会自动执行其 `setup`
-- 如需启用 `gstack`，请额外执行 `~/.claude/skills/gstack/setup`
-- 如需生成 `user-config.json`、安装仓库 `commit-msg` hook、生成 `repo-map` 或启用 `gstack`，请在兼容 `sh` 的 shell 中手动执行 `setup.sh`
+- `runtime/` 会随技能组一起安装，作为 workflow-runner 的真实运行时骨架，并提供 `workflow-selfcheck.sh`
+- `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` / `pack-selfcheck`
+- 仓库根目录的 npm CLI 可暴露 `skills install/setup/harness/workflow/pack/doctor`
+- 如需启用 `gstack`，请额外执行 `<target>/skills/gstack/setup`
+- 如需为任意项目生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`、版本化 git hooks 或 `repo-map`，请在兼容 `sh` 的 shell 中手动执行 `setup.sh --project-root=/path/to/repo`
 
 ### 2. 开始使用
 
 **自动编排模式（推荐）：** 输入需求，全自动流转到底。
+
+Claude Code 可直接使用 `/0-emperor`、`/0-scrum-master`。
+如果你使用 Codex 或其他 Agent，请按该 Agent 的技能调用方式触发同名技能。
 
 ```
 # 三省六部模式（复杂任务，全流程审核）
@@ -76,6 +105,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
 
 ```bash
 sh ~/.claude/skills/hooks/setup.sh --default
+sh ~/.codex/skills/hooks/setup.sh --default
 sh ~/.claude/skills/hooks/setup.sh --interactive
 sh ~/.claude/skills/hooks/setup.sh --lang=en
 sh ~/.claude/skills/hooks/setup.sh --nickname=XX
@@ -90,7 +120,7 @@ sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
 sh skills/hooks/setup.sh --default
 ```
 
-该命令会在当前仓库的 `.claude/skills/` 下创建软链接；不支持软链接时回退为复制，适合本地调试 `SKILL.md`、hooks 和共享配置。
+该命令会在当前仓库的 `.claude/skills/` 与 `.codex/skills/` 下创建软链接；不支持软链接时回退为复制，适合本地调试 `SKILL.md`、hooks 和共享配置。
 
 ### 4. 创业增长扩展技能（独立调用，不接入自动编排）
 
@@ -114,8 +144,12 @@ skills/
 │   ├── skill-groups.md            # 技能分组
 │   ├── skill-metadata.md          # 技能元数据
 │   ├── harness-playbook.md        # Harness 约束与门禁
+│   ├── extension-pack-guidelines.md # 外部技能包迁移规范
 │   └── harness-references.md      # Harness 延伸阅读
 ├── hooks/                         # 代码质量钩子（自动生效）
+├── registry/                      # Pack Registry（扩展包清单 / 安装 / 更新 / 诊断）
+├── runtime/                       # Workflow Runtime（状态机 / 恢复 / 审批 / 自检）
+├── harness/                       # Harness 内核（init / check / fix / repo-map / repo-index）
 ├── .cache/                        # 缓存目录（自动生成，已gitignore）
 │
 ├── 0-emperor/                     # 👑 皇上（三省六部入口）
@@ -203,11 +237,12 @@ skills/
 
 | 入口 | 说明 | 启用方式 |
 |------|------|----------|
-| `gstack/` | 保留完整运行时、setup、browse、review、qa、ship 等工作流能力 | 复制到项目后执行 `~/.claude/skills/gstack/setup` |
+| `gstack/` | 保留完整运行时、setup、browse、review、qa、ship 等工作流能力 | 复制到项目后执行 `<target>/skills/gstack/setup` |
 
 说明：
 - 这不是纯 `SKILL.md` 技能包，而是带运行时和生成流程的完整工程工具栈
 - 代表命令包括 `/office-hours`、`/plan-design-review`、`/review`、`/qa`、`/ship`、`/browse`
+- 中文目录见 `gstack/COMMANDS.zh-CN.md`
 - 需要 `bun >= 1.0`；首次 setup 会处理生成技能文档和 Playwright/Chromium
 
 ## 核心机制
@@ -222,10 +257,11 @@ skills/
 
 ### 代码质量钩子
 
-通过 `.claude/settings.json` 自动生效，无需手动配置：
+如果目标安装到 `~/.claude`，这些钩子会通过 `.claude/settings.json` 自动生效；任意项目执行 `setup.sh --project-root=...` 后，还会获得版本化的 `.harness/git-hooks`：
 - 文件超800行阻止写入
 - 检测密码/密钥泄露
 - 阻止危险命令（force push、DROP TABLE等）
+- `.harness/git-hooks` 在 commit / push 时再次强制校验，且不允许 `[skip-review]`
 - git commit 需要代码审查标记
 
 ### 智能缓存
@@ -240,7 +276,9 @@ skills/
 
 - `AGENTS.md`：地图式入口，控制上下文加载与执行顺序
 - `config/harness-playbook.md`：可执行的 Harness 约束与门禁
+- `config/extension-pack-guidelines.md`：迁移技能包的设计边界
 - `config/harness-references.md`：Harness 学习与实践资料索引
+- `gstack/COMMANDS.zh-CN.md`：迁移技能的中文命令目录
 - `hooks/*.sh`：机械化约束（Backpressure）
 
 ### 延伸资料
@@ -250,12 +288,12 @@ skills/
 
 ## 设计原则
 
-1. **一键安装即用** — 无需 pip/npm/brew，`sh install.sh` 即可
+1. **一键安装即用** — 核心技能组无需 pip/npm/brew/python/bun，`sh install.sh` 即可
 2. **开箱即用** — hooks 自动生效，首次使用自动初始化
 3. **全自动编排** — `/0-emperor` 或 `/0-scrum-master` 启动后全流程自动流转，无需手动调用每个技能
 4. **配置驱动** — 统一配置，所有技能共享
 5. **通用适配** — 后端/前端技能不限语言，根据项目自动适配
 6. **质量内建** — hooks 强制执行代码规范，门下省/code-reviewer 把关提交
 7. **中断恢复** — workflow-state.json 记录进度，中断后可从断点恢复
-8. **外部技能可整合** — `setup.sh` 会自动发现并链接所有含 `SKILL.md` 的技能目录，便于引入第三方技能包
+8. **外部技能可整合** — 扩展包保留上游结构，并补中文入口与依赖边界
 9. **完整运行时可 vendoring** — 像 `gstack` 这种带 `setup` 和运行时资产的技能组也可以整仓接入，而不是只复制提示词

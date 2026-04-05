@@ -1,0 +1,24 @@
+{
+  "name": "processize",
+  "kind": "extension-pack",
+  "source": {
+    "manifest": "skills/processize/.source.json"
+  },
+  "hosts": ["claude", "codex"],
+  "runtime": {
+    "required": false,
+    "dependencies": []
+  },
+  "capabilities": ["operations", "workflow", "service-design"],
+  "workflow_integration": {
+    "default_mode": "standalone",
+    "can_attach_to_runner": false
+  },
+  "docs": {
+    "zh_cn": "skills/processize/SKILL.md"
+  },
+  "security": {
+    "network_required": false,
+    "writes_outside_repo": false
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "pricing",
+  "kind": "extension-pack",
+  "source": {
+    "manifest": "skills/pricing/.source.json"
+  },
+  "hosts": ["claude", "codex"],
+  "runtime": {
+    "required": false,
+    "dependencies": []
+  },
+  "capabilities": ["pricing", "monetization", "packaging"],
+  "workflow_integration": {
+    "default_mode": "standalone",
+    "can_attach_to_runner": false
+  },
+  "docs": {
+    "zh_cn": "skills/pricing/SKILL.md"
+  },
+  "security": {
+    "network_required": false,
+    "writes_outside_repo": false
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scrum-skills.dev/schemas/workflow-state.schema.json",
+  "title": "Scrum Skills Workflow State",
+  "type": "object",
+  "required": [
+    "workflow_id",
+    "mode",
+    "host",
+    "status",
+    "current_step",
+    "next_step",
+    "started_at",
+    "updated_at",
+    "user_request",
+    "steps"
+  ],
+  "properties": {
+    "workflow_id": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["imperial", "agile"]
+    },
+    "host": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["idle", "running", "paused", "completed", "aborted"]
+    },
+    "current_step": {
+      "type": "string"
+    },
+    "next_step": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "user_request": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "index",
+          "step",
+          "skill",
+          "label",
+          "status",
+          "rejection_count",
+          "started_at",
+          "completed_at",
+          "message",
+          "outputs"
+        ],
+        "properties": {
+          "index": { "type": "string" },
+          "step": { "type": "string" },
+          "skill": { "type": "string" },
+          "label": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed",
+              "rejected",
+              "force_passed",
+              "error"
+            ]
+          },
+          "rejection_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "started_at": { "type": "string" },
+          "completed_at": { "type": "string" },
+          "message": { "type": "string" },
+          "outputs": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "shared_documents": {
+      "type": "object"
+    },
+    "harness": {
+      "type": "object"
+    }
+  }
+}

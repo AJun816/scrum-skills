@@ -1,0 +1,9 @@
+version: 2
+rules:
+  - id: frontend-no-direct-axios
+    severity: error
+  - id: frontend-no-secret-env
+    severity: error
+  - id: file-size-limit
+    severity: error
+    max_lines: 800

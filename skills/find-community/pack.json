@@ -1,0 +1,24 @@
+{
+  "name": "find-community",
+  "kind": "extension-pack",
+  "source": {
+    "manifest": "skills/find-community/.source.json"
+  },
+  "hosts": ["claude", "codex"],
+  "runtime": {
+    "required": false,
+    "dependencies": []
+  },
+  "capabilities": ["community", "discovery", "research"],
+  "workflow_integration": {
+    "default_mode": "standalone",
+    "can_attach_to_runner": false
+  },
+  "docs": {
+    "zh_cn": "skills/find-community/SKILL.md"
+  },
+  "security": {
+    "network_required": false,
+    "writes_outside_repo": false
+  }
+}

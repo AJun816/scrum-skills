@@ -1,0 +1,5 @@
+version: 2
+rules:
+  - id: changed-code-requires-check
+    severity: error
+    message: 代码改动必须经过 harness-check 与 Git hooks

@@ -1,0 +1,20 @@
+name: Harness Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  harness-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Harness Contract
+        run: sh .harness/bin/harness-check.sh --all

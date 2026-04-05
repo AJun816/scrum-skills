@@ -4,8 +4,6 @@
 #   1. ✅[Reviewed] prefix (mandatory)
 #   2. Lint check on staged files (mandatory, error = block)
 #   3. Related test check on staged files (mandatory, failure = block)
-# [skip-review] bypasses all checks
-
 set -e
 
 INPUT=$(cat)
@@ -23,12 +21,11 @@ if [ -z "$COMMIT_MSG" ]; then
   COMMIT_MSG=$(echo "$COMMAND" | sed -n 's/.*-m[[:space:]]*\([^[:space:]]*\).*/\1/p')
 fi
 
-# Allow [skip-review] bypass for all checks (check parsed msg, raw command, and raw input)
-if echo "$COMMAND" | grep -q '\[skip-review\]'; then
-  exit 0
-fi
-if echo "$INPUT" | grep -q '\[skip-review\]'; then
-  exit 0
+# ---- Harness pre-commit gate ----
+if [ -x ".harness/bin/harness-gate.sh" ]; then
+  if ! sh ./.harness/bin/harness-gate.sh pre-commit; then
+    exit 2
+  fi
 fi
 
 # ---- Check 0a: Co-Authored-By warning ----
@@ -63,7 +60,6 @@ else
   echo "   每次提交必须以 ✅[Reviewed] 开头" >&2
   echo "   Format / 格式: ✅[Reviewed] your commit message" >&2
   echo "   Run @8-code-reviewer first / 请先执行 @8-code-reviewer 代码审查" >&2
-  echo "   Or add [skip-review] to bypass / 或添加 [skip-review] 跳过" >&2
   exit 2
 fi
 
@@ -130,7 +126,6 @@ if [ -n "$STAGED_CODE" ]; then
     printf "   Files with errors / 存在错误的文件:%b\n" "$LINT_ERRORS" >&2
     echo "" >&2
     echo "   Fix lint errors then retry / 修复 Lint 错误后重试" >&2
-    echo "   Or add [skip-review] to bypass / 或添加 [skip-review] 跳过" >&2
     exit 2
   fi
 fi
@@ -254,7 +249,6 @@ if [ -n "$STAGED_CODE" ]; then
       printf "   Failed tests / 失败的测试:%b\n" "$TEST_FAILED" >&2
       echo "" >&2
       echo "   Fix failing tests then retry / 修复失败的测试后重试" >&2
-      echo "   Or add [skip-review] to bypass / 或添加 [skip-review] 跳过" >&2
       exit 2
     fi
   fi

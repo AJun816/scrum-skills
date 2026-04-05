@@ -1,0 +1,28 @@
+version: 2
+project:
+  name: scrum-skills
+  root: .
+architecture:
+  style: layered
+  repository_as_system_of_record: true
+backpressure:
+  require_review_prefix: true
+  require_versioned_hooks: true
+  max_file_lines: 800
+  max_method_lines: 50
+rules:
+  - id: git-hooks-path
+    severity: error
+    auto_fixable: true
+  - id: no-refactored-suffix
+    severity: error
+    auto_fixable: false
+  - id: frontend-no-direct-axios
+    severity: error
+    auto_fixable: false
+  - id: frontend-no-secret-env
+    severity: error
+    auto_fixable: false
+  - id: application-no-infrastructure-import
+    severity: error
+    auto_fixable: false

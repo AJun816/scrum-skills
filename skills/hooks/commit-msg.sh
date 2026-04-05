@@ -1,8 +1,7 @@
 #!/bin/sh
 # Scrum Skills - Git commit-msg Hook
 # Enforce ✅[Reviewed] prefix on every commit (mandatory)
-# Allow [skip-review] as bypass
-# Installed to .git/hooks/commit-msg via setup.sh
+# Prefer repository-local .harness/git-hooks via core.hooksPath
 
 MSG_FILE="$1"
 
@@ -11,12 +10,11 @@ if [ -z "$MSG_FILE" ] || [ ! -f "$MSG_FILE" ]; then
   exit 1
 fi
 
-COMMIT_MSG=$(cat "$MSG_FILE")
-
-# Allow [skip-review] bypass
-if echo "$COMMIT_MSG" | grep -q '\[skip-review\]'; then
-  exit 0
+if [ -x ".harness/bin/harness-gate.sh" ]; then
+  exec sh ./.harness/bin/harness-gate.sh commit-msg "$MSG_FILE"
 fi
+
+COMMIT_MSG=$(cat "$MSG_FILE")
 
 if ! echo "$COMMIT_MSG" | grep -q '^✅\[Reviewed\]'; then
   echo "" >&2
@@ -27,7 +25,6 @@ if ! echo "$COMMIT_MSG" | grep -q '^✅\[Reviewed\]'; then
   echo "" >&2
   echo "Format / 格式: ✅[Reviewed] your commit message" >&2
   echo "Run @8-code-reviewer first / 请先执行 @8-code-reviewer 代码审查" >&2
-  echo "Or add [skip-review] to bypass / 或添加 [skip-review] 跳过" >&2
   echo "" >&2
   exit 1
 fi

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scrum-skills.dev/schemas/pack.schema.json",
+  "title": "Scrum Skills Pack Manifest",
+  "type": "object",
+  "required": [
+    "name",
+    "kind",
+    "source",
+    "hosts",
+    "runtime",
+    "capabilities",
+    "workflow_integration",
+    "docs",
+    "security"
+  ],
+  "properties": {
+    "name": { "type": "string" },
+    "kind": { "type": "string" },
+    "source": { "type": "object" },
+    "hosts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["required", "dependencies"]
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "workflow_integration": {
+      "type": "object",
+      "required": ["default_mode", "can_attach_to_runner"]
+    },
+    "docs": {
+      "type": "object",
+      "required": ["zh_cn"]
+    },
+    "security": {
+      "type": "object",
+      "required": ["network_required", "writes_outside_repo"]
+    }
+  }
+}

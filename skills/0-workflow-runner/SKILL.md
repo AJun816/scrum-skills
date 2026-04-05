@@ -37,6 +37,8 @@ workflow:
 - 通过 Agent 工具派发子进程执行每个步骤
 - 用 `workflow-state.json` 跟踪进度，支持中断恢复
 - 处理封驳循环（max 3 次）和错误降级
+- 在编码产出后自动接入 `.harness/bin/harness-check.sh` → `harness-fix.sh` → 再检查 的纠偏闭环
+- V3 第一阶段已提供 `skills/runtime/bin/workflow.sh` 运行时骨架，用于落盘状态、恢复与审批命令
 
 ## 工作流模式
 
@@ -108,6 +110,11 @@ Code Review
     "requirements": ".cache/shared/requirements/feature.md",
     "architecture": ".cache/shared/architecture/feature.md",
     "api_design": ".cache/shared/api-design/feature-api.md"
+  },
+  "harness": {
+    "project_profile": ".harness/project-profile.json",
+    "contract": ".harness/architecture/contract.yaml",
+    "last_report": ".harness/state/last-report.json"
   }
 }
 ```
@@ -176,7 +183,34 @@ LOOP:
       换思路重试
 ```
 
-### 5. 中断恢复
+### 5. Harness 纠偏循环
+
+执行类步骤结束后，编排器必须自动触发 Harness 检查：
+
+```
+编码产出完成
+  ↓
+运行 sh .harness/bin/harness-check.sh --changed-files --json
+  ↓
+IF exit=0:
+  继续门下省代码审核
+IF exit=2:
+  运行 sh .harness/bin/harness-fix.sh --changed-files
+  再次运行 harness-check
+  最多 3 轮
+IF exit=3 或 3轮后仍失败:
+  记录漂移报告到 workflow-state
+  提交门下省封驳
+IF exit=4:
+  视为仓库未完成 Harness 初始化，停止流程并提示先执行 setup.sh --project-root=...
+```
+
+要求：
+- 编排器只把 Harness 当作门禁和反馈信号，不替代具体业务技能。
+- 每轮纠偏都基于磁盘事实源重读 `.harness/` 和改动文件，避免长上下文累积漂移。
+- 不允许用 `[skip-review]` 类文本旁路替代 Harness 门禁。
+
+### 6. 中断恢复
 
 编排器启动时检查 `.cache/shared/workflow-state.json`：
 - 如果存在且 `status=running`，提示用户是否恢复
@@ -221,13 +255,14 @@ Agent 派发 → 0-shangshu-province
 输入：准奏后的文档路径
 执行：派发六部（后端/前端/DevOps/测试）
 输出：执行结果 + 修改文件列表
+随后：自动进入 Harness 检查/修复循环
 ```
 
 ### Step 5: 门下省代码审核（阶段3）
 
 ```
 Agent 派发 → 0-menxia-province
-输入：尚书省汇总的执行结果
+输入：尚书省汇总的执行结果 + Harness 检查报告
 审核：代码质量
 结果：准奏 → Step 6 | 封驳 → 回 Step 4（max 3轮）
 ```

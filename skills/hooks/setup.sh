@@ -1,11 +1,11 @@
 #!/bin/sh
 # Scrum Skills - Setup Script
-# Configures nickname and git commit-msg hook
-# Hooks are auto-configured via .claude/settings.json (no manual setup needed)
+# Configures nickname and project harness hooks
+# Claude hooks are auto-configured via .claude/settings.json when installed to ~/.claude
 #
 # Usage:
-#   sh ~/.claude/skills/hooks/setup.sh              # auto-detect (terminal=interactive, pipe=default)
-#   sh ~/.claude/skills/hooks/setup.sh --default    # non-interactive, use all defaults
+#   sh ~/.claude/skills/hooks/setup.sh               # auto-detect (terminal=interactive, pipe=default)
+#   sh ~/.codex/skills/hooks/setup.sh --default      # non-interactive, use all defaults
 #   sh ~/.claude/skills/hooks/setup.sh --interactive # force interactive mode
 #   sh ~/.claude/skills/hooks/setup.sh --lang=en --nickname=John --no-git-hook
 #   sh ~/.claude/skills/hooks/setup.sh --project-root=/path/to/repo
@@ -16,15 +16,60 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 HOOKS_DIR="$SCRIPT_DIR"
-SKILLS_PARENT_DIR="$(basename "$(cd "$SKILLS_DIR/.." && pwd)")"
-if [ "$SKILLS_PARENT_DIR" = ".claude" ]; then
-  # Embedded mode: project/.claude/skills
-  PROJECT_ROOT="$(cd "$SKILLS_DIR/../.." && pwd)"
-  SKILLS_LAYOUT="embedded"
-else
+SKILLS_HOME="$(cd "$SKILLS_DIR/.." && pwd)"
+AGENT_HOME_NAME="$(basename "$SKILLS_HOME")"
+
+if [ -f "$SKILLS_HOME/install.sh" ] && [ -f "$SKILLS_HOME/README.md" ] && [ -f "$SKILLS_HOME/skills/README.md" ]; then
   # Repo mode: project/skills
-  PROJECT_ROOT="$(cd "$SKILLS_DIR/.." && pwd)"
+  PROJECT_ROOT="$SKILLS_HOME"
   SKILLS_LAYOUT="repo"
+else
+  # Embedded mode: ~/.claude/skills, ~/.codex/skills, project/.claude/skills, custom target/skills
+  PROJECT_ROOT="$(cd "$SKILLS_HOME/.." && pwd)"
+  SKILLS_LAYOUT="embedded"
+fi
+
+if [ "$SKILLS_LAYOUT" = "repo" ]; then
+  AGENT_HOME_NAME="repo"
+fi
+
+case "$AGENT_HOME_NAME" in
+  repo)
+    AGENT_LABEL="本地 Agent"
+    AGENT_COMMAND_HINT_EN="0-scrum-master or 0-emperor"
+    AGENT_COMMAND_HINT_ZH="0-scrum-master 或 0-emperor"
+    AGENT_HOOKS_NOTE_ZH="仓库调试模式：本 setup 会准备本地 .claude/.codex 技能链接，并可初始化项目 Harness / Git hooks / repo-map"
+    AGENT_HOOKS_NOTE_EN="Repository debug mode: this setup prepares local .claude/.codex skill links and can initialize project harness / git hooks / repo-map"
+    ;;
+  .claude)
+    AGENT_LABEL="Claude Code"
+    AGENT_COMMAND_HINT_EN="/0-scrum-master or /0-emperor"
+    AGENT_COMMAND_HINT_ZH="/0-scrum-master 或 /0-emperor"
+    AGENT_HOOKS_NOTE_ZH="Claude hooks 已通过 .claude/settings.json 自动配置，无需手动设置"
+    AGENT_HOOKS_NOTE_EN="Claude hooks auto-configured via .claude/settings.json"
+    ;;
+  .codex)
+    AGENT_LABEL="Codex"
+    AGENT_COMMAND_HINT_EN="0-scrum-master or 0-emperor"
+    AGENT_COMMAND_HINT_ZH="0-scrum-master 或 0-emperor"
+    AGENT_HOOKS_NOTE_ZH="Codex 不使用 Claude 的 settings.json hooks；本 setup 仅负责用户配置、git hook 和 repo-map"
+    AGENT_HOOKS_NOTE_EN="Codex does not use Claude settings.json hooks; this setup only prepares user config, git hook and repo-map"
+    ;;
+  *)
+    AGENT_LABEL="${AGENT_HOME_NAME#.}"
+    AGENT_COMMAND_HINT_EN="0-scrum-master or 0-emperor"
+    AGENT_COMMAND_HINT_ZH="0-scrum-master 或 0-emperor"
+    AGENT_HOOKS_NOTE_ZH="当前目标目录不是 Claude 专用目录；本 setup 仅负责用户配置、git hook 和 repo-map"
+    AGENT_HOOKS_NOTE_EN="Current target is not a Claude-specific directory; this setup only prepares user config, git hook and repo-map"
+    ;;
+esac
+
+if [ "$SKILLS_LAYOUT" = "repo" ]; then
+  GSTACK_SETUP_HINT_EN=".claude/skills/gstack/setup or .codex/skills/gstack/setup"
+  GSTACK_SETUP_HINT_ZH=".claude/skills/gstack/setup 或 .codex/skills/gstack/setup"
+else
+  GSTACK_SETUP_HINT_EN="$SKILLS_HOME/skills/gstack/setup"
+  GSTACK_SETUP_HINT_ZH="$SKILLS_HOME/skills/gstack/setup"
 fi
 
 # ---- Defaults ----
@@ -67,7 +112,7 @@ for arg in "$@"; do
       echo "  --interactive    Force interactive mode (even in pipe)"
       echo "  --lang=LANG      Set language: zh (default) or en"
       echo "  --nickname=NAME  Set nickname (default: 吴彦祖)"
-      echo "  --no-git-hook    Skip git commit-msg hook installation"
+      echo "  --no-git-hook    Skip repository core.hooksPath wiring"
       echo "  --skip-repo-map  Skip .cache/shared/repo-map.md generation"
       echo "  --project-root=PATH Install git hook/repo-map against specific project root"
       echo "  -h, --help       Show this help"
@@ -103,22 +148,22 @@ setup_messages() {
   if [ "$LANG" = "en" ]; then
     MSG_BANNER="=== Scrum Skills Setup ==="
     MSG_NICKNAME="What should AI call you? (default: 吴彦祖): "
-    MSG_GIT="Install git commit-msg hook? [Y/n]: "
+    MSG_GIT="Install repository harness hooks? [Y/n]: "
     MSG_DONE="Setup complete!"
-    MSG_NEXT="Use /0-scrum-master in Claude Code to get started"
-    MSG_HOOKS_AUTO="Claude hooks auto-configured via .claude/settings.json"
-    MSG_GIT_OK="Git commit-msg hook installed"
+    MSG_NEXT="Open your project in ${AGENT_LABEL} and start with ${AGENT_COMMAND_HINT_EN}"
+    MSG_HOOKS_AUTO="$AGENT_HOOKS_NOTE_EN"
+    MSG_GIT_OK="Repository harness hooks installed"
     MSG_SKIP="Skipped"
     MSG_LANG_PROMPT="Select language / 选择语言 [1=中文, 2=English] (1): "
     MSG_DEFAULT_MODE="Running in non-interactive mode with defaults"
   else
     MSG_BANNER="=== Scrum Skills 技能组配置 ==="
     MSG_NICKNAME="你希望AI怎么称呼你？(默认: 吴彦祖): "
-    MSG_GIT="是否安装 git commit-msg hook？[Y/n]: "
+    MSG_GIT="是否安装仓库 Harness hooks？[Y/n]: "
     MSG_DONE="配置完成！"
-    MSG_NEXT="在 Claude Code 中使用 /0-scrum-master 开始"
-    MSG_HOOKS_AUTO="Claude hooks 已通过 .claude/settings.json 自动配置，无需手动设置"
-    MSG_GIT_OK="Git commit-msg hook 已安装"
+    MSG_NEXT="在 ${AGENT_LABEL} 中使用 ${AGENT_COMMAND_HINT_ZH} 开始"
+    MSG_HOOKS_AUTO="$AGENT_HOOKS_NOTE_ZH"
+    MSG_GIT_OK="仓库 Harness hooks 已安装"
     MSG_SKIP="已跳过"
     MSG_LANG_PROMPT="Select language / 选择语言 [1=中文, 2=English] (1): "
     MSG_DEFAULT_MODE="使用默认配置（非交互模式）"
@@ -203,43 +248,50 @@ if [ "$NICKNAME" != "吴彦祖" ]; then
   find "$SKILLS_DIR" -name "*.bak" -delete 2>/dev/null || true
 fi
 
-# ---- Create .claude/skills symlinks (repo layout only) ----
+# ---- Create local agent skill links (repo layout only) ----
 if [ "$SKILLS_LAYOUT" = "repo" ]; then
-  CLAUDE_SKILLS_DIR="$PROJECT_ROOT/.claude/skills"
-  mkdir -p "$CLAUDE_SKILLS_DIR"
-  LINK_COUNT=0
-  COPY_COUNT=0
+  prepare_repo_agent_skills() {
+    AGENT_DIR_NAME="$1"
+    AGENT_SKILLS_DIR="$PROJECT_ROOT/$AGENT_DIR_NAME/skills"
+    LINK_COUNT=0
+    COPY_COUNT=0
 
-  if [ ! -L "$CLAUDE_SKILLS_DIR/hooks" ] && [ ! -e "$CLAUDE_SKILLS_DIR/hooks" ]; then
-    if ln -sf "../../skills/hooks" "$CLAUDE_SKILLS_DIR/hooks" 2>/dev/null; then
-      LINK_COUNT=$((LINK_COUNT + 1))
+    mkdir -p "$AGENT_SKILLS_DIR"
+
+    if [ ! -L "$AGENT_SKILLS_DIR/hooks" ] && [ ! -e "$AGENT_SKILLS_DIR/hooks" ]; then
+      if ln -sf "../../skills/hooks" "$AGENT_SKILLS_DIR/hooks" 2>/dev/null; then
+        LINK_COUNT=$((LINK_COUNT + 1))
+      else
+        cp -R "$SKILLS_DIR/hooks" "$AGENT_SKILLS_DIR/hooks"
+        COPY_COUNT=$((COPY_COUNT + 1))
+      fi
+    fi
+
+    for SKILL_FILE in "$SKILLS_DIR"/*/SKILL.md; do
+      [ ! -f "$SKILL_FILE" ] && continue
+      SKILL_DIR=$(dirname "$SKILL_FILE")
+      SKILL_NAME=$(basename "$SKILL_DIR")
+      DEST_PATH="$AGENT_SKILLS_DIR/$SKILL_NAME"
+      if [ -L "$DEST_PATH" ] || [ -e "$DEST_PATH" ]; then
+        continue
+      fi
+      if ln -sf "../../skills/${SKILL_NAME}" "$DEST_PATH" 2>/dev/null; then
+        LINK_COUNT=$((LINK_COUNT + 1))
+      else
+        cp -R "$SKILL_DIR" "$DEST_PATH"
+        COPY_COUNT=$((COPY_COUNT + 1))
+      fi
+    done
+
+    if [ "$LANG" = "en" ]; then
+      echo "  $AGENT_DIR_NAME/skills ready (links: $LINK_COUNT, copies: $COPY_COUNT)"
     else
-      cp -R "$SKILLS_DIR/hooks" "$CLAUDE_SKILLS_DIR/hooks"
-      COPY_COUNT=$((COPY_COUNT + 1))
+      echo "  $AGENT_DIR_NAME/skills 已就绪（软链接 $LINK_COUNT，复制 $COPY_COUNT）"
     fi
-  fi
+  }
 
-  for SKILL_FILE in "$SKILLS_DIR"/*/SKILL.md; do
-    [ ! -f "$SKILL_FILE" ] && continue
-    SKILL_DIR=$(dirname "$SKILL_FILE")
-    SKILL_NAME=$(basename "$SKILL_DIR")
-    DEST_PATH="$CLAUDE_SKILLS_DIR/$SKILL_NAME"
-    if [ -L "$DEST_PATH" ] || [ -e "$DEST_PATH" ]; then
-      continue
-    fi
-    if ln -sf "../../skills/${SKILL_NAME}" "$DEST_PATH" 2>/dev/null; then
-      LINK_COUNT=$((LINK_COUNT + 1))
-    else
-      cp -R "$SKILL_DIR" "$DEST_PATH"
-      COPY_COUNT=$((COPY_COUNT + 1))
-    fi
-  done
-
-  if [ "$LANG" = "en" ]; then
-    echo "  .claude/skills ready (links: $LINK_COUNT, copies: $COPY_COUNT)"
-  else
-    echo "  .claude/skills 已就绪（软链接 $LINK_COUNT，复制 $COPY_COUNT）"
-  fi
+  prepare_repo_agent_skills ".claude"
+  prepare_repo_agent_skills ".codex"
 else
   if [ "$LANG" = "en" ]; then
     echo "  Embedded layout detected, skip symlink creation"
@@ -250,41 +302,49 @@ fi
 
 if [ -d "$SKILLS_DIR/gstack" ] && [ -f "$SKILLS_DIR/gstack/setup" ]; then
   if [ "$LANG" = "en" ]; then
-    echo "  gstack vendored: run .claude/skills/gstack/setup to enable its full skill pack"
+    echo "  gstack vendored: run $GSTACK_SETUP_HINT_EN to enable its full skill pack"
     if ! command -v bun >/dev/null 2>&1; then
       echo "  note: bun is required before gstack can finish setup"
     fi
   else
-    echo "  已检测到 vendored gstack：如需启用其完整技能组，请执行 .claude/skills/gstack/setup"
+    echo "  已检测到 vendored gstack：如需启用其完整技能组，请执行 $GSTACK_SETUP_HINT_ZH"
     if ! command -v bun >/dev/null 2>&1; then
       echo "  提示：gstack 需要先安装 bun 才能完成 setup"
     fi
   fi
 fi
 
-# ---- Git commit-msg Hook ----
-if [ "$INSTALL_GIT_HOOK" = "yes" ]; then
-  GIT_HOOKS_DIR="$PROJECT_ROOT/.git/hooks"
-  HOME_DIR_CURRENT="${HOME:-$USERPROFILE}"
-  HOME_DIR_CURRENT="$(echo "$HOME_DIR_CURRENT" | sed 's|\\|/|g')"
-  PROJECT_ROOT_NORMALIZED="$(echo "$PROJECT_ROOT" | sed 's|\\|/|g')"
+# ---- Project Harness Initialization ----
+HOME_DIR_CURRENT="${HOME:-$USERPROFILE}"
+HOME_DIR_CURRENT="$(echo "$HOME_DIR_CURRENT" | sed 's|\\|/|g')"
+PROJECT_ROOT_NORMALIZED="$(echo "$PROJECT_ROOT" | sed 's|\\|/|g')"
+HARNESS_INIT_SCRIPT="$SKILLS_DIR/harness/bin/harness-init.sh"
 
-  if [ "$SKILLS_LAYOUT" = "embedded" ] && [ "$PROJECT_ROOT_NORMALIZED" = "$HOME_DIR_CURRENT" ] && [ -z "$PROJECT_ROOT_OVERRIDE" ]; then
-    if [ "$LANG" = "en" ]; then
-      echo "  Skipped git hook in home directory (use --project-root=PATH for a repo)"
-    else
-      echo "  检测为用户主目录，跳过 git hook（可用 --project-root=PATH 指定仓库）"
-    fi
-  elif [ -d "$PROJECT_ROOT/.git" ]; then
-    mkdir -p "$GIT_HOOKS_DIR"
-    cp "$HOOKS_DIR/commit-msg.sh" "$GIT_HOOKS_DIR/commit-msg"
-    chmod +x "$GIT_HOOKS_DIR/commit-msg" 2>/dev/null || true
-    echo "  $MSG_GIT_OK"
+if [ "$SKILLS_LAYOUT" = "embedded" ] && [ "$PROJECT_ROOT_NORMALIZED" = "$HOME_DIR_CURRENT" ] && [ -z "$PROJECT_ROOT_OVERRIDE" ]; then
+  if [ "$LANG" = "en" ]; then
+    echo "  Skipped project harness init in home directory (use --project-root=PATH for a repo)"
   else
-    echo "  .git not found, skipped"
+    echo "  检测为用户主目录，跳过项目 Harness 初始化（可用 --project-root=PATH 指定仓库）"
   fi
+elif [ ! -f "$HARNESS_INIT_SCRIPT" ]; then
+  echo "  harness-init.sh not found, skipped"
 else
-  echo "  $MSG_SKIP"
+  sh "$HARNESS_INIT_SCRIPT" --project-root="$PROJECT_ROOT" --lang="$LANG"
+  if [ "$INSTALL_GIT_HOOK" = "yes" ]; then
+    echo "  $MSG_GIT_OK"
+  elif [ -d "$PROJECT_ROOT/.git" ]; then
+    (
+      cd "$PROJECT_ROOT"
+      git config --unset core.hooksPath 2>/dev/null || true
+    )
+    if [ "$LANG" = "en" ]; then
+      echo "  Harness artifacts created, git hook wiring skipped"
+    else
+      echo "  已生成 Harness 产物，但跳过 git hook 接线"
+    fi
+  else
+    echo "  $MSG_SKIP"
+  fi
 fi
 
 # ---- Generate Repo Map (.cache/shared/repo-map.md) ----
@@ -529,9 +589,15 @@ generate_code_skeleton() {
   fi
 }
 
+REPO_MAP_SCRIPT="$SKILLS_DIR/harness/bin/harness-repo-map.sh"
+
 if [ "$GENERATE_REPO_MAP" = "yes" ] && [ -d "$PROJECT_ROOT/.git" ]; then
-  generate_repo_map
-  generate_code_skeleton
+  if [ -f "$REPO_MAP_SCRIPT" ]; then
+    sh "$REPO_MAP_SCRIPT" --project-root="$PROJECT_ROOT"
+  else
+    generate_repo_map
+    generate_code_skeleton
+  fi
 else
   if [ "$GENERATE_REPO_MAP" = "no" ]; then
     if [ "$LANG" = "en" ]; then

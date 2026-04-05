@@ -1,0 +1,25 @@
+{
+  "schema_version": "2.0",
+  "generated_at": "2026-04-05T09:14:16Z",
+  "generated_from_commit": "8c60f0c",
+  "project": {
+    "name": "scrum-skills",
+    "root": "."
+  },
+  "architecture": {
+    "style": "layered",
+    "repository_as_system_of_record": true
+  },
+  "git": {
+    "hooks_path": ".harness/git-hooks",
+    "protected_branches": ["main", "master"],
+    "require_review_prefix": true
+  },
+  "stack": {
+    "backend": "Node.js",
+    "frontend": "unknown",
+    "database": "unknown",
+    "build_tool": "npm"
+  },
+  "modules": ["0-emperor", "0-menxia-province", "0-scrum-master", "0-shangshu-province", "0-taizi", "0-workflow-runner", "0-zhongshu-province", "1-business-expert", "2-product-manager", "3-system-architect", "4-backend-dev", "4-frontend-design"]
+}

@@ -27,6 +27,14 @@ TARGET_BASE=""
 LANG="zh"
 KEEP_SETTINGS=0
 
+target_basename() {
+  basename "$1"
+}
+
+supports_claude_settings() {
+  [ "$(target_basename "$1")" = ".claude" ]
+}
+
 usage() {
   echo "Usage: sh install.sh [OPTIONS]"
   echo ""
@@ -68,7 +76,7 @@ done
 
 # Auto-detect: if cloned under a known agent directory, install there; else fallback ~/.claude
 if [ -z "$TARGET_BASE" ]; then
-  for agent in .claude .warp .cursor .windsurf .cline .continue; do
+  for agent in .claude .codex .warp .cursor .windsurf .cline .continue; do
     AGENT_PATH="$HOME_DIR/$agent"
     case "$SCRIPT_DIR" in
       "$AGENT_PATH"*)
@@ -90,6 +98,7 @@ SETTINGS_SRC="$SCRIPT_DIR/.claude/settings.json"
 SKILLS_DST="$TARGET_BASE/skills"
 SETTINGS_DST="$TARGET_BASE/settings.json"
 HOOKS_DST="$TARGET_BASE/skills/hooks"
+TARGET_KIND="$(target_basename "$TARGET_BASE")"
 
 if [ ! -d "$SKILLS_SRC" ]; then
   echo "ERROR: skills directory not found: $SKILLS_SRC"
@@ -100,6 +109,7 @@ echo ""
 echo "=== Scrum Skills Installer ==="
 echo "Source : $SCRIPT_DIR"
 echo "Target : $TARGET_BASE"
+echo "Agent  : ${TARGET_KIND#.}"
 echo ""
 
 mkdir -p "$TARGET_BASE"
@@ -107,9 +117,11 @@ mkdir -p "$SKILLS_DST"
 
 echo "📦 Installing skills..."
 cp -rf "$SKILLS_SRC/." "$SKILLS_DST/"
+rm -rf "$SKILLS_DST/.cache" 2>/dev/null || true
+find "$SKILLS_DST" -name ".DS_Store" -delete 2>/dev/null || true
 echo "  ✅ $SKILLS_DST"
 
-if [ -f "$SETTINGS_SRC" ]; then
+if supports_claude_settings "$TARGET_BASE" && [ -f "$SETTINGS_SRC" ]; then
   if [ -f "$SETTINGS_DST" ] && [ "$KEEP_SETTINGS" = "1" ]; then
     echo "  ⚠️  Keeping existing settings: $SETTINGS_DST"
     echo "     Existing hook paths are not rewritten in --keep-settings mode."
@@ -124,6 +136,9 @@ if [ -f "$SETTINGS_SRC" ]; then
     sed "s|\\.claude/skills/hooks|$HOOKS_ESCAPED|g" "$SETTINGS_SRC" > "$SETTINGS_DST"
     echo "  ✅ $SETTINGS_DST"
   fi
+else
+  echo "  ℹ️  Skip settings.json deployment for ${TARGET_KIND#.} target"
+  echo "     Claude hooks are only auto-configured when installing to ~/.claude"
 fi
 
 echo ""
@@ -141,9 +156,14 @@ echo "✅ Installation complete."
 echo "No repository files were deleted."
 echo ""
 echo "Next:"
-echo "  1) Open your project with Claude Code"
-echo "  2) Use /0-emperor or /0-scrum-master"
-echo "  3) Optional git hook:"
+if supports_claude_settings "$TARGET_BASE"; then
+  echo "  1) Open your project with Claude Code"
+  echo "  2) Use /0-emperor or /0-scrum-master"
+else
+  echo "  1) Open your project with your agent (${TARGET_KIND#.})"
+  echo "  2) Invoke 0-emperor / 0-scrum-master from the installed skill pack"
+fi
+echo "  3) Optional project harness init / repo map:"
 echo "     sh $TARGET_BASE/skills/hooks/setup.sh --project-root=/path/to/repo"
 echo "================================"
 echo ""

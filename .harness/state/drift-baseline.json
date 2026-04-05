@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-04-05T09:14:16Z",
+  "generated_from_commit": "8c60f0c",
+  "approved_open_violations": [
+    {"rule_id":"file-size-limit","path":"skills/0-scrum-master/references/initialization-guide.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/CHANGELOG.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/autoplan/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/browse/test/commands.test.ts"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/cso/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/design-review/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/docs/skills.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/land-and-deploy/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/office-hours/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/plan-ceo-review/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/plan-ceo-review/SKILL.md.tmpl"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/plan-design-review/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/plan-eng-review/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/qa/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/retro/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/retro/SKILL.md.tmpl"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/review/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/scripts/gen-skill-docs.ts"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/scripts/resolvers/review.ts"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/ship/SKILL.md"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/test/gen-skill-docs.test.ts"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/test/skill-e2e.test.ts"},
+    {"rule_id":"file-size-limit","path":"skills/gstack/test/skill-validation.test.ts"}
+  ]
+}

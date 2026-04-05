@@ -50,9 +50,39 @@
 
 ### 步骤2：确认并保存
 
-展示识别结果让用户确认，然后生成 `PROJECT_CONFIG.md` 和 `.cache/.project-info.json`。
+展示识别结果让用户确认，然后生成 `PROJECT_CONFIG.md`、`.cache/.project-info.json` 与 `.harness/` 合同目录。
 
 ## 缓存机制
+
+### 初始化输出结构
+
+```
+.harness/
+├── README.md
+├── project-profile.json
+├── architecture/
+│   ├── contract.yaml
+│   └── dependency-rules.yaml
+├── rules/
+│   ├── backend.yaml
+│   ├── frontend.yaml
+│   └── tests.yaml
+├── git-hooks/
+│   ├── pre-commit
+│   ├── commit-msg
+│   └── pre-push
+├── bin/
+│   ├── harness-init.sh
+│   ├── harness-check.sh
+│   ├── harness-fix.sh
+│   └── harness-gate.sh
+├── state/
+│   └── drift-baseline.json
+└── overrides/
+    └── README.md
+```
+
+项目级初始化完成后，还会把 `git config core.hooksPath .harness/git-hooks` 写入仓库配置。
 
 ### 缓存目录结构
 
@@ -184,4 +214,3 @@ rm -rf .cache/{skill-name}/
 ```
 
 下次使用时会自动重新生成缓存。
-

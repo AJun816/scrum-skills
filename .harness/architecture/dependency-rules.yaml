@@ -1,0 +1,21 @@
+version: 2
+rules:
+  - id: application-no-infrastructure-import
+    when:
+      path_contains: /application/
+      file_extension: .java
+    deny:
+      regex: '^import .*\.infrastructure\.'
+    message: Java application 层不得直接依赖 infrastructure 包
+  - id: frontend-no-direct-axios
+    when:
+      path_prefix_any:
+        - src/views/
+        - src/components/
+        - src/pages/
+        - web/src/views/
+        - web/src/components/
+        - web/src/pages/
+    deny:
+      regex: 'import\s+axios\s+from'
+    message: 前端视图层不得直接 import axios，必须通过 api/composable/service 边界
