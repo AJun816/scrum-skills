@@ -38,7 +38,7 @@ workflow:
 - 用 `workflow-state.json` 跟踪进度，支持中断恢复
 - 处理封驳循环（max 3 次）和错误降级
 - 在编码产出后自动接入 `.harness/bin/harness-check.sh` → `harness-fix.sh` → 再检查 的纠偏闭环
-- V3 第一阶段已提供 `skills/runtime/bin/workflow.sh` 运行时骨架，用于落盘状态、恢复与审批命令
+- 当前仓库已提供 `skills/runtime/bin/workflow.sh` 真实运行时，用于落盘状态、恢复、审批和 Harness 门禁回环
 
 ## 工作流模式
 
@@ -107,13 +107,13 @@ Code Review
     }
   ],
   "shared_documents": {
-    "requirements": ".cache/shared/requirements/feature.md",
-    "architecture": ".cache/shared/architecture/feature.md",
-    "api_design": ".cache/shared/api-design/feature-api.md"
+    "workflow_events": ".cache/shared/workflow-runs.jsonl",
+    "repo_map": ".cache/shared/repo-map.md",
+    "repo_index": ".cache/shared/repo-index.json",
+    "project_config": "PROJECT_CONFIG.md"
   },
   "harness": {
     "project_profile": ".harness/project-profile.json",
-    "contract": ".harness/architecture/contract.yaml",
     "last_report": ".harness/state/last-report.json"
   }
 }

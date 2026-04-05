@@ -15,6 +15,7 @@ Scrum Skills 仓库的 Harness 入口文件。这里是地图，不是大而全�
 - 外部技能迁移规范：`skills/config/extension-pack-guidelines.md`
 - gstack 中文命令目录：`skills/gstack/COMMANDS.zh-CN.md`
 - 安装与初始化脚本：`install.sh`、`install.ps1`、`skills/hooks/setup.sh`
+- 可选 npm CLI 包装层：`package.json`、`bin/skills.mjs`
 - 项目级 Harness 内核：`skills/harness/bin/`
 - Pack Registry：`skills/registry/`
 - Workflow Runtime：`skills/runtime/`
@@ -41,6 +42,7 @@ Scrum Skills 仓库的 Harness 入口文件。这里是地图，不是大而全�
 ## 3. 安装现实
 
 - 主安装路径必须始终是 `sh install.sh`。
+- `skills` npm CLI 只是可选包装层，不替代 `sh install.sh`。
 - `~/.claude` 目标会额外部署 `settings.json`，自动接入 hooks。
 - `~/.codex` 与其他自定义目标默认只部署技能组，不伪装成 Claude 配置目录。
 - `skills/hooks/setup.sh` 必须同时兼容：

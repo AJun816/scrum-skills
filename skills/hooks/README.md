@@ -6,12 +6,14 @@ Claude Code 钩子 + 仓库级 Harness Git hooks。
 ## Auto-Active / 自动生效
 
 Claude hooks are configured in `.claude/settings.json`.
-Run `sh install.sh` once after clone, then Claude-side hooks become active automatically.
-For any repository, run `sh <target>/skills/hooks/setup.sh --project-root=/path/to/repo` to generate `.harness/git-hooks`.
+Run `sh install.sh` once after clone, then Claude-side hooks become active automatically when the target is `~/.claude`.
+For Codex or custom targets, `setup.sh` only prepares user config and project Harness artifacts.
+For any repository, run `sh <target>/skills/hooks/setup.sh --project-root=/path/to/repo` to generate `.harness/git-hooks`, `.cache/shared/repo-map.md`, and `.cache/shared/repo-index.json`.
 
 Claude 侧钩子配置在 `.claude/settings.json` 中。
-克隆仓库后先执行一次 `sh install.sh`，随后 Claude 侧钩子即可自动生效。
-任意仓库再执行一次 `setup.sh --project-root=...`，即可生成 `.harness/git-hooks`。
+克隆仓库后先执行一次 `sh install.sh`，若安装目标为 `~/.claude`，随后 Claude 侧钩子即可自动生效。
+对于 Codex 或自定义目标，`setup.sh` 只负责用户配置和项目级 Harness 产物，不会伪装成 Claude 配置目录。
+任意仓库再执行一次 `setup.sh --project-root=...`，即可生成 `.harness/git-hooks`、`.cache/shared/repo-map.md` 与 `.cache/shared/repo-index.json`。
 
 ## What Hooks Do / 钩子功能
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-04-05
+
+### Documentation Sync
+
+- README、`skills/README.md`、`AGENTS.md` 同步到当前实现状态：
+  - 明确 `skills` 是可选 npm CLI 包装层，主安装路径仍然是 `sh install.sh`
+  - 补齐 `repo-map.md`、`repo-index.json`、runtime/registry 自检与项目级 Harness 初始化产物
+  - 去掉把 runtime/registry 写成“第一阶段/第二阶段计划”的过时描述
+- 重写 `docs/architecture-v3.md`，改为当前 V3 实现说明：
+  - Host-Native 定位
+  - Harness / Runtime / Knowledge Plane / Pack Registry 的已落地模块边界
+  - 不引入 Studio 作为主线模块的设计结论
+- 更新 `skills/runtime/README.md`、`skills/registry/README.md`、`skills/hooks/README.md`
+- 更新 `skills/config/init-guide.md`、`skills/config/workflow-guide.md`、`skills/config/harness-playbook.md`
+- 更新 `skills/0-workflow-runner/SKILL.md` 中对 runtime 与共享事实源的描述
+
 ## 2026-03-27
 
 ### Cross-Agent Harness Hardening

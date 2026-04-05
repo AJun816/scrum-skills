@@ -65,6 +65,8 @@ cd your-project
 npm install -g github:AJun816/scrum-skills
 skills install --agent=codex
 skills pack list
+skills workflow selfcheck
+skills pack selfcheck
 skills doctor
 
 # 零安装临时执行（npx / npm exec 风格）
@@ -116,11 +118,11 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
 
 - 主技能组安装后即可使用
 - `.claude` 目标会自动接入 hooks；`.codex` 和其他目标不会伪装成 Claude 配置目录
-- 对任意项目执行 `sh <target>/skills/hooks/setup.sh --project-root=/path/to/repo` 后，会生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`，并把 `core.hooksPath` 指向 `.harness/git-hooks`
+- 对任意项目执行 `sh <target>/skills/hooks/setup.sh --project-root=/path/to/repo` 后，会生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`、`.cache/shared/repo-map.md`、`.cache/shared/repo-index.json`，并把 `core.hooksPath` 指向 `.harness/git-hooks`
 - `gstack` 安装后仍需你手动执行一次 `<target>/skills/gstack/setup`
-- `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` 入口
+- `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` / `pack-selfcheck` 入口
 - 如果你选择 npm 包装层，安装后可直接使用 `skills install/setup/harness/workflow/pack/doctor`
-- Windows 原生安装后，如需生成 `user-config.json`、安装仓库 `commit-msg` hook、生成 `repo-map` 或启用 `gstack`，请在兼容 `sh` 的 shell 中手动执行对应 `setup.sh`
+- Windows 原生安装后，如需生成 `user-config.json`、安装仓库 `commit-msg` hook、生成 `repo-map` / `repo-index` 或启用 `gstack`，请在兼容 `sh` 的 shell 中手动执行对应 `setup.sh`
 - 如需给某个仓库初始化 Harness，请单独执行：
 
 ```bash
@@ -140,7 +142,7 @@ Claude Code 可直接使用 `/0-emperor`、`/0-scrum-master`。
 /0-scrum-master 修复登录按钮样式问题
 ```
 
-无需手动调用每个技能，`workflow-runner` 自动按链条调度到底。V3 第一阶段已开始把这套设计下沉到 `skills/runtime/` 的真实运行时骨架中，并提供 `workflow-selfcheck.sh` 自检脚本。
+无需手动调用每个技能，`workflow-runner` 自动按链条调度到底。当前仓库已经把这套流程下沉到 `skills/runtime/` 的 shell 运行时，并提供 `workflow-selfcheck.sh`；执行类步骤在 `approve` 时会自动接入 `.harness/bin/harness-check.sh` → `harness-fix.sh` → 再检查的闭环。
 
 ## How It Works / 工作原理
 
@@ -272,6 +274,11 @@ Scrum Master → PM + Architect 并行规划 → Dev 并行执行 → Code Revie
 ```
 scrum-skills/
 ├── AGENTS.md               ← Harness 地图式入口
+├── .harness/               ← 当前仓库自举的项目级 Harness 合同
+├── .cache/
+│   └── shared/
+│       ├── repo-map.md     ← 人类可读仓库地图
+│       └── repo-index.json ← 结构化仓库索引
 ├── .claude/
 │   └── settings.json       ← 仅在 Claude 目标安装时部署
 ├── bin/
@@ -283,7 +290,8 @@ scrum-skills/
 ├── test/
 │   └── skills-cli.test.mjs ← npm / npx CLI 测试
 └── skills/                 ← 安装脚本部署的技能目录
-    ├── registry/            # Pack Registry（外部包清单 / 安装 / 诊断 / 更新）
+    ├── harness/             # Harness 内核（init / check / fix / gate / worktree / checkpoint / repo-map / repo-index）
+    ├── registry/            # Pack Registry（外部包清单 / 安装 / 诊断 / 更新 / 自检）
     ├── 0-emperor/           # 👑 皇上
     ├── 0-taizi/             # 🤴 太子
     ├── 0-zhongshu-province/ # 📜 中书省
@@ -305,7 +313,7 @@ scrum-skills/
     ├── minimalist-review/   # 外部扩展：极简创业评审
     ├── config/              # 共享配置（含 harness-playbook.md）
     ├── hooks/               # 代码质量钩子
-    └── runtime/             # workflow runtime 骨架（状态机 / 恢复 / 审批 / 自检）
+    └── runtime/             # workflow runtime（状态机 / 恢复 / 审批 / Harness 回环 / 自检）
 ```
 
 ## Upstream Sync / 外部来源

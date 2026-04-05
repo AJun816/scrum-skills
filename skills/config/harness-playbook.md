@@ -27,7 +27,7 @@ Scrum Skills 的目标不是“多写提示词”，而是提供一套可安装�
 
 - Tier 1：`AGENTS.md`、`README.md`、`skills/config/mandatory-rules.md`
 - Tier 2：`skills/README.md`、`skills/config/workflow-guide.md`、`skills/config/init-guide.md`
-- Tier 3：具体 `SKILL.md`、外部技能目录说明、`.cache/shared/repo-map.md`
+- Tier 3：具体 `SKILL.md`、外部技能目录说明、`.cache/shared/repo-map.md`、`.cache/shared/repo-index.json`
 
 规则：先 Tier 1，再 Tier 2，最后按需下潜到 Tier 3。
 
@@ -40,8 +40,9 @@ Scrum Skills 的目标不是“多写提示词”，而是提供一套可安装�
 3. `skills/hooks/setup.sh` 在 repo / embedded / codex / custom target 场景下都能正确识别布局。
 4. 只有 `~/.claude` 会声明 Claude hooks 已自动接入；其他目标不能伪装成 Claude。
 5. 项目初始化后必须生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`。
-6. 初始化失败时不删除用户仓库文件，不做破坏性清理。
-7. 若需并行或长任务执行，应优先使用 `git worktree` 做任务隔离。
+6. 项目初始化后必须生成 `.cache/shared/repo-map.md` 与 `.cache/shared/repo-index.json`。
+7. 初始化失败时不删除用户仓库文件，不做破坏性清理。
+8. 若需并行或长任务执行，应优先使用 `git worktree` 做任务隔离。
 
 ## 5. 外部技能包接入门禁
 
@@ -78,3 +79,4 @@ Scrum Skills 的目标不是“多写提示词”，而是提供一套可安装�
 4. `.harness/bin/harness-check.sh --all` 可运行。
 5. 外部技能包中文目录和依赖说明已补齐。
 6. 核心技能组不要求额外安装 Python。
+7. runtime / registry / harness 文档必须与当前脚本入口一致，不保留“阶段计划”冒充现状。

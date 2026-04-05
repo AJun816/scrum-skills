@@ -10,7 +10,7 @@
 
 ```
 1. 读取项目配置（PROJECT_CONFIG.md）
-2. 读取仓库地图（.cache/shared/repo-map.md，了解项目全局结构）
+2. 读取共享事实源（.cache/shared/repo-map.md + .cache/shared/repo-index.json）
 3. 分析任务（识别业务域、所需文件、执行步骤）
 4. 执行任务（实时显示进度）
 5. 完成总结（输出文件列表、下一步建议）
@@ -68,6 +68,9 @@
 ├── ui-review/          # UI审核报告（UI Designer产出）
 ├── code-review/        # 代码审查报告（Code Reviewer产出）
 ├── repo-map.md         # 仓库地图（全局项目结构，初始化时生成）
+├── repo-index.json     # 结构化仓库索引（模块 / 文件 / 入口）
+├── workflow-state.json # 当前工作流状态
+├── workflow-runs.jsonl # 工作流事件流
 └── SHARED_INDEX.md     # 总索引
 ```
 
@@ -76,6 +79,27 @@
 1. **创建**：技能产出文档 → 保存到共享目录 → 更新索引 → 通知团队
 2. **使用**：查看索引 → 找到文档 → 读取内容 → 基于文档执行任务
 3. **更新**：读取现有文档 → 更新内容 → 保存 → 通知变更
+
+## Runtime 与恢复
+
+当任务通过 `/0-emperor` 或 `/0-scrum-master` 进入自动编排时，当前仓库已经提供真实的 shell runtime：
+
+```bash
+sh skills/runtime/bin/workflow.sh start --mode=imperial --request="..."
+sh skills/runtime/bin/workflow.sh status --json
+sh skills/runtime/bin/workflow.sh resume --message="继续执行"
+sh skills/runtime/bin/workflow.sh approve --message="步骤通过"
+sh skills/runtime/bin/workflow.sh reject --reason="需要补充"
+sh skills/runtime/bin/workflow.sh abort --message="终止流程"
+```
+
+运行时事实源：
+
+- `.cache/shared/workflow-state.json`
+- `.cache/shared/workflow-runs.jsonl`
+- `.cache/shared/workflow-runtime/`
+
+如果项目已经完成 `setup.sh --project-root=...`，执行类步骤会在 runtime 中自动接入 `.harness/bin/harness-check.sh` → `harness-fix.sh` → 再检查 的回环。
 
 ## 团队协作模式
 
@@ -157,4 +181,3 @@ Scrum Master → PM/Architect/Designer 并行规划 → Dev/DevOps 并行执行 
 | Backlog梳理 | 迭代中期 | 准备下一迭代的用户故事 |
 | 迭代评审会 | 迭代最后一天 | 展示成果，收集反馈 |
 | 迭代回顾会 | 迭代最后一天 | 反思过程，持续改进 |
-

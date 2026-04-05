@@ -58,7 +58,9 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -KeepSettings
 npm install -g github:AJun816/scrum-skills
 skills install --agent=codex
 skills harness selfcheck
+skills workflow selfcheck
 skills pack list
+skills pack selfcheck
 
 # 零安装临时执行
 npx --yes --package github:AJun816/scrum-skills skills doctor
@@ -74,11 +76,11 @@ npx --yes --package github:AJun816/scrum-skills skills doctor
 - `sh install.sh` 会自动执行 `skills/hooks/setup.sh --default --skip-repo-map`，只完成用户级配置
 - Windows 原生 `install.bat` / `install.ps1` 不会自动执行 `setup.sh`
 - `gstack/` 会被复制过去，但不会自动执行其 `setup`
-- `runtime/` 会随技能组一起安装，作为 workflow-runner 的真实运行时骨架，并提供 `workflow-selfcheck.sh`
+- `runtime/` 会随技能组一起安装，作为 workflow-runner 的真实运行时，并提供 `workflow-selfcheck.sh` 与 `workflow-approve.sh` / `workflow-status.sh` 等快捷入口
 - `registry/` 会随技能组一起安装，提供 `pack-list` / `pack-doctor` / `pack-install` / `pack-update` / `pack-selfcheck`
 - 仓库根目录的 npm CLI 可暴露 `skills install/setup/harness/workflow/pack/doctor`
 - 如需启用 `gstack`，请额外执行 `<target>/skills/gstack/setup`
-- 如需为任意项目生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`、版本化 git hooks 或 `repo-map`，请在兼容 `sh` 的 shell 中手动执行 `setup.sh --project-root=/path/to/repo`
+- 如需为任意项目生成 `.harness/`、`PROJECT_CONFIG.md`、`.cache/.project-info.json`、`.cache/shared/repo-map.md`、`.cache/shared/repo-index.json` 与版本化 git hooks，请在兼容 `sh` 的 shell 中手动执行 `setup.sh --project-root=/path/to/repo`
 
 ### 2. 开始使用
 
@@ -95,7 +97,7 @@ Claude Code 可直接使用 `/0-emperor`、`/0-scrum-master`。
 /0-scrum-master 修复登录按钮样式问题
 ```
 
-无需手动调用每个技能，workflow-runner 自动按链条调度：
+无需手动调用每个技能，workflow-runner 自动按链条调度；如已完成项目级 Harness 初始化，执行类步骤还会在 runtime 中自动触发 `.harness/bin/harness-check.sh` → `harness-fix.sh` → 再检查 的回环：
 - 三省六部：太子→中书省→门下省→尚书省→六部→门下省→中书省→皇上
 - 敏捷：PM + Architect 并行→Dev 并行→Code Review→提交
 
@@ -266,7 +268,7 @@ skills/
 
 ### 智能缓存
 
-技能自动缓存项目信息到 `.cache/` 目录，使用 `git diff` 增量更新。
+技能自动缓存项目信息到 `.cache/` 目录，项目级 Harness 会额外落盘 `.cache/shared/repo-map.md` 与 `.cache/shared/repo-index.json` 作为共享事实源。
 
 ### 团队共享文档
 
@@ -289,7 +291,7 @@ skills/
 ## 设计原则
 
 1. **一键安装即用** — 核心技能组无需 pip/npm/brew/python/bun，`sh install.sh` 即可
-2. **开箱即用** — hooks 自动生效，首次使用自动初始化
+2. **用户级安装开箱即用** — `~/.claude` 目标自动接入 Claude hooks；项目级 Harness 需显式执行 `setup.sh --project-root=...`
 3. **全自动编排** — `/0-emperor` 或 `/0-scrum-master` 启动后全流程自动流转，无需手动调用每个技能
 4. **配置驱动** — 统一配置，所有技能共享
 5. **通用适配** — 后端/前端技能不限语言，根据项目自动适配

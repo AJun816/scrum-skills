@@ -1,8 +1,15 @@
 # Pack Registry
 
-`skills/registry/` 是 V3 第二阶段的 Pack Registry。
+`skills/registry/` 是当前仓库已经落地的 Pack Registry。
 
 它负责把“外部技能包迁移规范”落成真实机制，而不是只保留文档要求。
+
+每个被纳管的扩展包至少需要：
+
+- `.source.json`
+- `pack.json`
+- `docs.zh_cn` 指向的中文入口说明
+- `pack.json` 中的 `name / kind / hosts / runtime / capabilities / workflow_integration / docs / security`
 
 ## 命令
 
@@ -25,4 +32,9 @@ sh skills/registry/bin/pack-doctor.sh
 sh skills/registry/bin/pack-install.sh gstack --agent=codex
 sh skills/registry/bin/pack-update.sh --all --target=/path/to/.claude
 sh skills/registry/bin/pack-selfcheck.sh
+
+# 可选 npm CLI 包装层
+skills pack list
+skills pack doctor
+skills pack selfcheck
 ```
