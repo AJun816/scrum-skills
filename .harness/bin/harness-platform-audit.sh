@@ -47,7 +47,12 @@ record_remote() {
 
 git_current_branch() {
   if [ -d "$PROJECT_ROOT/.git" ]; then
-    (cd "$PROJECT_ROOT" && git rev-parse --abbrev-ref HEAD 2>/dev/null) || echo "unknown"
+    (
+      cd "$PROJECT_ROOT" &&
+      git symbolic-ref --quiet --short HEAD 2>/dev/null ||
+      git rev-parse --abbrev-ref HEAD 2>/dev/null ||
+      echo "unknown"
+    ) | awk 'NR == 1 {print; exit}'
   else
     echo "unknown"
   fi

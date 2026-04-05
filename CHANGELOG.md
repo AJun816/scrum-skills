@@ -2,6 +2,14 @@
 
 ## 2026-04-05
 
+### Installation Validation
+
+- 新增真实安装链路黑盒测试：
+  - 复制仓库目录后执行 `sh install.sh`，分别验证 `.claude` / `.codex` 目标
+  - 全局 `skills` 二进制执行 `skills install`
+  - 已安装技能包对全新 Git 仓库执行 `setup.sh --project-root=...`，并验证 Harness / report / eval / pack 报表可执行
+- 修复 `harness-platform-audit.sh` 在未首提的 Git 仓库里把 `current_branch` 输出成 `HEAD\\nunknown` 的问题
+
 ### Eval And Observability
 
 - 新增行为级 eval 子系统：`skills/evals/`
